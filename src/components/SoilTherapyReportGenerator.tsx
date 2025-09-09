@@ -1324,7 +1324,7 @@ const SoilReportGenerator: React.FC = () => {
       const formData = new FormData();
       formData.append('file', file);
       
-      const response = await fetch('http://localhost:5000/extract-soil-report', {
+      const response = await fetch('/extract-soil-report', {
         method: 'POST',
         body: formData,
       });
