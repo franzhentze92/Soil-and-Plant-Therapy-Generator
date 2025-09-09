@@ -1,7 +1,7 @@
 import React, { useState, useRef, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { FileDown, Share2, Save, Leaf, Bean, Droplets, Sprout, Beaker } from 'lucide-react';
+import { FileDown, Share2, Save, Leaf, Bean, Droplets, Sprout, Beaker, Loader2 } from 'lucide-react';
 import { Settings } from 'lucide-react';
 import SoilUpload from './SoilUpload';
 import NutrientSummary from './NutrientSummary';
@@ -446,6 +446,9 @@ interface SoilReportGeneratorProps {
 
 const SoilReportGenerator: React.FC<SoilReportGeneratorProps> = ({ paddockReports = [], setPaddockReports }) => {
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [isGeneratingReport, setIsGeneratingReport] = useState(false);
+  const [isGeneratingCustomPDF, setIsGeneratingCustomPDF] = useState(false);
   const [showReport, setShowReport] = useState(false);
   const [selectedPaddocks, setSelectedPaddocks] = useState<string[]>([]);
   const reportRef = useRef<HTMLDivElement>(null);
@@ -1199,6 +1202,8 @@ const SoilReportGenerator: React.FC<SoilReportGeneratorProps> = ({ paddockReport
 
   // --- PDF parsing logic ---
   const handleFileUpload = async (file: File) => {
+    if (isUploading) return; // Prevent multiple uploads
+    setIsUploading(true);
     setUploadedFile(file);
     try {
       // Send file to backend for parsing
@@ -1275,13 +1280,56 @@ const SoilReportGenerator: React.FC<SoilReportGeneratorProps> = ({ paddockReport
     } catch (err) {
       console.error('Error parsing PDF:', err);
       alert('Failed to parse PDF. Please check your file or try a different one.');
+    } finally {
+      setIsUploading(false);
     }
   };
 
   //
 
-  const handleGenerateReport = () => {
-    setShowReport(true);
+  const handleGenerateReport = async () => {
+    if (isGeneratingReport) return; // Prevent multiple generations
+    setIsGeneratingReport(true);
+    try {
+      // Simulate some processing time for report generation
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      setShowReport(true);
+    } catch (err) {
+      console.error('Error generating report:', err);
+    } finally {
+      setIsGeneratingReport(false);
+    }
+  };
+
+  const handleGenerateCustomPDF = async () => {
+    if (isGeneratingCustomPDF) return; // Prevent multiple generations
+    setIsGeneratingCustomPDF(true);
+    try {
+      await generateCustomPDF(
+        paddockReports.map((paddock, idx) => {
+          const { client, ...rest } = paddock.data;
+          return {
+            ...rest,
+            paddockName: paddock.paddock || paddock.name || availableAnalyses[idx]?.paddock || availableAnalyses[idx]?.name || `Paddock ${idx + 1}`,
+            recommendations: paddock.data.recommendations || [],
+            tankMixing: (Array.isArray(paddock.data.tankMixingItems) ? paddock.data.tankMixingItems.map(item => ({
+              sequence: item.sequence,
+              description: item.productDescription || item.description || '',
+              products: Array.isArray(item.products) ? item.products.join(', ') : (item.products || ''),
+              notes: item.notes || ''
+            })) : []),
+            plantHealthScore: calculatePlantHealthScore(paddock.data.nutrients),
+            agronomist: selectedAgronomist
+          };
+        }),
+        { frontAttachments, backAttachments, uploadedFile }
+      );
+    } catch (err) {
+      console.error('Error generating custom PDF:', err);
+      alert('Failed to generate custom PDF. Please try again.');
+    } finally {
+      setIsGeneratingCustomPDF(false);
+    }
   };
 
   const handleSaveReport = () => {
@@ -2821,57 +2869,6 @@ const SoilReportGenerator: React.FC<SoilReportGeneratorProps> = ({ paddockReport
     const validScores = scores.filter(s => !isNaN(s));
     return validScores.length > 0 ? (validScores.reduce((a, b) => a + b, 0) / validScores.length) : 0;
   }
-  // ... existing code ...
-  <PDFExportButton
-    component={
-      <>
-        {paddockReports.map((paddock, i) => {
-          const data = paddock.data;
-          const plantHealthScore = calculatePlantHealthScore(data.nutrients);
-          return (
-            <div key={i} style={{ pageBreakBefore: i > 0 ? 'always' : undefined }}>
-              <ClientReportExport
-                crop={data.crop}
-                date={data.date}
-                summary={[
-                  data.somCecText,
-                  data.baseSaturationText,
-                  data.phText,
-                  data.availableNutrientsText,
-                  data.soilReservesText,
-                  data.lamotteReamsText,
-                  data.taeText
-                ].filter(text => text && text.trim()).join('\n\n')}
-                fertigationProducts={normalizeProducts(data.soilDrenchProducts)}
-                preFloweringFoliarProducts={normalizeProducts(data.preFloweringFoliarProducts)}
-                nutritionalFoliarProducts={normalizeProducts(data.nutritionalFoliarProducts)}
-                tankMixing={normalizeTankMixing(data.tankMixingItems)}
-                agronomist={data.selectedAgronomist}
-                reportFooterText={data.reportFooterText}
-                plantHealthScore={plantHealthScore}
-                isFirstPage={i === 0}
-              />
-            </div>
-          );
-        })}
-      </>
-    }
-    filename={`Plant_Report_${new Date().toISOString().split('T')[0]}.pdf`}
-    options={{
-      filename: `Plant_Report_${new Date().toISOString().split('T')[0]}.pdf`,
-      orientation: 'portrait',
-      format: 'a4',
-      scale: 2,
-      quality: 0.98,
-      includeCoverPage: frontAttachments.includes('plant-therapy-cover'),
-      coverPageUrl: frontAttachments.includes('plant-therapy-cover') ? '/attachments/plant-therapy-cover.pdf' : undefined,
-      margins: { top: 20, bottom: 20, left: 20, right: 20 }
-    }}
-    className="flex items-center gap-2 bg-[#8cb43a] hover:bg-[#7aa32f] text-white"
-  >
-    Generate Custom PDF
-  </PDFExportButton>
-  // ... existing code ...
 
   return (
     <div className="w-full max-w-screen-2xl mx-auto" ref={reportRef}>
@@ -2893,7 +2890,7 @@ const SoilReportGenerator: React.FC<SoilReportGeneratorProps> = ({ paddockReport
               <div className="text-gray-800 text-base space-y-2">
                 <p><strong>This tool helps you analyze your plant sample, visualize nutrient status, and generate a professional report for optimal crop nutrition.</strong></p>
                 <ol className="list-decimal list-inside space-y-1">
-                  <li><strong>Upload your plant analysis chart:</strong> Click the upload area or drag and drop your file. Supported formats: image or PDF.</li>
+                  <li><strong>Upload your plant therapy charts:</strong> First, export the plant therapy charts PDF from the NTS admin platform. Then click the upload area or drag and drop that PDF file here to generate recommendations.</li>
                   <li><strong>Review your plant nutrient status:</strong> The app displays your nutrient data with color-coded charts and tables to help you identify deficiencies or excesses.</li>
                   <li><strong>Add general comments:</strong> Enter your interpretations and observations about the plant analysis.</li>
                   <li><strong>Add product recommendations:</strong> Manually select and enter recommended products and application rates for each relevant section (biological fertigation, foliar sprays, etc.).</li>
@@ -2910,7 +2907,7 @@ const SoilReportGenerator: React.FC<SoilReportGeneratorProps> = ({ paddockReport
               {/* Info icon removed as per user request */}
             </CardHeader>
             <CardContent>
-              <SoilUpload onFileUpload={handleFileUpload} resetKey={uploadResetKey} />
+              <SoilUpload onFileUpload={handleFileUpload} resetKey={uploadResetKey} isLoading={isUploading} />
               {/* Removed debug logging that was causing infinite loop */}
             </CardContent>
           </Card>
@@ -2926,8 +2923,15 @@ const SoilReportGenerator: React.FC<SoilReportGeneratorProps> = ({ paddockReport
                     Analysis complete. Generate comprehensive soil management report.
                   </p>
                 </div>
-                <Button onClick={() => setShowReport(true)}>
-                  Generate Report
+                <Button onClick={handleGenerateReport} disabled={isGeneratingReport}>
+                  {isGeneratingReport ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                      Generating...
+                    </>
+                  ) : (
+                    'Generate Report'
+                  )}
                 </Button>
               </div>
             </CardContent>
@@ -3243,7 +3247,7 @@ const SoilReportGenerator: React.FC<SoilReportGeneratorProps> = ({ paddockReport
                 </Card>
               )}
             </ReportSection>
-            <ReportSection title="7. Export Report" collapsible expanded={showSection9} onToggle={() => setShowSection9(v => !v)} useHideButton={true} infoContent={"Save your work, download the report as a PDF, or share it. Use these options to finalize and distribute your soil analysis report."}>
+            <ReportSection title="7. Export Report" collapsible expanded={showSection9} onToggle={() => setShowSection9(v => !v)} useHideButton={true} infoContent={"Generate and download your report as a PDF. Use this option to finalize and distribute your plant analysis report."}>
               {showSection9 && (
                 <Card className="bg-white mb-6">
                   <CardHeader>
@@ -3251,30 +3255,15 @@ const SoilReportGenerator: React.FC<SoilReportGeneratorProps> = ({ paddockReport
                   </CardHeader>
                   <CardContent>
                     <div className="flex gap-4">
-                      <Button onClick={() => generateCustomPDF(
-                        paddockReports.map((paddock, idx) => {
-                          const { client, ...rest } = paddock.data;
-                          return {
-                            ...rest,
-                            paddockName: paddock.paddock || paddock.name || availableAnalyses[idx]?.paddock || availableAnalyses[idx]?.name || `Paddock ${idx + 1}`,
-                            recommendations: paddock.data.recommendations || [],
-                            tankMixing: (Array.isArray(paddock.data.tankMixingItems) ? paddock.data.tankMixingItems.map(item => ({
-                              sequence: item.sequence,
-                              description: item.productDescription || item.description || '',
-                              products: Array.isArray(item.products) ? item.products.join(', ') : (item.products || ''),
-                              notes: item.notes || ''
-                            })) : []),
-                            plantHealthScore: calculatePlantHealthScore(paddock.data.nutrients),
-                            agronomist: selectedAgronomist
-                          };
-                        }),
-                        { frontAttachments, backAttachments, uploadedFile }
-                      )} className="flex items-center gap-2 bg-[#8cb43a] hover:bg-[#7aa32f] text-white">
-                        Generate Custom PDF
-                      </Button>
-                      <Button variant="outline" className="flex items-center gap-2">
-                        <Share2 className="h-4 w-4" />
-                        Share Report
+                      <Button onClick={handleGenerateCustomPDF} disabled={isGeneratingCustomPDF} className="flex items-center gap-2 bg-[#8cb43a] hover:bg-[#7aa32f] text-white">
+                        {isGeneratingCustomPDF ? (
+                          <>
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                            Generating PDF...
+                          </>
+                        ) : (
+                          'Generate Custom PDF'
+                        )}
                       </Button>
                     </div>
                   </CardContent>

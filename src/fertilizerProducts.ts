@@ -82,7 +82,7 @@ export const productList = [
   { label: 'NTS Fulvic Acid Powder™', nutrientContent: {}, description: 'Fulvic acid in a concentrated, soluble powder – the most versatile and productive input in agriculture, in freight-friendly form. Fulvic acid is a powerful organic extract from humates which offers a host of benefits for both the soil and the plant.' },
   { label: 'NTS FulvX™ Powder', nutrientContent: {}, description: 'Concentrated soluble fulvic & humic acid.' },
   { label: 'NTS Liquid Humus™', nutrientContent: {}, description: 'A liquid humic acid suspension derived from premium humates, designed to improve soil structure, nutrient retention, and biological activity.' },
-  { label: 'NTS Soluble Humate Granules™', nutrientContent: {}, description: 'High-purity, fully soluble humate granules for use in liquid formulations or direct soil application to enhance CEC, nutrient chelation, and microbial health.' },
+  { label: 'NTS Soluble Humate Granules™', nutrientContent: {}, description: 'High-purity, fully soluble humate granules for use in liquid formulations or direct soil application.' },
   { label: 'NTS Stabilised Boron Granules™', nutrientContent: {}, description: 'A slow-release boron source bound with humates to reduce leaching and extend availability, supporting flowering, fruit set, and calcium mobility.' },
   { label: 'NTS Super Soluble Humates™', nutrientContent: {}, description: 'Highly refined, super-soluble humic acid powder for preparing DIY liquid humus, boosting nutrient efficiency, and stimulating beneficial soil microbes.' },
   
