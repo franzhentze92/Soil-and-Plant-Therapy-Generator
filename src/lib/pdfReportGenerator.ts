@@ -623,6 +623,7 @@ export async function generateCustomPDF(reportData: any, attachments?: { frontAt
       if (data.availableNutrientsText) rawSummary += data.availableNutrientsText + '\n\n';
       if (data.lamotteReamsText) rawSummary += data.lamotteReamsText + '\n\n';
       if (data.taeText) rawSummary += data.taeText + '\n\n';
+      if (data.phosphorusMonitoringText) rawSummary += data.phosphorusMonitoringText + '\n\n';
     }
     
     // Fallback to legacy fields if no content found
@@ -1258,7 +1259,7 @@ export async function generateCustomPDF(reportData: any, attachments?: { frontAt
      });
      // Add explanation below the title, centered
      const tankMixingExplanation = 'Follow this sequence for optimal mixing and application.';
-     const explanationFontSize = 7;
+     const explanationFontSize = 9;
      const explanationWidth = font.widthOfTextAtSize(tankMixingExplanation, explanationFontSize);
      page2.drawText(tankMixingExplanation, {
        x: tableX + (tableWidth - explanationWidth) / 2,
@@ -1275,7 +1276,7 @@ export async function generateCustomPDF(reportData: any, attachments?: { frontAt
      let colX = [tableX + 2, tableX + 65, tableX + 215, tableX + 315]; // Adjusted for centered table
      let colWidths = [55, 145, 100, 175]; // Adjusted column widths
      const headerFontSize = 7;
-     const cellFontSize = 6;
+     const cellFontSize = 9;
      const cellPaddingX = 6;
      const cellPaddingY = 2;
      const minRowHeight = 12;

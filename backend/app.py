@@ -220,6 +220,98 @@ def extract_nutrients_from_text(text):
             nutrients.append(nutrient_data)
     return nutrients
 
+import pdfplumber
+import re
+from collections import defaultdict
+
+def extract_nutrient_overview(pdf_path):
+
+    # Keys for the 7 nutrient points
+    nutrient_keys = [
+        "Organic Matter",
+        "CEC",
+        "Soil pH",
+        "Base Saturation",
+        "Available Nutrients",
+        "Lamotte Reams",
+        "TAE"
+    ]
+    def find_matching_keys(text, keys):
+        """Return a list of keys found in the given text string."""
+        found_keys = [key for key in keys if key.lower() in text.lower()]
+        return found_keys
+    
+    # Combine all PDF pages into one text string
+    full_text = ""
+    with pdfplumber.open(pdf_path) as pdf:
+        for page in pdf.pages:
+            page_text = page.extract_text()
+            if page_text:
+                full_text += page_text + "\n"
+
+    # Regex to capture lines like: "PADDOCK: <Any name>"
+    paddock_pattern = r"PADDOCK:\s*(.+)"
+
+    # Find all positions of paddock names
+    paddock_positions = []
+    for match in re.finditer(paddock_pattern, full_text):
+        paddock_positions.append((match.start(), match.group(1).strip()))
+
+    # Split the text at every "Nutrient Status Overview:"
+    nutrient_sections = []
+    for match in re.finditer(r"Nutrient Status Overview:", full_text):
+        nutrient_sections.append(match.start())
+
+    results = defaultdict(list)
+
+    # Process each Nutrient Status Overview section
+    for i, start_pos in enumerate(nutrient_sections):
+        end_pos = nutrient_sections[i + 1] if i + 1 < len(nutrient_sections) else len(full_text)
+        section_text = full_text[start_pos:end_pos]
+
+        # 🔹 Stop processing at "Soil TherapyTM" and remove it
+        section_text = re.split(r"Soil TherapyTM", section_text)[0]
+
+        # Find the paddock whose position is just before this section
+        paddock_name = "UNKNOWN"
+        for pos, name in paddock_positions:
+            if pos < start_pos:
+                paddock_name = name
+            else:
+                break
+
+        # Extract 7 numbered points using regex
+        points_pattern = r"(\d\.\s.*?)(?=\d\.|\Z)"
+        points = re.findall(points_pattern, section_text, re.DOTALL)
+
+        # Clean and store
+        cleaned_points = [p.strip() for p in points]
+        # Map to the fixed keys dynamically
+        overview = {}
+
+        for point in cleaned_points:
+            # Split the point into key and description
+            splited_point = point.split(':', 1)  # Split only at the first colon
+            if len(splited_point) > 1:
+                first = splited_point[0].strip()
+                text = splited_point[1].strip()
+
+                # Check if any key matches the first part
+                matches = find_matching_keys(first, nutrient_keys)
+                if matches:
+                    # If multiple keys match, add all of them
+                    for match in matches:
+                        text = str(text).replace("\n"," ")
+                        text = re.split(r"Soil Therapy TM", text)[0]
+                        overview[match] = text
+
+        # Correctly update results
+        if paddock_name not in results:
+            results[paddock_name] = {}
+
+        results[paddock_name].update(overview)
+
+    return results
 
 @app.route('/extract-soil-report', methods=['POST'])
 def extract_soil_report():
@@ -245,12 +337,17 @@ def extract_soil_report():
             for table_idx, table in enumerate(tables):
                 if not table or len(table) < 2:
                     continue
-                    
+                
+                first_row = table[0]
+                if len(first_row)<4: 
+                    continue
+
                 # Find header row and map columns
                 header_row = None
                 header_idx = 0
                 is_tae_table = False
                 for i, row in enumerate(table):
+                        
                     if any(cell and isinstance(cell, str)
                            and 'ELEMENT' in cell.upper() for cell in row):
                         header_row = row
@@ -554,10 +651,12 @@ def extract_soil_report():
                 'selected': [selected_map.get('Phosphorus'), selected_map.get('Calcium'), selected_map.get('Magnesium'), selected_map.get('Potassium')]
             }
 
+            nutrient_overview = extract_nutrient_overview(file)
             return jsonify({
                 'analyses': all_analyses,
                 'count': len(all_analyses),
-                'lamotte': lamotte_payload
+                'lamotte': lamotte_payload,
+                "nutrient_overview": nutrient_overview
             })
 
         app.logger.warning(
@@ -588,7 +687,7 @@ def extract_analysis_info(tables, table_idx):
     # First, try to extract from the table immediately before the nutrient table
     if table_idx > 0:
         prev_table = tables[table_idx - 1]
-        if 2 <= len(prev_table) <= 4:
+        if 3 <= len(prev_table) <= 4:
             rows = [row[0] if row and isinstance(row[0], str) else '' for row in prev_table]
             rows = [r.strip() for r in rows if r and r.strip()]
             if len(rows) >= 2:
@@ -596,7 +695,7 @@ def extract_analysis_info(tables, table_idx):
                 if not date_pattern.match(rows[0]):
                     info['crop'] = rows[0]
                 # Second row: paddock (if not a date and not a known crop)
-                if len(rows) > 1:
+                if len(rows) > 1 and info['paddock'] == "Unknown":
                     if not date_pattern.match(rows[1]) and rows[1] != info['crop']:
                         info['paddock'] = rows[1]
                 # Third row: date
@@ -610,7 +709,7 @@ def extract_analysis_info(tables, table_idx):
             continue
         table = tables[idx]
         # Heuristic: If table has 2-4 rows, try to extract missing info
-        if 2 <= len(table) <= 4:
+        if 3 <= len(table) <= 4:
             rows = [row[0] if row and isinstance(row[0], str) else '' for row in table]
             rows = [r.strip() for r in rows if r and r.strip()]
             if len(rows) >= 2:
