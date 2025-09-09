@@ -1,0 +1,59 @@
+:80 {
+	encode gzip
+
+	handle_path /attachments/* {
+		root * /home/ubuntu/Soil-and-Plant-Therapy-Generator/deployablebuild/attachments
+		file_server
+	}
+
+	handle_path /assets/* {
+		root * /home/ubuntu/Soil-and-Plant-Therapy-Generator/deployablebuild/assets
+		file_server
+	}
+
+	route {
+		# 1. Reverse proxy for API calls
+		reverse_proxy /extract-soil-report* 127.0.0.1:8000
+		reverse_proxy /generate-comments* 127.0.0.1:8000
+		reverse_proxy /generate-soil-comments* 127.0.0.1:8000
+
+		# 2. Serve main React build
+		root * /home/ubuntu/Soil-and-Plant-Therapy-Generator/deployablebuild
+
+		# 4. React Router SPA fallback
+		try_files {path} /index.html
+
+		# 4. Serve remaining static files
+		file_server
+	}
+}
+
+reportgenerator.ntsgrow.com {
+	encode gzip
+
+	handle_path /attachments/* {
+		root * /home/ubuntu/Soil-and-Plant-Therapy-Generator/deployablebuild/attachments
+		file_server
+	}
+
+	handle_path /assets/* {
+		root * /home/ubuntu/Soil-and-Plant-Therapy-Generator/deployablebuild/assets
+		file_server
+	}
+
+	route {
+		# 1. Reverse proxy for API calls
+		reverse_proxy /extract-soil-report* 127.0.0.1:8000
+		reverse_proxy /generate-comments* 127.0.0.1:8000
+		reverse_proxy /generate-soil-comments* 127.0.0.1:8000
+
+		# 2. Serve main React build
+		root * /home/ubuntu/Soil-and-Plant-Therapy-Generator/deployablebuild
+
+		# 4. React Router SPA fallback
+		try_files {path} /index.html
+
+		# 4. Serve remaining static files
+		file_server
+	}
+}

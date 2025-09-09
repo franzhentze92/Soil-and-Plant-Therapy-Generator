@@ -170,7 +170,7 @@ dmypy.json
 .pyre/
 
 # Large files that should not be in git
-*.pdf
+
 *.docx
 *.xlsx
 *.zip
