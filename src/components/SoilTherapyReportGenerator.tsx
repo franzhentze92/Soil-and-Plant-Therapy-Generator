@@ -1469,6 +1469,7 @@ const SoilReportGenerator: React.FC = () => {
 
             current_nutrient_overview = nutrient_overview[(group as any).paddock]
           }
+          const safeNutrientOverview = current_nutrient_overview ?? {};
                   // Removed debug logging for paddock nutrients
           return {
             analysisId: (group as any).analysisId,
@@ -1476,15 +1477,15 @@ const SoilReportGenerator: React.FC = () => {
             paddock: (group as any).paddock,
             data: {
               nutrients: prioritizedNutrients,
-              somCecText: current_nutrient_overview['CEC'] ||'Soil organic matter and CEC analysis will be generated based on your uploaded data.',
-              cecText: current_nutrient_overview['CEC'] ||'Soil organic matter and CEC analysis will be generated based on your uploaded data.',
-              baseSaturationText:  current_nutrient_overview['Base Saturation'] ||'Base saturation analysis will be generated based on your uploaded data.',
-              phText:  current_nutrient_overview['Soil pH'] ||'Soil pH analysis will be generated based on your uploaded data.',
-              availableNutrientsText:  current_nutrient_overview['Available Nutrients'] ||'Available nutrients analysis will be generated based on your uploaded data.',
-              soilReservesText:  current_nutrient_overview['Organic Matter'] ||'Soil reserves analysis will be generated based on your uploaded data.',
-              lamotteReamsText:  current_nutrient_overview['Lamotte Reams'] ||'LaMotte/Reams analysis will be generated based on your uploaded data.',
-              taeText:  current_nutrient_overview['TAE'] || 'Total Available Elements (TAE) analysis will be generated based on your uploaded data.',
-              organicMatterText : current_nutrient_overview['Organic Matter'] || "",
+              somCecText: current_nutrient_overview?.['CEC'] ?? 'Soil organic matter and CEC analysis will be generated based on your uploaded data.',
+              cecText: current_nutrient_overview?.['CEC'] ?? 'Soil organic matter and CEC analysis will be generated based on your uploaded data.',
+              baseSaturationText: current_nutrient_overview?.['Base Saturation'] ?? 'Base saturation analysis will be generated based on your uploaded data.',
+              phText: current_nutrient_overview?.['Soil pH'] ?? 'Soil pH analysis will be generated based on your uploaded data.',
+              availableNutrientsText: current_nutrient_overview?.['Available Nutrients'] ?? 'Available nutrients analysis will be generated based on your uploaded data.',
+              soilReservesText: current_nutrient_overview?.['Organic Matter'] ?? 'Soil reserves analysis will be generated based on your uploaded data.',
+              lamotteReamsText: current_nutrient_overview?.['Lamotte Reams'] ?? 'LaMotte/Reams analysis will be generated based on your uploaded data.',
+              taeText: current_nutrient_overview?.['TAE'] ?? 'Total Available Elements (TAE) analysis will be generated based on your uploaded data.',
+              organicMatterText: current_nutrient_overview?.['Organic Matter'] ?? '',
 
               generalComments: {
                 organicMatter: '',
