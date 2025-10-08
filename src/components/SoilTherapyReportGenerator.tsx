@@ -1,7 +1,7 @@
 import React, { useState, useRef, useMemo, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { FileDown, Leaf, Bean, Droplets, Sprout, Info, Beaker, Loader2 } from 'lucide-react';
+import { FileDown, Leaf, Bean, Droplets, Sprout, Info, Beaker } from 'lucide-react';
 import { Settings } from 'lucide-react';
 import SoilUpload from './SoilUpload';
 import { productList } from '../fertilizerProducts';
@@ -446,9 +446,6 @@ const SoilReportGenerator: React.FC = () => {
   const reportRef = useRef<HTMLDivElement>(null);
   const exportSummaryRef = useRef<HTMLDivElement>(null);
   const [howToOpen, setHowToOpen] = useState(false);
-  const [isExporting, setIsExporting] = useState(false);
-  const [isUploading, setIsUploading] = useState(false);
-  const [isGeneratingReport, setIsGeneratingReport] = useState(false);
   
   // Add multi-paddock state variables
   const [paddockReports, setPaddockReports] = useState<any[]>([]);
@@ -501,7 +498,6 @@ const SoilReportGenerator: React.FC = () => {
   const [soilReservesText, setSoilReservesText] = useState('Soil reserves analysis will be generated based on your uploaded data.');
   const [lamotteReamsText, setLamotteReamsText] = useState('LaMotte/Reams analysis will be generated based on your uploaded data.');
   const [taeText, setTaeText] = useState('Total Available Elements (TAE) analysis will be generated based on your uploaded data.');
-  const [phosphorusMonitoringText, setPhosphorusMonitoringText] = useState('');
   const [seedTreatmentProducts, setSeedTreatmentProducts] = useState([
     {
       id: '1',
@@ -1313,18 +1309,14 @@ const SoilReportGenerator: React.FC = () => {
 
   // --- PDF parsing logic ---
   const handleFileUpload = async (file: File) => {
-    if (isUploading) return; // Prevent multiple uploads
-    
-    setIsUploading(true);
+    // Removed debug logging
+    setUploadedFile(file);
     try {
-      // Removed debug logging
-      setUploadedFile(file);
-      
       // Send file to backend for parsing
       const formData = new FormData();
       formData.append('file', file);
       
-      const response = await fetch('/extract-soil-report', {
+      const response = await fetch('http://localhost:5000/extract-soil-report', {
         method: 'POST',
         body: formData,
       });
@@ -1332,11 +1324,12 @@ const SoilReportGenerator: React.FC = () => {
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      
-      const result = await response.json();
-              // Removed debug logging for backend response
         
-            if (result.error) {
+       const result = await response.json();
+   
+              // Removed debug logging for backend response
+      
+      if (result.error) {
         throw new Error(result.error);
       }
       if (result.lamotte) {
@@ -1345,7 +1338,6 @@ const SoilReportGenerator: React.FC = () => {
       } else {
         setLamotteFromBackend(null);
       }
-      let nutrient_overview = result?.nutrient_overview
       
       // Handle multiple analyses like plant report generator
       if (result.analyses && Array.isArray(result.analyses) && result.analyses.length > 0) {
@@ -1464,29 +1456,22 @@ const SoilReportGenerator: React.FC = () => {
               });
             }
           });
-          let current_nutrient_overview = {}
-          if (nutrient_overview){
-
-            current_nutrient_overview = nutrient_overview[(group as any).paddock]
-          }
-          const safeNutrientOverview = current_nutrient_overview ?? {};
+          
                   // Removed debug logging for paddock nutrients
+          
           return {
             analysisId: (group as any).analysisId,
             name: (group as any).name,
             paddock: (group as any).paddock,
             data: {
               nutrients: prioritizedNutrients,
-              somCecText: current_nutrient_overview?.['CEC'] ?? 'Soil organic matter and CEC analysis will be generated based on your uploaded data.',
-              cecText: current_nutrient_overview?.['CEC'] ?? 'Soil organic matter and CEC analysis will be generated based on your uploaded data.',
-              baseSaturationText: current_nutrient_overview?.['Base Saturation'] ?? 'Base saturation analysis will be generated based on your uploaded data.',
-              phText: current_nutrient_overview?.['Soil pH'] ?? 'Soil pH analysis will be generated based on your uploaded data.',
-              availableNutrientsText: current_nutrient_overview?.['Available Nutrients'] ?? 'Available nutrients analysis will be generated based on your uploaded data.',
-              soilReservesText: current_nutrient_overview?.['Organic Matter'] ?? 'Soil reserves analysis will be generated based on your uploaded data.',
-              lamotteReamsText: current_nutrient_overview?.['Lamotte Reams'] ?? 'LaMotte/Reams analysis will be generated based on your uploaded data.',
-              taeText: current_nutrient_overview?.['TAE'] ?? 'Total Available Elements (TAE) analysis will be generated based on your uploaded data.',
-              organicMatterText: current_nutrient_overview?.['Organic Matter'] ?? '',
-
+              somCecText: 'Soil organic matter and CEC analysis will be generated based on your uploaded data.',
+              baseSaturationText: 'Base saturation analysis will be generated based on your uploaded data.',
+              phText: 'Soil pH analysis will be generated based on your uploaded data.',
+              availableNutrientsText: 'Available nutrients analysis will be generated based on your uploaded data.',
+              soilReservesText: 'Soil reserves analysis will be generated based on your uploaded data.',
+              lamotteReamsText: 'LaMotte/Reams analysis will be generated based on your uploaded data.',
+              taeText: 'Total Available Elements (TAE) analysis will be generated based on your uploaded data.',
               generalComments: {
                 organicMatter: '',
                 cec: '',
@@ -1513,7 +1498,7 @@ const SoilReportGenerator: React.FC = () => {
         });
         
         // Removed debug logging for created paddock reports
-        console.log("newPaddockReports",newPaddockReports)
+        
         setPaddockReports(newPaddockReports);
         setSelectedPaddockIndex(0);
         
@@ -1575,32 +1560,16 @@ const SoilReportGenerator: React.FC = () => {
     } catch (err) {
       console.error('Error parsing PDF:', err);
       alert('Failed to parse PDF. Please check your file or try a different one.');
-    } finally {
-      setIsUploading(false);
     }
   };
 
-  const handleGenerateReport = async () => {
-    if (isGeneratingReport) return; // Prevent multiple clicks
-    
-    setIsGeneratingReport(true);
-    try {
-      // Simulate report generation time (you can adjust this or remove it)
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      setShowReport(true);
-    } catch (error) {
-      console.error('Error generating report:', error);
-    } finally {
-      setIsGeneratingReport(false);
-    }
+  const handleGenerateReport = () => {
+    setShowReport(true);
   };
 
   // Removed handleSaveReport function - no longer needed
 
   const handleExportPDF = async () => {
-    if (isExporting) return; // Prevent multiple exports
-    
-    setIsExporting(true);
     try {
       // Save the current paddock's data before exporting
       saveCurrentPaddockReport(currentPaddockData);
@@ -1767,7 +1736,6 @@ const SoilReportGenerator: React.FC = () => {
           availableNutrientsText: data.availableNutrientsText || '',
           lamotteReamsText: data.lamotteReamsText || '',
           taeText: data.taeText || '',
-          phosphorusMonitoringText: data.phosphorusMonitoringText || '',
           organicMatterText: data.organicMatterText || '',
           cecText: data.cecText || '',
           
@@ -1792,8 +1760,6 @@ const SoilReportGenerator: React.FC = () => {
     } catch (error) {
       console.error('PDF Export error:', error);
       alert(`PDF Export failed: ${error.message}`);
-    } finally {
-      setIsExporting(false);
     }
   };
 
@@ -4138,7 +4104,7 @@ const SoilReportGenerator: React.FC = () => {
               <div className="text-gray-800 text-base space-y-2">
                 <p><strong>This tool helps you analyze your soil, visualize nutrient status, and generate precise fertilizer recommendations for optimal crop nutrition.</strong></p>
                 <ol className="list-decimal list-inside space-y-1">
-                  <li><strong>Upload your soil therapy charts:</strong> First, export the soil therapy charts PDF from the NTS admin platform. Then click the upload area or drag and drop that PDF file here to generate recommendations.</li>
+                  <li><strong>Upload your soil analysis chart:</strong> Click the upload area or drag and drop your file. Supported formats: image or PDF.</li>
                   <li><strong>Review your soil nutrient status:</strong> The app reads your data and shows which nutrients are deficient, optimal, or excessive, with color-coded charts and tables.</li>
                   <li><strong>Get recommendations:</strong> For each deficient nutrient, select recommended fertilizers. The app calculates the required rates and ensures no nutrient exceeds safe levels.</li>
                   <li><strong>Track all applications:</strong> Add seed treatments, soil drenches, and foliar sprays. The app tracks all sources and shows a complete nutrient application summary.</li>
@@ -4156,7 +4122,7 @@ const SoilReportGenerator: React.FC = () => {
               </button>
             </CardHeader>
             <CardContent>
-              <SoilUpload onFileUpload={handleFileUpload} isLoading={isUploading} />
+              <SoilUpload onFileUpload={handleFileUpload} />
               {uploadedFile && (
                 <div className="mt-4 flex justify-end">
                   <Button variant="outline" onClick={() => {
@@ -4181,18 +4147,8 @@ const SoilReportGenerator: React.FC = () => {
                     Analysis complete. Generate comprehensive soil management report.
                   </p>
                 </div>
-                <Button 
-                  onClick={handleGenerateReport}
-                  disabled={isGeneratingReport}
-                >
-                  {isGeneratingReport ? (
-                    <>
-                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                      Generating Report...
-                    </>
-                  ) : (
-                    'Generate Report'
-                  )}
+                <Button onClick={() => setShowReport(true)}>
+                  Generate Report
                 </Button>
               </div>
             </CardContent>
@@ -4448,15 +4404,6 @@ const SoilReportGenerator: React.FC = () => {
                         onChange={e => updateCurrentPaddockData('taeText', e.target.value)}
                       />
                     </div>
-                    <div>
-                      <label className="block font-medium mb-1">Phosphorus Monitoring</label>
-                      <textarea
-                        className="w-full p-2 border rounded text-sm min-h-[60px]"
-                        value={phosphorusMonitoringText}
-                        onChange={e => setPhosphorusMonitoringText(e.target.value)}
-                        placeholder="Enter manual notes about phosphorus monitoring..."
-                      />
-                    </div>
                     <div className="mt-4 flex gap-2 items-center">
                       <Button onClick={handleGenerateAI} disabled={loadingGeneralComments} type="button">
                         {loadingGeneralComments ? 'Generating...' : 'Generate with AI'}
@@ -4471,8 +4418,7 @@ const SoilReportGenerator: React.FC = () => {
                             phText: currentPaddockData.phText || '',
                             availableNutrientsText: currentPaddockData.availableNutrientsText || '',
                             lamotteReamsText: currentPaddockData.lamotteReamsText || '',
-                            taeText: currentPaddockData.taeText || '',
-                            phosphorusMonitoringText: phosphorusMonitoringText
+                            taeText: currentPaddockData.taeText || ''
                           };
                           
                           console.log('Current text values before saving:', currentTexts);
@@ -4486,8 +4432,7 @@ const SoilReportGenerator: React.FC = () => {
                             soilPh: currentTexts.phText,
                             availableNutrients: currentTexts.availableNutrientsText,
                             lamotteReams: currentTexts.lamotteReamsText,
-                            tae: currentTexts.taeText,
-                            phosphorusMonitoring: currentTexts.phosphorusMonitoringText
+                            tae: currentTexts.taeText
                           };
                           
                           console.log('Saving comments to generalComments:', updatedComments);
@@ -4503,7 +4448,6 @@ const SoilReportGenerator: React.FC = () => {
                             availableNutrientsText: currentTexts.availableNutrientsText,
                             lamotteReamsText: currentTexts.lamotteReamsText,
                             taeText: currentTexts.taeText,
-                            phosphorusMonitoringText: currentTexts.phosphorusMonitoringText,
                             // Also update the individual fields for consistency
                             organicMatterText: currentTexts.organicMatterText,
                             cecText: currentTexts.cecText
@@ -4929,7 +4873,7 @@ const SoilReportGenerator: React.FC = () => {
                     <label className="block font-medium mb-2 text-black">Select Agronomist for Signature</label>
                     <select
                       className="border rounded px-3 py-2 w-full"
-                      value={(currentPaddockData.selectedAgronomist || selectedAgronomist).email}
+                      value={selectedAgronomist.email}
                       onChange={e => {
                         const found = [
                           { name: 'Marco Giorgio', role: 'Agronomist', email: 'marco@nutri-tech.com.au' },
@@ -4937,14 +4881,7 @@ const SoilReportGenerator: React.FC = () => {
                           { name: 'Adriano De Senna', role: 'Agronomist', email: 'adriano@nutri-tech.com.au' },
                           { name: 'Graeme Sait', role: 'CEO & Founder', email: 'graeme@nutri-tech.com.au' },
                         ].find(a => a.email === e.target.value);
-                        if (found) {
-                          setSelectedAgronomist(found);
-                          // Update agronomist for ALL paddocks, not just current one
-                          setPaddockReports(prev => prev.map(r => ({
-                            ...r,
-                            data: { ...r.data, selectedAgronomist: found }
-                          })));
-                        }
+                        if (found) setSelectedAgronomist(found);
                       }}
                     >
                       {[
@@ -4988,25 +4925,12 @@ const SoilReportGenerator: React.FC = () => {
                     </CardHeader>
                     <CardContent>
                       <div className="flex gap-4">
-                        <Button 
-                          className="flex items-center gap-2 bg-[#8cb43a] hover:bg-[#7aa32f] text-white" 
-                          onClick={() => {
-                            // Removed debug logging
-                            handleExportPDF();
-                          }}
-                          disabled={isExporting}
-                        >
-                          {isExporting ? (
-                            <>
-                              <Loader2 className="h-4 w-4 animate-spin" />
-                              Generating PDF...
-                            </>
-                          ) : (
-                            <>
-                              <FileDown className="h-4 w-4" />
-                              Generate Custom PDF
-                            </>
-                          )}
+                        <Button className="flex items-center gap-2 bg-[#8cb43a] hover:bg-[#7aa32f] text-white" onClick={() => {
+                          // Removed debug logging
+                          handleExportPDF();
+                        }}>
+                          <FileDown className="h-4 w-4" />
+                          Generate Custom PDF
                         </Button>
                       </div>
                     </CardContent>
