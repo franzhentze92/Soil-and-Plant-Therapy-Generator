@@ -19,6 +19,7 @@ interface FertilizerDef {
 
 // Fertilizer definitions (should match those in SoilReportGenerator)
 const fertilizerDefs: FertilizerDef[] = [
+  { label: 'Urea', nutrientContent: { Nitrogen: 46 }, phLogic: { min_pH: 5.5, max_pH: 7.5 }, releaseType: 'fast' },
   { label: 'Calcium Nitrate', nutrientContent: { Calcium: 19, Nitrate: 12 }, phLogic: { min_pH: null, max_pH: 7.5 }, releaseType: 'fast' },
   { label: 'Potassium Nitrate', nutrientContent: { Potassium: 44, Nitrate: 13 }, phLogic: { min_pH: null, max_pH: null }, releaseType: 'fast' },
   { label: 'Sodium Nitrate (Chile Nitrate)', nutrientContent: { Sodium: 26, Nitrate: 16 }, phLogic: { min_pH: null, max_pH: 8.0 }, releaseType: 'fast' },
@@ -68,6 +69,15 @@ const fertilizerDefs: FertilizerDef[] = [
   { label: 'Sulfur-Coated Urea', nutrientContent: { Sulphur: 15, Nitrogen: 35 }, phLogic: { min_pH: 5.0, max_pH: 8.0 }, releaseType: 'slow' },
   { label: 'Epsom Salt (Magnesium Sulfate Heptahydrate)', nutrientContent: { Magnesium: 10, Sulphur: 13 }, phLogic: { min_pH: null, max_pH: null }, releaseType: 'fast' },
   { label: 'Chicken Manure', nutrientContent: { Phosphorus: 2.5, Nitrogen: 3, Potassium: 2, Calcium: 3, Magnesium: 1, Sulphur: 0.5 }, phLogic: { min_pH: 5.0, max_pH: 8.0 }, releaseType: 'slow' },
+  { label: 'NTS Fast Fulvic™', nutrientContent: { Nitrate: 0.1, Ammonium: 0.1, Calcium: 0.1, Magnesium: 0.1, Potassium: 0.1, Phosphorus: 0.1, Sulphur: 0.1 }, phLogic: { min_pH: 4, max_pH: 12 }, releaseType: 'fast' },
+  { label: 'NTS Fulvic Acid Powder™', nutrientContent: { Nitrate: 0.1, Ammonium: 0.1, Calcium: 0.1, Magnesium: 0.1, Potassium: 0.1, Phosphorus: 0.1, Sulphur: 0.1 }, phLogic: { min_pH: 4, max_pH: 12 }, releaseType: 'fast' },
+  { label: 'NTS FulvX™ Powder', nutrientContent: { Nitrate: 0.1, Ammonium: 0.1, Calcium: 0.1, Magnesium: 0.1, Potassium: 0.1, Phosphorus: 0.1, Sulphur: 0.1 }, phLogic: { min_pH: 4, max_pH: 12 }, releaseType: 'fast' },
+  { label: 'NTS Liquid Humus™', nutrientContent: { Nitrate: 0.1, Ammonium: 0.1, Calcium: 0.1, Magnesium: 0.1, Potassium: 0.1, Phosphorus: 0.1, Sulphur: 0.1 }, phLogic: { min_pH: 4, max_pH: 12 }, releaseType: 'fast' },
+  { label: 'NTS Soluble Humate Granules™', nutrientContent: { Nitrate: 0.1, Ammonium: 0.1, Calcium: 0.1, Magnesium: 0.1, Potassium: 0.1, Phosphorus: 0.1, Sulphur: 0.1 }, phLogic: { min_pH: 4, max_pH: 12 }, releaseType: 'fast' },
+  { label: 'NTS Stabilised Boron Granules™', nutrientContent: { Nitrate: 0.1, Ammonium: 0.1, Calcium: 0.1, Magnesium: 0.1, Potassium: 0.1, Phosphorus: 0.1, Sulphur: 0.1 }, phLogic: { min_pH: 4, max_pH: 12 }, releaseType: 'fast' },
+  { label: 'NTS Super Soluble Humates™', nutrientContent: { Nitrate: 0.1, Ammonium: 0.1, Calcium: 0.1, Magnesium: 0.1, Potassium: 0.1, Phosphorus: 0.1, Sulphur: 0.1 }, phLogic: { min_pH: 4, max_pH: 12 }, releaseType: 'fast' },
+  { label: 'Life Force® Carbon™', nutrientContent: { Nitrate: 0.1, Ammonium: 0.1, Calcium: 0.1, Magnesium: 0.1, Potassium: 0.1, Phosphorus: 0.1, Sulphur: 0.1 }, phLogic: { min_pH: 4, max_pH: 12 }, releaseType: 'slow' },
+  { label: 'Life Force® Gold Pellets™', nutrientContent: { Nitrate: 0.1, Ammonium: 0.1, Calcium: 5.99, Magnesium: 0.70, Potassium: 3.98, Phosphorus: 2.01, Sulphur: 2.97 }, phLogic: { min_pH: 4, max_pH: 12 }, releaseType: 'slow' },
   { label: 'NTS Soft Rock™', nutrientContent: { Calcium: 19.3, Magnesium: 0.46, Potassium: 0.7, Phosphorus: 8.5, Sulphur: 0.15 }, phLogic: { min_pH: 4.5, max_pH: 6.0 }, releaseType: 'slow' },
   { label: 'Nutri-Gyp™ Natural Gypsum', nutrientContent: { Calcium: 19, Sulphur: 15 }, phLogic: { min_pH: 4.5, max_pH: 8.4 }, releaseType: 'moderate' },
   { label: 'Nutri-Phos Super Active™', nutrientContent: { Calcium: 28.9, Phosphorus: 12.6 }, phLogic: { min_pH: 6.0, max_pH: 7.0 }, releaseType: 'slow' }
@@ -85,18 +95,6 @@ for (const fert of fertilizerDefs) {
 }
 // Use uniqueFertilizerDefs everywhere instead of fertilizerDefs
 
-// Extra products that are always available regardless of deficiencies
-const extraProducts = [
-  { label: 'NTS Fast Fulvic™', nutrientContent: {}, phLogic: { min_pH: 4, max_pH: 12 }, releaseType: 'fast' },
-  { label: 'NTS Fulvic Acid Powder™', nutrientContent: { Nitrate: 0.1, Ammonium: 0.1, Calcium: 0.1, Magnesium: 0.1, Potassium: 0.1, Phosphorus: 0.1, Sulphur: 0.1 }, phLogic: { min_pH: 4, max_pH: 12 }, releaseType: 'fast' },
-  { label: 'NTS FulvX™ Powder', nutrientContent: { Nitrate: 0.1, Ammonium: 0.1, Calcium: 0.1, Magnesium: 0.1, Potassium: 0.1, Phosphorus: 0.1, Sulphur: 0.1 }, phLogic: { min_pH: 4, max_pH: 12 }, releaseType: 'fast' },
-  { label: 'NTS Liquid Humus™', nutrientContent: { Nitrate: 0.1, Ammonium: 0.1, Calcium: 0.1, Magnesium: 0.1, Potassium: 0.1, Phosphorus: 0.1, Sulphur: 0.1 }, phLogic: { min_pH: 4, max_pH: 12 }, releaseType: 'fast' },
-  { label: 'NTS Soluble Humate Granules™', nutrientContent: { Nitrate: 0.1, Ammonium: 0.1, Calcium: 0.1, Magnesium: 0.1, Potassium: 0.1, Phosphorus: 0.1, Sulphur: 0.1 }, phLogic: { min_pH: 4, max_pH: 12 }, releaseType: 'fast' },
-  { label: 'NTS Stabilised Boron Granules™', nutrientContent: { Nitrate: 0.1, Ammonium: 0.1, Calcium: 0.1, Magnesium: 0.1, Potassium: 0.1, Phosphorus: 0.1, Sulphur: 0.1 }, phLogic: { min_pH: 4, max_pH: 12 }, releaseType: 'fast' },
-  { label: 'NTS Super Soluble Humates™', nutrientContent: { Nitrate: 0.1, Ammonium: 0.1, Calcium: 0.1, Magnesium: 0.1, Potassium: 0.1, Phosphorus: 0.1, Sulphur: 0.1 }, phLogic: { min_pH: 4, max_pH: 12 }, releaseType: 'fast' },
-  { label: 'Life Force® Carbon™', nutrientContent: { Nitrate: 0.1, Ammonium: 0.1, Calcium: 0.1, Magnesium: 0.1, Potassium: 0.1, Phosphorus: 0.1, Sulphur: 0.1 }, phLogic: { min_pH: 4, max_pH: 12 }, releaseType: 'slow' },
-  { label: 'Life Force® Gold Pellets™', nutrientContent: { Nitrate: 0.1, Ammonium: 0.1, Calcium: 5.99, Magnesium: 0.70, Potassium: 3.98, Phosphorus: 2.01, Sulphur: 2.97 }, phLogic: { min_pH: 4, max_pH: 12 }, releaseType: 'slow' }
-];
 
 function getFertilizersForNutrient(nutrient) {
   if (!nutrient) return [];
@@ -195,7 +193,7 @@ const SoilCorrections = ({ nutrients, soilAmendmentsSummary, setSoilAmendmentsSu
       return; // do not add any correction for this base nutrient
     }
 
-    if ((groupNutrients as any[]).length === 1) {
+    if (groupNutrients.length === 1) {
       // Only one nutrient in group, use it
               // Removed debug logging
       prioritizedDeficientNutrients.push(groupNutrients[0]);
@@ -219,7 +217,7 @@ const SoilCorrections = ({ nutrients, soilAmendmentsSummary, setSoilAmendmentsSu
       let bestNutrient = groupNutrients[0];
       let bestPriority = -1;
       
-      (groupNutrients as any[]).forEach(nutrient => {
+      groupNutrients.forEach(nutrient => {
         const method = nutrient.name.replace(baseName, '');
         const priority = priorityOrder.findIndex(m => method.includes(m));
         // Removed debug logging
@@ -255,8 +253,7 @@ const SoilCorrections = ({ nutrients, soilAmendmentsSummary, setSoilAmendmentsSu
   const [releaseTypeFilter, setReleaseTypeFilter] = useState('all');
   // Add this at the top level of the component, after other useState hooks:
   const [dropdownReleaseTypes, setDropdownReleaseTypes] = useState({}); // { [`${nutrient.name}-${idx}`]: value }
-  // State for extras selections
-  const [extrasSelections, setExtrasSelections] = useState([]); // Array of { fertLabel, rate }
+  const [dropdownSearches, setDropdownSearches] = useState({}); // { [`${nutrient.name}-${idx}`]: searchTerm }
   
   // Add ref to track previous nutrients to detect paddock switches
   // const prevNutrientsRef = useRef(nutrients); // This line is removed
@@ -285,48 +282,7 @@ const SoilCorrections = ({ nutrients, soilAmendmentsSummary, setSoilAmendmentsSu
     setDropdownReleaseTypes({});
   }, []); // Only run on mount
 
-  // Effect to sync internal selections with parent soilAmendmentsSummary
-  useEffect(() => {
-    const currentSelections = [];
-    
-    // Add selections from nutrient-specific cards
-    Object.entries(fertSelections).forEach(([nutrient, sels]) => {
-      if (Array.isArray(sels)) {
-        sels.forEach(sel => {
-          if (sel.fertLabel && sel.fertLabel !== 'none') {
-            const fert = uniqueFertilizerDefs.find(f => f.label === sel.fertLabel);
-            if (fert) {
-              const contentString = Object.entries(fert.nutrientContent)
-                .map(([k, v]) => `${k} ${v}%`).join(', ');
-              currentSelections.push({
-                fertilizer: sel.fertLabel,
-                rate: sel.rate,
-                unit: 'kg/ha',
-                contains: contentString ? contentString.split(', ') : [],
-                nutrient: nutrient
-              });
-            }
-          }
-        });
-      }
-    });
-    
-    // Add extras selections
-    extrasSelections.forEach(sel => {
-      if (sel.fertLabel && sel.fertLabel !== 'none') {
-        currentSelections.push({
-          fertilizer: sel.fertLabel,
-          rate: sel.rate,
-          unit: 'kg/ha',
-          contains: ['Extra product'],
-          nutrient: 'Extra'
-        });
-      }
-    });
-    
-    // Update parent's soilAmendmentsSummary
-    setSoilAmendmentsSummary(currentSelections);
-  }, [fertSelections, extrasSelections, setSoilAmendmentsSummary]);
+
 
   // Helper: get total applied for a nutrient from summary
   function getTotalApplied(nutrient) {
@@ -611,13 +567,19 @@ const SoilCorrections = ({ nutrients, soilAmendmentsSummary, setSoilAmendmentsSu
                       selection.map((sel, idx) => {
                         const dropdownKey = `${nutrient.name}-${idx}`;
                         const dropdownReleaseType = dropdownReleaseTypes[dropdownKey] || 'all';
+                        const dropdownSearch = dropdownSearches[dropdownKey] || '';
                         let filteredFerts = availableFerts;
                         if (dropdownReleaseType !== 'all') {
                           filteredFerts = availableFerts.filter(f => (f.releaseType || '').toLowerCase() === dropdownReleaseType);
                         }
-                        // Filter out fertilizers already selected for other nutrients
-                        const globallySelected = getGloballySelectedFertilizers(nutrient.name);
-                        filteredFerts = filteredFerts.filter(f => !globallySelected.has(f.label));
+                        // Apply search filter
+                        if (dropdownSearch) {
+                          filteredFerts = filteredFerts.filter(f => 
+                            f.label.toLowerCase().includes(dropdownSearch.toLowerCase())
+                          );
+                        }
+                        // Allow fertilizers to be selected for multiple nutrients they contain
+                        // (removed global selection filter to allow multi-nutrient fertilizers)
                         // Calculate recommended rate for this fertilizer
                         const fert = filteredFerts.find(f => f.label === sel.fertLabel);
                         let recommendedRate = sel.rate;
@@ -653,7 +615,7 @@ const SoilCorrections = ({ nutrients, soilAmendmentsSummary, setSoilAmendmentsSu
                                   const f2 = filteredFerts.find(f => f.label === sel.fertLabel);
                                   if (f2) {
                                     const pct2 = f2.nutrientContent[otherNutrient] || 0;
-                                    alreadyAdded += (Number(sel.rate) * Number(pct2)) / 100 / 2.4;
+                                    alreadyAdded += (sel.rate * pct2) / 100 / 2.4;
                                   }
                                 }
                               });
@@ -696,14 +658,14 @@ const SoilCorrections = ({ nutrients, soilAmendmentsSummary, setSoilAmendmentsSu
                               }
                             });
                           });
-                          const addedByThis = (Number(recommendedRate) * Number(pct)) / 100 / 2.4;
-                          const newValue = Number(nObj.current) + Number(alreadyAdded) + Number(addedByThis);
+                          const addedByThis = (recommendedRate * pct) / 100 / 2.4;
+                          const newValue = nObj.current + alreadyAdded + addedByThis;
                           const maxAllowed = nObj.ideal * (1 + maxAllowedExcess / 100);
                           const EPSILON = 1e-6;
                           if (newValue > maxAllowed + EPSILON) {
                             wouldExceed = true;
                             exceedNutrient = otherNutrient;
-                            exceedAmount = ((Number(newValue) - Number(nObj.ideal)) / Number(nObj.ideal)) * 100;
+                            exceedAmount = ((newValue - nObj.ideal) / nObj.ideal) * 100;
                           }
                         });
                         // ... existing code for rendering selector ...
@@ -755,6 +717,14 @@ const SoilCorrections = ({ nutrients, soilAmendmentsSummary, setSoilAmendmentsSu
                                   <SelectValue placeholder="Choose fertilizer" />
                                 </SelectTrigger>
                                 <SelectContent>
+                                  {/* Search input */}
+                                  <input
+                                    type="text"
+                                    placeholder="Search fertilizer..."
+                                    value={dropdownSearch}
+                                    onChange={e => setDropdownSearches(prev => ({ ...prev, [dropdownKey]: e.target.value }))}
+                                    className="w-full px-2 py-1 mb-2 border rounded text-sm"
+                                  />
                                   {/* Per-dropdown filter UI */}
                                   <div className="flex gap-2 mb-2 px-2">
                                     {releaseTypeOptions.map(opt => (
@@ -807,13 +777,13 @@ const SoilCorrections = ({ nutrients, soilAmendmentsSummary, setSoilAmendmentsSu
                                       if (!pct) return;
                                       const nObj = nutrients.find(nu => (nu.genericName || nu.name) === otherNutrient);
                                       if (!nObj) return;
-                                      const addedByThis = (Number(recommendedRate) * Number(pct)) / 100 / 2.4;
-                                      const newValue = Number(nObj.current) + Number(addedByThis);
-                                      const maxAllowed = Number(nObj.ideal) * (1 + Number(maxAllowedExcess) / 100);
+                                      const addedByThis = (recommendedRate * pct) / 100 / 2.4;
+                                      const newValue = nObj.current + addedByThis;
+                                      const maxAllowed = nObj.ideal * (1 + maxAllowedExcess / 100);
                                       if (newValue > maxAllowed + EPSILON) {
                                         wouldExceed = true;
                                         exceedNutrient = otherNutrient;
-                                        exceedAmount = ((Number(newValue) - Number(nObj.ideal)) / Number(nObj.ideal)) * 100;
+                                        exceedAmount = ((newValue - nObj.ideal) / nObj.ideal) * 100;
                                       }
                                     });
                                     // --- Determine color and icon ---
@@ -951,164 +921,24 @@ const SoilCorrections = ({ nutrients, soilAmendmentsSummary, setSoilAmendmentsSu
             })}
           </div>
         )}
-
-        {/* Extras Card - Always visible */}
-        <Card className="bg-white border-gray-200 mb-4">
-          <CardHeader>
-            <CardTitle className="text-black text-lg">Extras</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="mb-4">
-              <p className="text-gray-700 text-sm mb-4">
-                Additional soil amendments and organic matter products that can be applied regardless of nutrient deficiencies.
-              </p>
-              
-              {/* Filter for extras */}
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-2">Filter by Release Type:</label>
-                <select
-                  value={releaseTypeFilter}
-                  onChange={(e) => setReleaseTypeFilter(e.target.value)}
-                  className="border border-gray-300 rounded px-3 py-1 text-sm"
-                >
-                  {releaseTypeOptions.map(option => (
-                    <option key={option.value} value={option.value}>{option.label}</option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Available extras products as dropdowns */}
-              <div className="space-y-3">
-                {extrasSelections.map((sel, idx) => {
-                  const dropdownKey = `extras-${idx}`;
-                  const dropdownReleaseType = dropdownReleaseTypes[dropdownKey] || 'all';
-                  let filteredFerts = extraProducts;
-                  if (dropdownReleaseType !== 'all') {
-                    filteredFerts = extraProducts.filter(f => (f.releaseType || '').toLowerCase() === dropdownReleaseType);
-                  }
-                  
-                  return (
-                    <div key={idx} className="flex gap-4 items-end mb-2">
-                      <div className="flex-1">
-                        <Select
-                          value={sel.fertLabel}
-                          onValueChange={(value) => {
-                            if (value === 'none') {
-                              setExtrasSelections(prev => prev.filter((_, i) => i !== idx));
-                            } else {
-                              setExtrasSelections(prev => prev.map((item, i) => 
-                                i === idx ? { ...item, fertLabel: value } : item
-                              ));
-                            }
-                          }}
-                        >
-                          <SelectTrigger className="bg-white">
-                            <SelectValue placeholder="Select extra product" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="none">None</SelectItem>
-                            {filteredFerts.map((fert) => (
-                              <SelectItem key={fert.label} value={fert.label}>
-                                {fert.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div className="w-24">
-                        <input
-                          type="number"
-                          placeholder="Rate"
-                          value={sel.rate || ''}
-                          onChange={(e) => {
-                            const rate = parseFloat(e.target.value) || 0;
-                            setExtrasSelections(prev => prev.map((item, i) => 
-                              i === idx ? { ...item, rate } : item
-                            ));
-                          }}
-                          className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
-                        />
-                      </div>
-                      <div className="text-sm text-gray-600">kg/ha</div>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setExtrasSelections(prev => prev.filter((_, i) => i !== idx))}
-                      >
-                        Remove
-                      </Button>
-                    </div>
-                  );
-                })}
-                
-                {/* Add new extra product button */}
-                <Button
-                  onClick={() => setExtrasSelections(prev => [...prev, { fertLabel: 'none', rate: 0 }])}
-                  className="w-full"
-                >
-                  Add Extra Product
-                </Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
         {/* Brownish summary card for selected soil correction fertilizers */}
-        {(() => {
-          // Generate dynamic summary from current selections
-          const currentSelections = [];
-          
-          // Add selections from nutrient-specific cards
-          Object.entries(fertSelections).forEach(([nutrient, sels]) => {
-            if (Array.isArray(sels)) {
-              sels.forEach(sel => {
-                if (sel.fertLabel && sel.fertLabel !== 'none') {
-                  const fert = uniqueFertilizerDefs.find(f => f.label === sel.fertLabel);
-                  if (fert) {
-                    const contentString = Object.entries(fert.nutrientContent)
-                      .map(([k, v]) => `${k} ${v}%`).join(', ');
-                    currentSelections.push({
-                      fertilizer: sel.fertLabel,
-                      rate: sel.rate,
-                      unit: 'kg/ha',
-                      contains: contentString ? contentString.split(', ') : []
-                    });
-                  }
-                }
-              });
-            }
-          });
-          
-          // Add extras selections
-          extrasSelections.forEach(sel => {
-            if (sel.fertLabel && sel.fertLabel !== 'none') {
-              currentSelections.push({
-                fertilizer: sel.fertLabel,
-                rate: sel.rate,
-                unit: 'kg/ha',
-                contains: ['Extra product']
-              });
-            }
-          });
-          
-          return currentSelections.length > 0 ? (
-            <div className="mt-6">
-              <div className="rounded-lg shadow p-4" style={{ background: '#f5eee6', borderLeft: '6px solid #a97c50' }}>
-                <div className="font-bold text-[#a97c50] mb-2">Soil Corrections Summary</div>
-                <ul className="list-disc ml-6 text-sm">
-                  {currentSelections.map((item, idx) => (
-                    <li key={idx} className="mb-1">
-                      <span className="font-semibold">{item.fertilizer}</span> at a rate of {item.rate} {item.unit}
-                      {item.contains && item.contains.length > 0 && (
-                        <span className="text-gray-600"> (Contains: {item.contains.join(', ')})</span>
-                      )}
-                    </li>
-                  ))}
-                </ul>
-              </div>
+        {soilAmendmentsSummary && soilAmendmentsSummary.length > 0 && (
+          <div className="mt-6">
+            <div className="rounded-lg shadow p-4" style={{ background: '#f5eee6', borderLeft: '6px solid #a97c50' }}>
+              <div className="font-bold text-[#a97c50] mb-2">Soil Corrections Summary</div>
+              <ul className="list-disc ml-6 text-sm">
+                {soilAmendmentsSummary.map((item, idx) => (
+                  <li key={idx} className="mb-1">
+                    <span className="font-semibold">{item.fertilizer}</span> at a rate of {item.rate} {item.unit}
+                    {item.contains && item.contains.length > 0 && (
+                      <span className="text-gray-600"> (Contains: {item.contains.join(', ')})</span>
+                    )}
+                  </li>
+                ))}
+              </ul>
             </div>
-          ) : null;
-        })()}
+          </div>
+        )}
         {mainDeficientNutrients.length === 0 && (
           <div className="text-green-700 font-semibold">No corrections needed. All nutrients are optimal!</div>
         )}
@@ -1121,7 +951,7 @@ const SoilCorrections = ({ nutrients, soilAmendmentsSummary, setSoilAmendmentsSu
               .map(([k, v]) => `${k} ${v}%`).join(', ');
             // For each nutrient in the fertilizer, calculate amount applied
             const nutrientAmounts = Object.entries(fert.nutrientContent).map(([nutr, pct]) => {
-              const appliedPpm = (Number(sel.rate) * Number(pct)) / 100 / 2.4;
+              const appliedPpm = (sel.rate * pct) / 100 / 2.4;
               const appliedKgHa = (appliedPpm * 2.4).toFixed(2);
               return `${nutr}: ${appliedPpm.toFixed(2)} ppm (${appliedKgHa} kg/ha)`;
             });
@@ -1142,30 +972,6 @@ const SoilCorrections = ({ nutrients, soilAmendmentsSummary, setSoilAmendmentsSu
             );
           })
         )}
-        
-        {/* Extras Products summary */}
-        {extrasSelections.map((sel, idx) => {
-          const fert = extraProducts.find(f => f.label === sel.fertLabel);
-          if (!fert) return null;
-          const contentString = Object.entries(fert.nutrientContent)
-            .map(([k, v]) => `${k} ${v}%`).join(', ');
-          return (
-            <div key={`extra-${sel.fertLabel}-${idx}`} className="mb-3 bg-[#e8f5e8] rounded-md px-4 py-3 flex items-center justify-between">
-              <div>
-                <div className="font-medium text-black">
-                  {sel.fertLabel} <span className="text-xs text-green-600">(Extra)</span>
-                </div>
-                <div className="text-xs text-gray-700">
-                  {contentString ? `Contains: ${contentString}` : 'Organic matter/soil amendment product'}
-                </div>
-                <div className="text-sm text-green-600">Rate: {sel.rate} kg/ha</div>
-                <div className="text-xs text-gray-700 mt-1">
-                  Release Type: {fert.releaseType} | pH Range: {fert.phLogic.min_pH || 'N/A'} - {fert.phLogic.max_pH || 'N/A'}
-                </div>
-              </div>
-            </div>
-          );
-        })}
       </div>
     </ReportSection>
   );

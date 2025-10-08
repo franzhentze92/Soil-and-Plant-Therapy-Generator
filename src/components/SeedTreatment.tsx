@@ -26,8 +26,14 @@ const SeedTreatment: React.FC<SeedTreatmentProps> = ({ selectedProducts, setSele
   const [currentProduct, setCurrentProduct] = useState('');
   const [currentRate, setCurrentRate] = useState('');
   const [currentUnit, setCurrentUnit] = useState('');
+  const [search, setSearch] = useState('');
 
   const units = ['g/ha', 'ml/ha', 'kg/ha', 'L/ha', 'L/tonne of seed', 'kg/tonne of seed', 'mL/100L Water', 'L/100L Water', 'g/100L Water', 'kg/100L Water'];
+
+  // Filter products based on search
+  const filteredProducts = products.filter(product =>
+    product.label.toLowerCase().includes(search.toLowerCase())
+  );
 
   const addProduct = () => {
     if (currentProduct && currentRate && currentUnit) {
@@ -79,7 +85,14 @@ const SeedTreatment: React.FC<SeedTreatmentProps> = ({ selectedProducts, setSele
                         <SelectValue placeholder="Choose seed treatment" />
                       </SelectTrigger>
                       <SelectContent>
-                        {products.map((product) => (
+                        <input
+                          type="text"
+                          placeholder="Search product..."
+                          value={search}
+                          onChange={e => setSearch(e.target.value)}
+                          className="w-full px-2 py-1 mb-2 border rounded text-sm"
+                        />
+                        {filteredProducts.map((product) => (
                           <SelectItem key={product.value} value={product.value}>
                             <div className="flex flex-col">
                               <div className="flex items-center gap-1">
@@ -195,8 +208,14 @@ export const PlantingBlend: React.FC<SeedTreatmentProps> = ({ selectedProducts, 
   const [currentProduct, setCurrentProduct] = useState('');
   const [currentRate, setCurrentRate] = useState('');
   const [currentUnit, setCurrentUnit] = useState('');
+  const [search, setSearch] = useState('');
 
   const units = ['g/ha', 'ml/ha', 'kg/ha', 'L/ha', 'L/tonne of seed', 'kg/tonne of seed', 'mL/100L Water', 'L/100L Water', 'g/100L Water', 'kg/100L Water'];
+
+  // Filter products based on search
+  const filteredProducts = products.filter(product =>
+    product.label.toLowerCase().includes(search.toLowerCase())
+  );
 
   const addProduct = () => {
     if (currentProduct && currentRate && currentUnit) {
@@ -247,7 +266,14 @@ export const PlantingBlend: React.FC<SeedTreatmentProps> = ({ selectedProducts, 
                         <SelectValue placeholder="Choose planting blend" />
                       </SelectTrigger>
                       <SelectContent>
-                        {products.map((product) => (
+                        <input
+                          type="text"
+                          placeholder="Search product..."
+                          value={search}
+                          onChange={e => setSearch(e.target.value)}
+                          className="w-full px-2 py-1 mb-2 border rounded text-sm"
+                        />
+                        {filteredProducts.map((product) => (
                           <SelectItem key={product.value} value={product.value}>
                             <div className="flex flex-col">
                               <div className="flex items-center gap-1">

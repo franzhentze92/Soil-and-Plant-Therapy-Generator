@@ -1,7 +1,7 @@
 import React, { useState, useRef, useMemo, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { FileDown, Leaf, Bean, Droplets, Sprout, Info, Beaker } from 'lucide-react';
+import { FileDown, Leaf, Bean, Droplets, Sprout, Info, Beaker, Loader2 } from 'lucide-react';
 import { Settings } from 'lucide-react';
 import SoilUpload from './SoilUpload';
 import { productList } from '../fertilizerProducts';
@@ -1317,8 +1317,8 @@ const SoilReportGenerator: React.FC = () => {
     
     setIsUploading(true);
     try {
-      // Removed debug logging
-      setUploadedFile(file);
+    // Removed debug logging
+    setUploadedFile(file);
       
       // Send file to backend for parsing
       const formData = new FormData();
@@ -1332,11 +1332,11 @@ const SoilReportGenerator: React.FC = () => {
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      
-      const result = await response.json();
-              // Removed debug logging for backend response
         
-            if (result.error) {
+       const result = await response.json();
+              // Removed debug logging for backend response
+      
+      if (result.error) {
         throw new Error(result.error);
       }
       if (result.lamotte) {
@@ -1466,7 +1466,7 @@ const SoilReportGenerator: React.FC = () => {
           });
           let current_nutrient_overview = {}
           if (nutrient_overview){
-
+          
             current_nutrient_overview = nutrient_overview[(group as any).paddock]
           }
           const safeNutrientOverview = current_nutrient_overview ?? {};
@@ -1587,7 +1587,7 @@ const SoilReportGenerator: React.FC = () => {
     try {
       // Simulate report generation time (you can adjust this or remove it)
       await new Promise(resolve => setTimeout(resolve, 1000));
-      setShowReport(true);
+    setShowReport(true);
     } catch (error) {
       console.error('Error generating report:', error);
     } finally {
@@ -4991,8 +4991,8 @@ const SoilReportGenerator: React.FC = () => {
                         <Button 
                           className="flex items-center gap-2 bg-[#8cb43a] hover:bg-[#7aa32f] text-white" 
                           onClick={() => {
-                            // Removed debug logging
-                            handleExportPDF();
+                          // Removed debug logging
+                          handleExportPDF();
                           }}
                           disabled={isExporting}
                         >
@@ -5003,8 +5003,8 @@ const SoilReportGenerator: React.FC = () => {
                             </>
                           ) : (
                             <>
-                              <FileDown className="h-4 w-4" />
-                              Generate Custom PDF
+                          <FileDown className="h-4 w-4" />
+                          Generate Custom PDF
                             </>
                           )}
                         </Button>
