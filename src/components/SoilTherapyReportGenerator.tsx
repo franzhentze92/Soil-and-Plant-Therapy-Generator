@@ -1092,7 +1092,7 @@ const SoilReportGenerator: React.FC = () => {
       let isSoilAmendment = false;
       let rateKgHa = getKgHa(product.rate, product.unit);
       if (product.fertilizer) {
-        productDef = soilAmendmentFerts[product.fertiler];
+        productDef = soilAmendmentFerts[product.fertilizer];
         isSoilAmendment = true;
       } else if (product.product && typeof product.product === 'string') {
         productDef = findProductDef(product.product, seedTreatmentDefs) || findProductDef(product.product, soilDrenchDefs) || findProductDef(product.product, foliarSprayDefs);
