@@ -37,13 +37,11 @@ const fertilizerDefs: FertilizerDef[] = [
   { label: 'Diammonium Phosphate (DAP)', nutrientContent: { Phosphorus: 20, Ammonium: 18 }, phLogic: { min_pH: 5.0, max_pH: 6.8 }, releaseType: 'fast' },
   { label: 'Rock Phosphate', nutrientContent: { Phosphorus: 25, Calcium: 30 }, phLogic: { min_pH: null, max_pH: 6.0 }, releaseType: 'very slow' },
   { label: 'Agricultural Limestone (CaCO₃)', nutrientContent: { Calcium: 38 }, phLogic: { min_pH: null, max_pH: 6.5 }, releaseType: 'slow' },
-  { label: 'Calcium Nitrate', nutrientContent: { Calcium: 19, Nitrate: 12 }, phLogic: { min_pH: null, max_pH: 7.5 }, releaseType: 'fast' },
   { label: 'Soft Rock Phosphate', nutrientContent: { Phosphorus: 14, Calcium: 20 }, phLogic: { min_pH: null, max_pH: 6.5 }, releaseType: 'slow', url: 'https://nutri-tech.com.au/collections/composted-fertilisers/products/nts-soft-rock' },
   { label: 'Bone Meal', nutrientContent: { Calcium: 26, Phosphorus: 14 }, phLogic: { min_pH: null, max_pH: 7.0 }, releaseType: 'slow' },
   { label: 'Fish Bone Meal', nutrientContent: { Calcium: 20, Phosphorus: 10, Nitrogen: 5 }, phLogic: { min_pH: 5.0, max_pH: 7.5 }, releaseType: 'slow' },
   { label: 'Calcium Chloride', nutrientContent: { Calcium: 27 }, phLogic: { min_pH: null, max_pH: null }, releaseType: 'fast' },
   { label: 'Muriate of Potash (Potassium Chloride)', nutrientContent: { Potassium: 60 }, phLogic: { min_pH: 5.5, max_pH: 8.5 }, releaseType: 'fast' },
-  { label: 'Potassium Nitrate', nutrientContent: { Potassium: 44, Nitrate: 13 }, phLogic: { min_pH: 5.0, max_pH: 8.0 }, releaseType: 'fast' },
   { label: 'Langbeinite', nutrientContent: { Potassium: 22, Magnesium: 11, Sulphur: 22 }, phLogic: { min_pH: 5.5, max_pH: 8.0 }, releaseType: 'moderate' },
   { label: 'Potassium Magnesium Sulfate', nutrientContent: { Potassium: 22, Magnesium: 11, Sulphur: 22 }, phLogic: { min_pH: 5.5, max_pH: 8.0 }, releaseType: 'moderate' },
   { label: 'Potassium Thiosulfate', nutrientContent: { Potassium: 25, Sulphur: 17 }, phLogic: { min_pH: 5.0, max_pH: 8.0 }, releaseType: 'fast' },
@@ -53,8 +51,6 @@ const fertilizerDefs: FertilizerDef[] = [
   { label: 'Dolomitic Lime', nutrientContent: { Calcium: 21, Magnesium: 11 }, phLogic: { min_pH: null, max_pH: 6.5 }, releaseType: 'slow' },
   { label: 'Kieserite (Magnesium Sulfate Monohydrate)', nutrientContent: { Magnesium: 16, Sulphur: 22 }, phLogic: { min_pH: null, max_pH: null }, releaseType: 'moderate' },
   { label: 'Epsom Salt (Magnesium Sulfate Heptahydrate)', nutrientContent: { Magnesium: 10, Sulphur: 13 }, phLogic: { min_pH: null, max_pH: null }, releaseType: 'fast' },
-  { label: 'Langbeinite', nutrientContent: { Potassium: 22, Magnesium: 11, Sulphur: 22 }, phLogic: { min_pH: 5.5, max_pH: 8.0 }, releaseType: 'moderate' },
-  { label: 'Potassium Magnesium Sulfate', nutrientContent: { Potassium: 22, Magnesium: 11, Sulphur: 22 }, phLogic: { min_pH: 5.5, max_pH: 8.0 }, releaseType: 'moderate' },
   { label: 'Thermophosphate', nutrientContent: { Calcium: 20, Magnesium: 2, Phosphorus: 18 }, phLogic: { min_pH: 5.5, max_pH: 7.5 }, releaseType: 'slow' },
   { label: 'Magnesium Nitrate', nutrientContent: { Magnesium: 10.5, Nitrate: 11 }, phLogic: { min_pH: 5.5, max_pH: 8.0 }, releaseType: 'fast' },
   { label: 'Magnesium Chloride', nutrientContent: { Magnesium: 12 }, phLogic: { min_pH: 5.0, max_pH: 8.0 }, releaseType: 'fast' },
@@ -63,11 +59,8 @@ const fertilizerDefs: FertilizerDef[] = [
   { label: 'Gypsum (Calcium Sulfate)', nutrientContent: { Calcium: 23, Sulphur: 18 }, phLogic: { min_pH: 5.8, max_pH: 7.5 }, releaseType: 'moderate' },
   { label: 'Ammonium Sulfate', nutrientContent: { Ammonium: 21, Sulphur: 24 }, phLogic: { min_pH: 5.0, max_pH: 8.5 }, releaseType: 'fast' },
   { label: 'Potassium Sulfate (Sulfate of Potash)', nutrientContent: { Potassium: 50, Sulphur: 17 }, phLogic: { min_pH: 5.0, max_pH: 8.5 }, releaseType: 'fast' },
-  { label: 'Langbeinite', nutrientContent: { Potassium: 22, Magnesium: 11, Sulphur: 22 }, phLogic: { min_pH: 5.5, max_pH: 8.0 }, releaseType: 'moderate' },
-  { label: 'Potassium Magnesium Sulfate', nutrientContent: { Potassium: 22, Magnesium: 11, Sulphur: 22 }, phLogic: { min_pH: 5.5, max_pH: 8.0 }, releaseType: 'moderate' },
   { label: 'Ammonium Thiosulfate', nutrientContent: { Sulphur: 26, Ammonium: 12 }, phLogic: { min_pH: 5.0, max_pH: 8.5 }, releaseType: 'moderate' },
   { label: 'Sulfur-Coated Urea', nutrientContent: { Sulphur: 15, Nitrogen: 35 }, phLogic: { min_pH: 5.0, max_pH: 8.0 }, releaseType: 'slow' },
-  { label: 'Epsom Salt (Magnesium Sulfate Heptahydrate)', nutrientContent: { Magnesium: 10, Sulphur: 13 }, phLogic: { min_pH: null, max_pH: null }, releaseType: 'fast' },
   { label: 'Chicken Manure', nutrientContent: { Phosphorus: 2.5, Nitrogen: 3, Potassium: 2, Calcium: 3, Magnesium: 1, Sulphur: 0.5 }, phLogic: { min_pH: 5.0, max_pH: 8.0 }, releaseType: 'slow' },
   { label: 'NTS Fast Fulvic™', nutrientContent: { Nitrate: 0.1, Ammonium: 0.1, Calcium: 0.1, Magnesium: 0.1, Potassium: 0.1, Phosphorus: 0.1, Sulphur: 0.1 }, phLogic: { min_pH: 4, max_pH: 12 }, releaseType: 'fast' },
   { label: 'NTS Fulvic Acid Powder™', nutrientContent: { Nitrate: 0.1, Ammonium: 0.1, Calcium: 0.1, Magnesium: 0.1, Potassium: 0.1, Phosphorus: 0.1, Sulphur: 0.1 }, phLogic: { min_pH: 4, max_pH: 12 }, releaseType: 'fast' },
@@ -299,6 +292,7 @@ const SoilCorrections = ({ nutrients, soilAmendmentsSummary, setSoilAmendmentsSu
     const actualNutrientApplied = (rate * percent) / 100;
     // Remove only this specific fertilizer if it already exists, keep others
     const filtered = soilAmendmentsSummary.filter(item => !(item.nutrient === nutrient && item.fertilizer === fertLabel));
+    console.log('handleApplyFertilizer','nutrient',nutrient,'fertLabel',fertLabel,'rate',rate,'filtered',filtered,'soilAmendmentsSummary',soilAmendmentsSummary)
     setSoilAmendmentsSummary([
       ...filtered,
       {
@@ -676,7 +670,9 @@ const SoilCorrections = ({ nutrients, soilAmendmentsSummary, setSoilAmendmentsSu
                                 value={sel.fertLabel}
                                 onValueChange={fertLabel => {
                                   // When fertilizer changes, set recommended rate
+                                  debugger
                                   let rate = sel.rate;
+                                  
                                   const fert = filteredFerts.find(f => f.label === fertLabel);
                                   if (fert) {
                                     const percent = fert.nutrientContent[nutrient.genericName || nutrient.name] || 0;
@@ -871,7 +867,36 @@ const SoilCorrections = ({ nutrients, soilAmendmentsSummary, setSoilAmendmentsSu
                                     const arr = [...(prev[nutrient.name] || [])];
                                     arr[idx] = { ...arr[idx], rate };
                                     return { ...prev, [nutrient.name]: arr };
-                                  });
+                                  }); 
+        
+                                  // Update summary in place to avoid duplicating selections
+                                  try {
+                                  if (sel.fertLabel && sel.fertLabel !== 'none') {
+                                    const fert = uniqueFertilizerDefs.find(f => f.label === sel.fertLabel);
+                                    if (fert) {
+                                      const percent = fert.nutrientContent[nutrient.genericName || nutrient.name] || 0;
+                                      const actualNutrientApplied = (rate * percent) / 100;
+                                      
+                                      console.log('soilAmendmentsSummary',  soilAmendmentsSummary)
+                                      const tempArrary= Array.isArray(soilAmendmentsSummary) ? soilAmendmentsSummary : [];
+                                      const filtered = tempArrary.filter(item => !(item.nutrient === nutrient.name && item.fertilizer === sel.fertLabel));
+                                      console.log('filtered',filtered)
+                                      setSoilAmendmentsSummary([
+                                        ...filtered,
+                                        {
+                                          fertilizer: sel.fertLabel,
+                                          nutrient: nutrient.name,
+                                          rate,
+                                          actualNutrientApplied,
+                                          unit: 'kg/ha',
+                                          contains: Object.keys(fert.nutrientContent),
+                                        },
+                                      ]);
+                                    }
+                                  }
+                                  } catch (error) {
+                                    console.error('Error updating soil amendments summary', error);
+                                  }
                                 }}
                                 className="bg-white h-10 w-20"
                               />
