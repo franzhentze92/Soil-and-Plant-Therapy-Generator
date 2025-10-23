@@ -1471,6 +1471,9 @@ const SoilReportGenerator: React.FC = () => {
           }
           const safeNutrientOverview = current_nutrient_overview ?? {};
                   // Removed debug logging for paddock nutrients
+                  debugger;
+                  console.log('current_nutrient_overview', current_nutrient_overview);
+                  let phosphorusMonitoringText = current_nutrient_overview?.['Phosphorus Monitoring']
           return {
             analysisId: (group as any).analysisId,
             name: (group as any).name,
@@ -1485,6 +1488,7 @@ const SoilReportGenerator: React.FC = () => {
               soilReservesText: current_nutrient_overview?.['Organic Matter'] ?? 'Soil reserves analysis will be generated based on your uploaded data.',
               lamotteReamsText: current_nutrient_overview?.['Lamotte Reams'] ?? 'LaMotte/Reams analysis will be generated based on your uploaded data.',
               taeText: current_nutrient_overview?.['TAE'] ?? 'Total Available Elements (TAE) analysis will be generated based on your uploaded data.',
+              phosphorusMonitoringText: current_nutrient_overview?.['Phosphorus Monitoring'] ?? 'Phosphorus Monitoring analysis will be generated based on your uploaded data.',
               organicMatterText: current_nutrient_overview?.['Organic Matter'] ?? '',
 
               generalComments: {
@@ -2997,6 +3001,7 @@ const SoilReportGenerator: React.FC = () => {
     
     // Filter nutrients: exclude LaMotte/TAE and for base saturation, only show the '%' unit row
     const filteredNutrients = nutrients.filter((n) => {
+      console.log('nutrients', n.name);
       // First, exclude LaMotte and TAE nutrients
       if (excludedNutrients.includes(n.name)) {
         return false;
@@ -3377,6 +3382,9 @@ const SoilReportGenerator: React.FC = () => {
           'Aluminium TAE', 'Copper TAE', 'Iron TAE', 'Manganese TAE', 'Selenium TAE',
           'Zinc TAE', 'Boron TAE', 'Silicon TAE', 'Cobalt TAE', 'Molybdenum TAE', 'Sulfur TAE'
         ],
+        phosphorusMonitoring: [ 
+          
+        ]
       };
       const newComments = {};
       for (const [section, names] of Object.entries(sectionNutrientMap)) {
@@ -4452,8 +4460,8 @@ const SoilReportGenerator: React.FC = () => {
                       <label className="block font-medium mb-1">Phosphorus Monitoring</label>
                       <textarea
                         className="w-full p-2 border rounded text-sm min-h-[60px]"
-                        value={phosphorusMonitoringText}
-                        onChange={e => setPhosphorusMonitoringText(e.target.value)}
+                        value={currentPaddockData.phosphorusMonitoringText}
+                        onChange={e => updateCurrentPaddockData('phosphorusMonitoringText', e.target.value)}
                         placeholder="Enter manual notes about phosphorus monitoring..."
                       />
                     </div>

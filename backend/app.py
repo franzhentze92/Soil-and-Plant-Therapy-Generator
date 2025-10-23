@@ -234,7 +234,8 @@ def extract_nutrient_overview(pdf_path):
         "Base Saturation",
         "Available Nutrients",
         "Lamotte Reams",
-        "TAE"
+        "TAE",
+        "Phosphorus Monitoring"
     ]
     def find_matching_keys(text, keys):
         """Return a list of keys found in the given text string."""
