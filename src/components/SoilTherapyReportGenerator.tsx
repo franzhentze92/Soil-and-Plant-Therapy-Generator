@@ -30,6 +30,7 @@ import SoilAnalysisChart from './SoilAnalysisChart';
 import SoilCorrections from './SoilCorrections';
 import PRODUCT_INFO from './ClientReportExport';
 import { generateCustomPDF } from '../lib/pdfReportGenerator';
+// import { display } from 'html2canvas/dist/types/css/property-descriptors/display';
 pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs';
 
 
@@ -108,7 +109,7 @@ let mockNutrients = [
     status: getStatus(current, ideal, n.ideal_range as [number, number] | undefined)
   };
 });
-  // Removed debug logging
+// Removed debug logging
 
 // Add aliases for SoilAmendments (so it finds the right nutrients)
 const soilAmendmentNames = [
@@ -324,7 +325,7 @@ function getUnifiedNutrients(data, includeAllSections = true) {
   const result = [];
   const safeNum = v => (typeof v === 'string' && v.includes('<')) ? 0 : Number(v);
   // Process sections based on parameter
-  const sections = includeAllSections 
+  const sections = includeAllSections
     ? ['albrecht_mehlich_kcl', 'base_saturation', 'lamotte_reams', 'tae']
     : ['albrecht_mehlich_kcl']; // Only Albrecht section for soil corrections
   sections.forEach(section => {
@@ -449,13 +450,14 @@ const SoilReportGenerator: React.FC = () => {
   const [isExporting, setIsExporting] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [isGeneratingReport, setIsGeneratingReport] = useState(false);
-  
+
+  const [reportRefId,setReportRefId] = useState<string|null>(null);
   // Add multi-paddock state variables
   const [paddockReports, setPaddockReports] = useState<any[]>([]);
   const [selectedPaddockIndex, setSelectedPaddockIndex] = useState(0);
   const [availableAnalyses, setAvailableAnalyses] = useState<any[]>([]);
   const [selectedAnalysisIndex, setSelectedAnalysisIndex] = useState(-1);
-  
+
   // Current paddock data for form fields
   const currentPaddockData = useMemo(() => {
     return paddockReports.length > 0 && paddockReports[selectedPaddockIndex]
@@ -467,17 +469,17 @@ const SoilReportGenerator: React.FC = () => {
   useEffect(() => {
     if (paddockReports.length > 0) {
       const needsInitialization = paddockReports.some((paddock, idx) => {
-        return !paddock.data.tankMixingItems || 
-               !Array.isArray(paddock.data.tankMixingItems) || 
-               paddock.data.tankMixingItems.length === 0;
+        return !paddock.data.tankMixingItems ||
+          !Array.isArray(paddock.data.tankMixingItems) ||
+          paddock.data.tankMixingItems.length === 0;
       });
-      
+
       if (needsInitialization) {
         console.log('Initializing tank mixing data for all paddocks');
         setPaddockReports(prev => prev.map((paddock, idx) => {
-          if (!paddock.data.tankMixingItems || 
-              !Array.isArray(paddock.data.tankMixingItems) || 
-              paddock.data.tankMixingItems.length === 0) {
+          if (!paddock.data.tankMixingItems ||
+            !Array.isArray(paddock.data.tankMixingItems) ||
+            paddock.data.tankMixingItems.length === 0) {
             return {
               ...paddock,
               data: {
@@ -492,7 +494,7 @@ const SoilReportGenerator: React.FC = () => {
     }
   }, [paddockReports.length, selectedPaddockIndex]);
 
-    
+
 
   const [somCecText, setSomCecText] = useState('Soil organic matter and CEC analysis will be generated based on your uploaded data.');
   const [baseSaturationText, setBaseSaturationText] = useState('Base saturation analysis will be generated based on your uploaded data.');
@@ -721,11 +723,11 @@ const SoilReportGenerator: React.FC = () => {
     soilAmendmentFerts['NH4'] = { nutrientContent: ammoniumFerts };
     soilAmendmentFerts['NH4-N'] = { nutrientContent: ammoniumFerts };
     // ... rest of fertilizer definitions ...
-  } catch (e) {}
+  } catch (e) { }
 
   // Deduplicate mainNutrients by canonical name with proper prioritization
 
-  
+
   // Deduplicate mainNutrients by canonical name
   const canonicalName = (name) => {
     // Remove parenthesis and trim
@@ -1314,28 +1316,50 @@ const SoilReportGenerator: React.FC = () => {
   // --- PDF parsing logic ---
   const handleFileUpload = async (file: File) => {
     if (isUploading) return; // Prevent multiple uploads
-    
+
     setIsUploading(true);
     try {
-    // Removed debug logging
-    setUploadedFile(file);
-      
+      // Removed debug logging
+      debugger
+      setUploadedFile(file);
+      try {
+        let filename = file.name
+        let filename_parts = filename.split("..")
+        setReportRefId(null)
+        console.log("FILENAME", filename_parts)
+        let ref = ""
+        if (filename_parts.length > 0) {
+          // UUID v1-v5 regex
+          const uuidRegex: RegExp = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+          const uuids: string[] = filename_parts.filter((str: string) => uuidRegex.test(str));
+          console.log(uuids);
+          if (uuids.length > 0) {
+            ref = uuids[0]
+          }
+        }
+        setReportRefId(ref)
+
+      } catch (e) {
+          console.error(e);
+          
+      }
       // Send file to backend for parsing
       const formData = new FormData();
       formData.append('file', file);
-      
+
       const response = await fetch('/extract-soil-report', {
         method: 'POST',
         body: formData,
       });
-      
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-        
-       const result = await response.json();
-              // Removed debug logging for backend response
-      
+
+      const result = await response.json();
+      // Removed debug logging for backend response
+
       if (result.error) {
         throw new Error(result.error);
       }
@@ -1346,23 +1370,23 @@ const SoilReportGenerator: React.FC = () => {
         setLamotteFromBackend(null);
       }
       let nutrient_overview = result?.nutrient_overview
-      
+
       // Handle multiple analyses like plant report generator
       if (result.analyses && Array.isArray(result.analyses) && result.analyses.length > 0) {
         // Removed debug logging for analyses count
-        
+
         setAvailableAnalyses(result.analyses);
         setSelectedAnalysisIndex(0);
-        
+
         // Group analyses by paddock name to combine nutrients from the same paddock across pages
         const paddockGroups = {};
         result.analyses.forEach((analysis, index) => {
-                  // Removed debug logging for analysis processing
+          // Removed debug logging for analysis processing
           if (analysis && (analysis.nutrients || analysis.info?.paddock || analysis.name)) {
             // Use the real paddock name from the backend, fallback to analysis name if paddock is not available
             const realPaddockName = analysis.info?.paddock || analysis.paddock || analysis.name || `Analysis ${index + 1}`;
             // Removed debug logging for analysis mapping
-            
+
             if (!paddockGroups[realPaddockName]) {
               paddockGroups[realPaddockName] = {
                 analysisId: `paddock-${index + 1}`,
@@ -1373,11 +1397,11 @@ const SoilReportGenerator: React.FC = () => {
               };
               // Removed debug logging for paddock group creation
             }
-            
+
             // Add nutrients from this analysis to the paddock group
             if (analysis.nutrients && Array.isArray(analysis.nutrients)) {
               // Removed debug logging for nutrient addition
-              
+
               // Add nutrients to the group
               paddockGroups[realPaddockName].nutrients.push(...analysis.nutrients);
             } else {
@@ -1388,17 +1412,17 @@ const SoilReportGenerator: React.FC = () => {
             // Removed debug logging for skipped analysis
           }
         });
-        
+
         // Removed debug logging for final paddock groups
-        
+
         // Create paddock reports from the grouped data, with priority for main testing methods
         const newPaddockReports = Object.values(paddockGroups).map((group, index) => {
           // Removed debug logging for paddock report creation
-          
+
           // Prioritize main testing methods over TAE values
           const prioritizedNutrients = [];
           const nutrientMap = new Map();
-          
+
           // First pass: collect all nutrients
           (group as any).nutrients.forEach(nutrient => {
             const name = nutrient.name;
@@ -1407,22 +1431,22 @@ const SoilReportGenerator: React.FC = () => {
             }
             nutrientMap.get(name).push(nutrient);
           });
-          
+
           // Second pass: prioritize main testing methods
           nutrientMap.forEach((nutrients, name) => {
             // Removed debug logging
-            
+
             if (nutrients.length === 1) {
               // Only one version, use it
-                              // Removed debug logging
+              // Removed debug logging
               prioritizedNutrients.push(nutrients[0]);
             } else {
               // Multiple versions - prioritize main testing methods and exclude LaMotte/TAE for main nutrients
               const taeNutrients = nutrients.filter(n => n.category === 'tae');
               const nonTaeNutrients = nutrients.filter(n => n.category !== 'tae');
-              
-                              // Removed debug logging
-              
+
+              // Removed debug logging
+
               // For non-TAE nutrients, prioritize main testing methods
               if (nonTaeNutrients.length > 0) {
                 const mainMethods = [
@@ -1435,11 +1459,11 @@ const SoilReportGenerator: React.FC = () => {
                   ' (Calc)',
                   ' (1:5 water)'
                 ];
-                
+
                 // Find the nutrient with the highest priority method
                 let bestNutrient = nonTaeNutrients[0];
                 let bestPriority = -1;
-                
+
                 nonTaeNutrients.forEach(nutrient => {
                   const method = nutrient.name.replace(name, '');
                   const priority = mainMethods.findIndex(m => method.includes(m));
@@ -1450,11 +1474,11 @@ const SoilReportGenerator: React.FC = () => {
                     // Removed debug logging
                   }
                 });
-                
+
                 // Removed debug logging
                 prioritizedNutrients.push(bestNutrient);
               }
-              
+
               // Always preserve TAE nutrients
 
               taeNutrients.forEach(taeNutrient => {
@@ -1465,15 +1489,14 @@ const SoilReportGenerator: React.FC = () => {
             }
           });
           let current_nutrient_overview = {}
-          if (nutrient_overview){
-          
+          if (nutrient_overview) {
+
             current_nutrient_overview = nutrient_overview[(group as any).paddock]
           }
           const safeNutrientOverview = current_nutrient_overview ?? {};
-                  // Removed debug logging for paddock nutrients
-                  debugger;
-                  console.log('current_nutrient_overview', current_nutrient_overview);
-                  let phosphorusMonitoringText = current_nutrient_overview?.['Phosphorus Monitoring']
+          // Removed debug logging for paddock nutrients
+          console.log('current_nutrient_overview', current_nutrient_overview);
+          let phosphorusMonitoringText = current_nutrient_overview?.['Phosphorus Monitoring']
           return {
             analysisId: (group as any).analysisId,
             name: (group as any).name,
@@ -1515,12 +1538,12 @@ const SoilReportGenerator: React.FC = () => {
             complete: false
           };
         });
-        
+
         // Removed debug logging for created paddock reports
-        console.log("newPaddockReports",newPaddockReports)
+        console.log("newPaddockReports", newPaddockReports)
         setPaddockReports(newPaddockReports);
         setSelectedPaddockIndex(0);
-        
+
         // Set nutrients for the first analysis
         const firstPaddock = newPaddockReports[0];
         if (firstPaddock && firstPaddock.data.nutrients && Array.isArray(firstPaddock.data.nutrients)) {
@@ -1574,8 +1597,8 @@ const SoilReportGenerator: React.FC = () => {
         setAvailableAnalyses([]);
         setPaddockReports([]);
       }
-      
-              // Removed debug logging for file upload completion
+
+      // Removed debug logging for file upload completion
     } catch (err) {
       console.error('Error parsing PDF:', err);
       alert('Failed to parse PDF. Please check your file or try a different one.');
@@ -1586,12 +1609,12 @@ const SoilReportGenerator: React.FC = () => {
 
   const handleGenerateReport = async () => {
     if (isGeneratingReport) return; // Prevent multiple clicks
-    
+
     setIsGeneratingReport(true);
     try {
       // Simulate report generation time (you can adjust this or remove it)
       await new Promise(resolve => setTimeout(resolve, 1000));
-    setShowReport(true);
+      setShowReport(true);
     } catch (error) {
       console.error('Error generating report:', error);
     } finally {
@@ -1603,25 +1626,25 @@ const SoilReportGenerator: React.FC = () => {
 
   const handleExportPDF = async () => {
     if (isExporting) return; // Prevent multiple exports
-    
+
     setIsExporting(true);
     try {
       // Save the current paddock's data before exporting
       saveCurrentPaddockReport(currentPaddockData);
-      
+
       if (!paddockReports || paddockReports.length === 0) {
         console.error('No paddock reports available for export');
         alert('No paddock reports available for export. Please upload a file first.');
         return;
       }
-      
+
       // Calculate soil amendments for all paddocks before export (only if no manual fertilizers added)
       const calculateSoilAmendmentsForAllPaddocks = () => {
         paddockReports.forEach((paddock, idx) => {
           // Check if user has manually added fertilizers for this paddock
-          const hasManualFertilizers = paddock.data.soilAmendmentsSummary && 
+          const hasManualFertilizers = paddock.data.soilAmendmentsSummary &&
             paddock.data.soilAmendmentsSummary.length > 0;
-          
+
           // Only calculate automatic amendments if no manual fertilizers were added
           if (!hasManualFertilizers) {
             // Define fertilizer definitions inline (copied from SoilCorrections.tsx)
@@ -1644,7 +1667,7 @@ const SoilReportGenerator: React.FC = () => {
               { label: 'Zinc Sulfate', nutrientContent: { Zinc: 23, Sulphur: 11 } },
               { label: 'Molybdenum', nutrientContent: { Molybdenum: 54 } }
             ];
-            
+
             const nutrients = paddock.data.nutrients || [];
             const deficientNutrients = nutrients.filter(n => {
               const isNumber = v => typeof v === 'number' && !isNaN(v);
@@ -1652,21 +1675,21 @@ const SoilReportGenerator: React.FC = () => {
               const isRelevant = n.category !== 'lamotte_reams' && n.category !== 'tae' && n.category !== 'base_saturation';
               return needsCorrection && isRelevant;
             });
-            
+
             // Calculate soil amendments for this paddock
             const soilAmendments = [];
             deficientNutrients.forEach(nutrient => {
               // Find the best fertilizer for this nutrient
-              const bestFertilizer = fertilizerDefs.find(fert => 
+              const bestFertilizer = fertilizerDefs.find(fert =>
                 fert.nutrientContent && fert.nutrientContent[nutrient.genericName || nutrient.name] > 0
               );
-              
+
               if (bestFertilizer) {
                 const nutrientName = nutrient.genericName || nutrient.name;
                 const percent = bestFertilizer.nutrientContent[nutrientName] || 0;
                 const required = Math.max(nutrient.ideal - nutrient.current, 0);
                 const rate = (required * 2.4 * 100) / percent; // Convert ppm to kg/ha
-                
+
                 if (rate > 0) {
                   soilAmendments.push({
                     fertilizer: bestFertilizer.label,
@@ -1678,31 +1701,31 @@ const SoilReportGenerator: React.FC = () => {
                 }
               }
             });
-            
+
             // Update the paddock data with soil amendments
             paddock.data.soilAmendmentsSummary = soilAmendments;
           }
         });
       };
-      
+
       // Disabled automatic soil amendments calculation - only use manually added fertilizers
       // calculateSoilAmendmentsForAllPaddocks();
-      
+
       // Create an array of paddock data for multi-paddock export
       const paddockDataArray = paddockReports.map((paddock, idx) => {
         const data = paddock.data;
-        
+
         // Combine summary texts for this paddock
         const combinedSummary = [
-            data.somCecText,
-            data.baseSaturationText,
-            data.phText,
-            data.availableNutrientsText,
-            data.soilReservesText,
-            data.lamotteReamsText,
-            data.taeText
+          data.somCecText,
+          data.baseSaturationText,
+          data.phText,
+          data.availableNutrientsText,
+          data.soilReservesText,
+          data.lamotteReamsText,
+          data.taeText
         ].filter(text => text && text.trim()).join('\n\n');
-        
+
         // Debug: Log what data is being used for PDF export
         console.log(`PDF Export DEBUG - Paddock ${idx} data:`, {
           somCecText: data.somCecText,
@@ -1714,37 +1737,37 @@ const SoilReportGenerator: React.FC = () => {
           organicMatterText: data.organicMatterText,
           cecText: data.cecText
         });
-        
+
         const paddockData = {
           // Map soil report data to match plant report format
           paddockName: paddockReports[idx]?.paddock || paddockReports[idx]?.name || availableAnalyses[idx]?.info?.paddock || availableAnalyses[idx]?.paddock || availableAnalyses[idx]?.name || `Paddock ${idx + 1}`,
           summary: combinedSummary,
-          
+
           // Product Recommendation Sections - Include all sections
           // 1. Seed Treatment
           seedTreatmentProducts: data.seedTreatmentProducts || seedTreatmentProducts || [],
-          
+
           // 2. Planting Blend (from SeedTreatment component)
           plantingBlendProducts: data.plantingBlendProducts || [],
-          
+
           // 3. Soil Amendments - Only include if manually added
-          soilAmendments: (data.soilAmendmentsSummary && data.soilAmendmentsSummary.length > 0) ? 
+          soilAmendments: (data.soilAmendmentsSummary && data.soilAmendmentsSummary.length > 0) ?
             data.soilAmendmentsSummary.map(item => ({
               ...item,
               description: getFertilizerDescription(item.fertilizer) || ''
             })) : [],
-          
+
           // 4. Soil Drench (Fertigation)
           fertigationProducts: data.soilDrenchProducts || soilDrenchProducts || [],
           soilDrenchProducts: data.soilDrenchProducts || soilDrenchProducts || [],
-          
+
           // 5. Pre-Flowering Foliar Spray
           preFloweringFoliarProducts: data.preFloweringFoliarProducts || [],
-          
+
           // 6. Nutritional Foliar Spray
           nutritionalFoliarProducts: data.nutritionalFoliarProducts || nutritionalFoliarProducts || [],
           foliarSprayProducts: data.foliarSprayProducts || foliarSprayProducts || [],
-          
+
           // 7. Tank Mixing Sequence
           tankMixing: (() => {
             const tankMixingData = data.tankMixingItems || tankMixingItems || getDefaultTankMixingItemsCopy();
@@ -1758,7 +1781,7 @@ const SoilReportGenerator: React.FC = () => {
               notes: item.notes || ''
             }));
           })(),
-          
+
           // Additional data
           plantHealthScore: calculateSoilHealthScore(data.nutrients || dedupedMainNutrients),
           agronomist: data.selectedAgronomist || selectedAgronomist,
@@ -1774,23 +1797,23 @@ const SoilReportGenerator: React.FC = () => {
           phosphorusMonitoringText: data.phosphorusMonitoringText || '',
           organicMatterText: data.organicMatterText || '',
           cecText: data.cecText || '',
-          
+
           // Client info
           client: data.client || 'Soil Therapy Report',
           crop: data.crop || 'Soil Analysis',
           date: data.date || new Date().toISOString().slice(0, 10)
         };
-        
+
         return paddockData;
       });
-      
+
       // Use the actual paddock data instead of test data
       const result = await generateCustomPDF(
         paddockDataArray,
-        { 
-          frontAttachments: frontAttachments || [], 
-          backAttachments: backAttachments || [], 
-          uploadedFile: uploadedFile 
+        {
+          frontAttachments: frontAttachments || [],
+          backAttachments: backAttachments || [],
+          uploadedFile: uploadedFile
         }
       );
     } catch (error) {
@@ -1804,7 +1827,7 @@ const SoilReportGenerator: React.FC = () => {
   // Calculate plant health score based on nutrient status
   function calculateSoilHealthScore(nutrients: any[]): number {
     if (!nutrients || nutrients.length === 0) return 0;
-    
+
     // Use the same calculation as in ComprehensiveNutrientTable
     const scores = nutrients.map(n => {
       const value = n.current;
@@ -2719,8 +2742,9 @@ const SoilReportGenerator: React.FC = () => {
   const [showColorPopup, setShowColorPopup] = React.useState(false);
 
   // Always set genericName using this mapping
-      // Removed debug logging
-    const unifiedNutrients = (currentPaddockData.nutrients || mockNutrients).map(n => {    const genericName = unifiedToGeneric[n.name] || n.name;
+  // Removed debug logging
+  const unifiedNutrients = (currentPaddockData.nutrients || mockNutrients).map(n => {
+    const genericName = unifiedToGeneric[n.name] || n.name;
     let status = 'optimal';
     if (n.ideal_range && Array.isArray(n.ideal_range) && n.ideal_range.length === 2) {
       if (n.current < n.ideal_range[0]) status = 'low';
@@ -2740,21 +2764,21 @@ const SoilReportGenerator: React.FC = () => {
     // Exclude TAE, LaMotte, and base saturation nutrients
     const nameLower = (n.name || '').toLowerCase();
     const categoryLower = (n.category || '').toLowerCase();
-    
+
     // Exclude TAE and LaMotte nutrients by name or category (case-insensitive)
     if (nameLower.includes('tae') || nameLower.includes('lamotte') || categoryLower === 'tae' || categoryLower === 'lamotte_reams') {
       return false;
     }
-    
+
     // Exclude base saturation nutrients
     if (categoryLower === 'base_saturation') {
       return false;
     }
-    
+
     // Include only Albrecht section nutrients (Mehlich III, KCl, DTPA, etc.)
     return true;
   });
-  
+
   const soilCorrectionsNutrients = albrechtNutrients.map(n => {
     const genericName = unifiedToGeneric[n.name] || n.name;
     let status = 'optimal';
@@ -2768,7 +2792,7 @@ const SoilReportGenerator: React.FC = () => {
     }
     return { ...n, genericName, status };
   });
-  
+
 
   // Add a new clean deviation bar chart component
   const CleanNutrientDeviationBarChart = ({ nutrients }) => {
@@ -2984,7 +3008,7 @@ const SoilReportGenerator: React.FC = () => {
     const baseSaturationNames = [
       'Calcium', 'Magnesium', 'Potassium', 'Sodium', 'Aluminum', 'Hydrogen', 'Other Bases', 'Other_Bases'
     ];
-    
+
     // List of nutrients to exclude (LaMotte and TAE)
     const excludedNutrients = [
       // LaMotte nutrients
@@ -2998,15 +3022,14 @@ const SoilReportGenerator: React.FC = () => {
       'Copper_TAE', 'Iron_TAE', 'Manganese_TAE', 'Selenium_TAE', 'Zinc_TAE', 'Boron_TAE', 'Silicon_TAE',
       'Cobalt_TAE', 'Molybdenum_TAE', 'Sulfur_TAE'
     ];
-    
+
     // Filter nutrients: exclude LaMotte/TAE and for base saturation, only show the '%' unit row
     const filteredNutrients = nutrients.filter((n) => {
-      console.log('nutrients', n.name);
       // First, exclude LaMotte and TAE nutrients
       if (excludedNutrients.includes(n.name)) {
         return false;
       }
-      
+
       // Then apply base saturation filter
       if (baseSaturationNames.includes(n.name)) {
         return n.unit === '%';
@@ -3092,42 +3115,7 @@ const SoilReportGenerator: React.FC = () => {
             <div className="text-3xl mb-1" style={{ letterSpacing: '2px', color: '#fbbf24' }}>{starDisplay}</div>
             <div className="mb-4 text-2xl font-bold text-blue-700 text-center">Overall Soil Health Score: {overallScore.toFixed(1)} / 100</div>
           </div>
-          <table className="w-full text-sm border border-gray-300 rounded-lg overflow-hidden text-left">
-            <thead className="bg-gray-100">
-              <tr>
-                <th className="p-2 border-b">Nutrient</th>
-                <th className="p-2 border-b text-right">Value</th>
-                <th className="p-2 border-b text-right">Range</th>
-                <th className="p-2 border-b text-center" style={{width: '50%'}}>Bar</th>
-              </tr>
-            </thead>
-            <tbody>
-            {filteredNutrients.filter(n => !(n.current === undefined && n.ideal === undefined && (!n.ideal_range || n.ideal_range.length === 0))).map((n, idx) => {
-                const { bar, color, status, low, high, value, unit, score } = getBarData(n);
-                return (
-                  <tr key={n.name + '_' + (n.category || idx)}>
-                    <td className="p-2 border-b align-middle font-medium" style={{width: '15%'}}>{n.name}</td>
-                    <td className="p-2 border-b align-middle text-right" style={{width: '15%'}}>{typeof value === 'number' && !isNaN(value) ? value.toFixed(2) : '-'} {unit}</td>
-                    <td className="p-2 border-b align-middle text-right" style={{width: '20%'}}>{low.toFixed(2)} – {high.toFixed(2)} {unit}</td>
-                    <td className="p-2 border-b align-middle" style={{width: '50%'}}>
-                      {(typeof low === 'number' && typeof high === 'number' && (low !== 0 || high !== 0)) ? (
-                        <div style={{ width: '100%', background: '#f3f4f6', borderRadius: 4, height: 16, position: 'relative' }}>
-                          {/* Background zones */}
-                          <div style={{ position: 'absolute', left: 0, top: 0, width: '33.3%', height: '100%', background: '#fddede', borderRadius: 4 }} />
-                          <div style={{ position: 'absolute', left: '33.3%', top: 0, width: '33.3%', height: '100%', background: '#d9f7e3' }} />
-                          <div style={{ position: 'absolute', left: '66.6%', top: 0, width: '33.4%', height: '100%', background: '#dee9fd', borderRadius: 4 }} />
-                          {/* Bar */}
-                          <div style={{ position: 'absolute', left: 0, top: 0, width: `${Math.max(0, Math.min(bar, 1)) * 100}%`, height: '100%', background: color, borderRadius: 4, opacity: 0.85 }} />
-                        </div>
-                      ) : (
-                        '-' // or leave empty
-                      )}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+
         </CardContent>
       </Card>
     );
@@ -3224,45 +3212,45 @@ const SoilReportGenerator: React.FC = () => {
     };
     // Build lookup from parsed
     const parsedLookup = {};
-  
-    
+
+
     // Debug: Check for specific missing TAE nutrients
     const missingTaeNutrients = ['Sodium', 'Potassium', 'Calcium', 'Magnesium'];
     missingTaeNutrients.forEach(name => {
       const taeNutrients = parsedNutrients.filter(n => n.name === name && n.category === 'tae');
 
     });
-    
+
     parsedNutrients.forEach(n => {
 
       let canonical = nameMap[n.name] || n.name;
-      
+
       // Special handling for TAE nutrients - use category field from backend
       if (n.category === 'tae') {
         // Map TAE nutrients to their canonical TAE names
         const taeKey = n.name + '_TAE';
         if (canonicalList.includes(taeKey)) {
           parsedLookup[taeKey] = n;
-  
+
           return;
         } else {
 
         }
       }
-      
+
       // Fallback: Check if this is a TAE nutrient by name and unit (for nutrients that might not have category set)
       const taeNutrientNames = ['Sodium', 'Potassium', 'Calcium', 'Magnesium', 'Phosphorus', 'Aluminium', 'Copper', 'Iron', 'Manganese', 'Zinc', 'Boron', 'Silicon', 'Sulfur', 'Selenium', 'Cobalt', 'Molybdenum'];
       if (taeNutrientNames.includes(n.name) && (n.unit === '' || (n.unit && n.unit.toLowerCase() === 'ppm'))) {
         const taeKey = n.name + '_TAE';
         if (canonicalList.includes(taeKey) && !parsedLookup[taeKey]) {
           parsedLookup[taeKey] = n;
-  
+
           return;
         } else {
 
         }
       }
-      
+
       if (canonicalList.includes(canonical)) {
         parsedLookup[canonical] = n;
 
@@ -3294,7 +3282,7 @@ const SoilReportGenerator: React.FC = () => {
           const isLamotteName = /phosphorus.*lamotte/i.test(name) || name === 'Phosphorus_LaMotte';
           const isLamotteCategory = (n as any).category === 'lamotte_reams';
           const idealOk = (typeof n.ideal === 'number' && n.ideal >= 7 && n.ideal <= 30) ||
-                          (Array.isArray((n as any).ideal_range) && (n as any).ideal_range[0] >= 7 && (n as any).ideal_range[1] <= 30);
+            (Array.isArray((n as any).ideal_range) && (n as any).ideal_range[0] >= 7 && (n as any).ideal_range[1] <= 30);
           return unitOk && (isLamotteName || isLamotteCategory || idealOk) && /phosphorus/i.test(name);
         });
         if (candidates.length > 0) {
@@ -3316,7 +3304,7 @@ const SoilReportGenerator: React.FC = () => {
       // If missing, set to 0 for Phosphorus
       if (!ppmRow && element === 'Phosphorus') {
         parsedLookup[lamotteKey] = { name: lamotteKey, current: 0, unit: 'ppm' };
-    
+
       }
     });
     // Build unified array
@@ -3360,6 +3348,11 @@ const SoilReportGenerator: React.FC = () => {
     setLoadingGeneralComments(true);
     setErrorGeneralComments(null);
     try {
+
+      debugger 
+      console.log("Ref",reportRefId)
+
+    
       // Define nutrient groups for each section
       const sectionNutrientMap = {
         // Only analyze Organic Matter for this section to avoid conflicting signals with Organic Carbon
@@ -3382,14 +3375,45 @@ const SoilReportGenerator: React.FC = () => {
           'Aluminium TAE', 'Copper TAE', 'Iron TAE', 'Manganese TAE', 'Selenium TAE',
           'Zinc TAE', 'Boron TAE', 'Silicon TAE', 'Cobalt TAE', 'Molybdenum TAE', 'Sulfur TAE'
         ],
-        phosphorusMonitoring: [ 
-          
+        phosphorusMonitoring: [
+
         ]
       };
       const newComments = {};
+      let wasFetchSuccessfull = false
+      if(reportRefId ){
+        const requestOptions = {
+          method: "GET",
+          redirect: "follow"
+        };
+        let currentPaddock =  paddockReports[selectedPaddockIndex]
+        let key = currentPaddock?.paddock
+        console.log('currentPaddockData',currentPaddockData,paddockReports, selectedPaddockIndex,currentPaddock)
+        let response = await fetch(`http://localhost:8000/api/downloadable-charts-pdfs/${reportRefId}/get_ai_comments/?key=${key}`, requestOptions);
+        // let response = await fetch(`https://nutrition.ntsgrow.com/api/downloadable-charts-pdfs/${reportRefId}/get_ai_comments/?key=${key}`, requestOptions);
+        
+        console.log('get_ai_comments',response)
+        if (response.status == 200){
+            let data  = await response.json();
+            console.log('get_ai_comments',data)
+            let combined_nutrients_explanation = data?.ai_comments?.combined_nutrients_explanation
+            console.log('get_ai_comments',combined_nutrients_explanation)
+            newComments['availableNutrients'] = combined_nutrients_explanation["Available Nutrients"]
+            newComments['baseSaturation'] =combined_nutrients_explanation["Base Saturation"]
+            newComments['cec'] =combined_nutrients_explanation["CEC"]
+            newComments['lamotteReams'] =combined_nutrients_explanation["Lamotte Reams"]
+            newComments['organicMatter'] =combined_nutrients_explanation["Organic Matter"]
+            newComments['phosphorusMonitoring'] =combined_nutrients_explanation["Phosphorus Monitoring"]
+            newComments['soilPh'] =combined_nutrients_explanation["Soil pH"]
+            newComments['tae'] =combined_nutrients_explanation["TAE"]
+            wasFetchSuccessfull =true
+        }
+
+      }
+      if(!wasFetchSuccessfull){
       for (const [section, names] of Object.entries(sectionNutrientMap)) {
         const sectionNutrients = section === 'lamotteReams'
-        ? (() => {
+          ? (() => {
             // Use backend-selected LaMotte entries when available
             if (lamotteFromBackend && Array.isArray(lamotteFromBackend.selected) && lamotteFromBackend.selected.filter(Boolean).length > 0) {
               const selected = lamotteFromBackend.selected.filter(Boolean).map((n: any) => ({
@@ -3443,31 +3467,31 @@ const SoilReportGenerator: React.FC = () => {
             // Fallback: if any missing, return all matches so backend can still preselect by ordinal
             return chosen.length === 4 ? chosen : allMatches;
           })()
-        : section === 'tae'
-        ? (() => {
-            const allowedTAE = new Set(['Sodium','Potassium','Calcium','Magnesium','Phosphorus','Aluminium','Aluminum','Copper','Iron','Manganese','Selenium','Zinc','Boron','Silicon','Cobalt','Molybdenum','Sulfur','Sulphur']);
-            return sourceNutrients.filter(n => {
-              const isTae = n.category === 'tae' || String(n.name || '').includes('TAE');
-              if (!isTae) return false;
-              const baseName = String(n.name || '').replace(/_TAE$/,'').replace(/\s*TAE$/,'');
-              return allowedTAE.has(baseName);
-            });
-          })()
-        : section === 'availableNutrients'
-        ? sourceNutrients.filter(n => {
-            // STRICT matching for available nutrients - only exact matches
-            const name = n.name.toLowerCase();
-            const exactMatches = [
-              'nitrate-n (kcl)', 'ammonium-n (kcl)', 'phosphorus (mehlich iii)', 
-              'calcium (mehlich iii)', 'magnesium (mehlich iii)', 'potassium (mehlich iii)', 
-              'sodium (mehlich iii)', 'sulfur (kcl)', 'aluminium', 'silicon (cacl2)', 
-              'boron (hot cacl2)', 'iron (dtpa)', 'manganese (dtpa)', 'copper (dtpa)', 'zinc (dtpa)'
-            ];
-            
-            return exactMatches.includes(name);
-          })
-        : sourceNutrients.filter(n => names.includes(n.name));
-        
+          : section === 'tae'
+            ? (() => {
+              const allowedTAE = new Set(['Sodium', 'Potassium', 'Calcium', 'Magnesium', 'Phosphorus', 'Aluminium', 'Aluminum', 'Copper', 'Iron', 'Manganese', 'Selenium', 'Zinc', 'Boron', 'Silicon', 'Cobalt', 'Molybdenum', 'Sulfur', 'Sulphur']);
+              return sourceNutrients.filter(n => {
+                const isTae = n.category === 'tae' || String(n.name || '').includes('TAE');
+                if (!isTae) return false;
+                const baseName = String(n.name || '').replace(/_TAE$/, '').replace(/\s*TAE$/, '');
+                return allowedTAE.has(baseName);
+              });
+            })()
+            : section === 'availableNutrients'
+              ? sourceNutrients.filter(n => {
+                // STRICT matching for available nutrients - only exact matches
+                const name = n.name.toLowerCase();
+                const exactMatches = [
+                  'nitrate-n (kcl)', 'ammonium-n (kcl)', 'phosphorus (mehlich iii)',
+                  'calcium (mehlich iii)', 'magnesium (mehlich iii)', 'potassium (mehlich iii)',
+                  'sodium (mehlich iii)', 'sulfur (kcl)', 'aluminium', 'silicon (cacl2)',
+                  'boron (hot cacl2)', 'iron (dtpa)', 'manganese (dtpa)', 'copper (dtpa)', 'zinc (dtpa)'
+                ];
+
+                return exactMatches.includes(name);
+              })
+              : sourceNutrients.filter(n => names.includes(n.name));
+
         // Debug logging for organicMatter section
         if (section === 'organicMatter') {
           console.log('DEBUG - organicMatter sectionNutrients:', sectionNutrients);
@@ -3475,42 +3499,42 @@ const SoilReportGenerator: React.FC = () => {
         // Debug logging and sanitization for baseSaturation section
         if (section === 'baseSaturation') {
           console.log('DEBUG - baseSaturation sectionNutrients:', sectionNutrients);
-          console.log('DEBUG - All unifiedNutrientRows for baseSaturation:', unifiedNutrientRows.filter(n => 
+          console.log('DEBUG - All unifiedNutrientRows for baseSaturation:', unifiedNutrientRows.filter(n =>
             ['Calcium', 'Magnesium', 'Potassium', 'Sodium', 'Aluminum', 'Hydrogen', 'Other_Bases'].includes(n.name)
           ));
         }
-        
+
         // Debug logging for lamotteReams section
         if (section === 'lamotteReams') {
           console.log('DEBUG - lamotteReams sectionNutrients:', sectionNutrients);
-          console.log('DEBUG - All sourceNutrients for lamotteReams:', sourceNutrients.filter(n => 
-            n.name.includes('LaMotte') || n.name.includes('_LaMotte') || 
+          console.log('DEBUG - All sourceNutrients for lamotteReams:', sourceNutrients.filter(n =>
+            n.name.includes('LaMotte') || n.name.includes('_LaMotte') ||
             (['Calcium', 'Magnesium', 'Phosphorus', 'Potassium'].includes(n.name) && n.unit === 'ppm')
           ));
         }
-        
+
         // Debug logging for tae section + sanitize entries to true nutrients only
         if (section === 'tae') {
           console.log('DEBUG - tae sectionNutrients:', sectionNutrients);
-          console.log('DEBUG - All sourceNutrients for tae:', sourceNutrients.filter(n => 
+          console.log('DEBUG - All sourceNutrients for tae:', sourceNutrients.filter(n =>
             n.name.includes('TAE') || n.category === 'tae'
           ));
-          const allowedTAE = new Set(['Sodium','Potassium','Calcium','Magnesium','Phosphorus','Aluminium','Aluminum','Copper','Iron','Manganese','Selenium','Zinc','Boron','Silicon','Cobalt','Molybdenum','Sulfur','Sulphur']);
-          const sanitizedTae = sectionNutrients.filter((n: any) => allowedTAE.has(String(n.name || '').replace(/_TAE$/,'')));
+          const allowedTAE = new Set(['Sodium', 'Potassium', 'Calcium', 'Magnesium', 'Phosphorus', 'Aluminium', 'Aluminum', 'Copper', 'Iron', 'Manganese', 'Selenium', 'Zinc', 'Boron', 'Silicon', 'Cobalt', 'Molybdenum', 'Sulfur', 'Sulphur']);
+          const sanitizedTae = sectionNutrients.filter((n: any) => allowedTAE.has(String(n.name || '').replace(/_TAE$/, '')));
           console.log('DEBUG - tae sectionNutrients (sanitized):', sanitizedTae);
         }
-        
+
         const nutrientsWithStatus = sectionNutrients.map(n => {
           let status = 'optimal';
           let classificationMethod = 'none';
           let deviation = null;
-          
+
           if (n.ideal_range && Array.isArray(n.ideal_range) && n.ideal_range.length === 2) {
             classificationMethod = 'ideal_range';
             const range = n.ideal_range[1] - n.ideal_range[0];
             const lowerMargin = n.ideal_range[0] - (range * 0.15);
             const upperMargin = n.ideal_range[1] + (range * 0.3);
-            
+
             if (n.current < lowerMargin) status = 'low';
             else if (n.current < n.ideal_range[0]) status = 'marginally_low';
             else if (n.current > upperMargin) status = 'high';
@@ -3525,20 +3549,20 @@ const SoilReportGenerator: React.FC = () => {
             else if (deviation > 0.3) status = 'marginally_high';
             else status = 'optimal';
           }
-          
+
           return { ...n, status, classificationMethod, deviation };
         });
-        
+
         let deficient = nutrientsWithStatus.filter(n => n.status === 'low').map(n => n.name);
         let marginallyDeficient = nutrientsWithStatus.filter(n => n.status === 'marginally_low').map(n => n.name);
         let optimal = nutrientsWithStatus.filter(n => n.status === 'optimal').map(n => n.name);
         let marginallyExcessive = nutrientsWithStatus.filter(n => n.status === 'marginally_high').map(n => n.name);
         let excess = nutrientsWithStatus.filter(n => n.status === 'high').map(n => n.name);
-        
+
         // For base saturation, filter out Hydrogen, Aluminum, and Other Bases unless they are excessive
         if (section === 'baseSaturation') {
           const problematicNutrients = ['Hydrogen', 'Aluminum', 'Other_Bases'];
-          
+
           // Remove from deficient and marginally deficient unless excessive
           deficient = deficient.filter(n => !problematicNutrients.includes(n) || excess.includes(n));
           marginallyDeficient = marginallyDeficient.filter(n => !problematicNutrients.includes(n) || excess.includes(n));
@@ -3546,7 +3570,7 @@ const SoilReportGenerator: React.FC = () => {
           marginallyExcessive = marginallyExcessive.filter(n => !problematicNutrients.includes(n) || excess.includes(n));
           // Keep excess as is - these are the only ones we want to mention
         }
-        
+
         // Debug logging for organicMatter section status
         if (section === 'organicMatter') {
           console.log('DEBUG - organicMatter status categories:', {
@@ -3557,7 +3581,7 @@ const SoilReportGenerator: React.FC = () => {
             excess
           });
         }
-        
+
         // Debug logging for lamotteReams section status
         if (section === 'lamotteReams') {
           console.log('DEBUG - lamotteReams status categories:', {
@@ -3568,7 +3592,7 @@ const SoilReportGenerator: React.FC = () => {
             excess
           });
         }
-        
+
         // Debug logging for tae section status
         if (section === 'tae') {
           console.log('DEBUG - tae status categories:', {
@@ -3581,7 +3605,7 @@ const SoilReportGenerator: React.FC = () => {
         }
         // Debug logging for baseSaturation section status + enforce allowed set for AI
         if (section === 'baseSaturation') {
-          const allowed = new Set(['Calcium','Magnesium','Potassium','Sodium','Aluminium','Aluminum','Hydrogen','Other_Bases','Other Bases']);
+          const allowed = new Set(['Calcium', 'Magnesium', 'Potassium', 'Sodium', 'Aluminium', 'Aluminum', 'Hydrogen', 'Other_Bases', 'Other Bases']);
           const normalizeName = (nm: string) => {
             if (!nm) return nm;
             if (nm === 'Aluminum') return 'Aluminium';
@@ -3595,7 +3619,7 @@ const SoilReportGenerator: React.FC = () => {
           excess = excess.filter(n => allowed.has(n)).map(normalizeName);
 
           // Enforce single-category assignment with precedence
-          const precedence: Array<{key: 'excess' | 'marginallyExcessive' | 'optimal' | 'marginallyDeficient' | 'deficient', label: string}> = [
+          const precedence: Array<{ key: 'excess' | 'marginallyExcessive' | 'optimal' | 'marginallyDeficient' | 'deficient', label: string }> = [
             { key: 'excess' as any, label: 'Excessive' },
             { key: 'marginallyExcessive' as any, label: 'Marginally excessive' },
             { key: 'optimal' as any, label: 'Optimal' },
@@ -3629,13 +3653,13 @@ const SoilReportGenerator: React.FC = () => {
             rebuilt[cat].push(nm);
           });
           // For base saturation, only mention Aluminium/Hydrogen/Other Bases when in Excessive
-          const special = new Set(['Aluminium','Hydrogen','Other Bases']);
-          (['deficient','marginallyDeficient','optimal','marginallyExcessive'] as const).forEach(cat => {
+          const special = new Set(['Aluminium', 'Hydrogen', 'Other Bases']);
+          (['deficient', 'marginallyDeficient', 'optimal', 'marginallyExcessive'] as const).forEach(cat => {
             rebuilt[cat] = rebuilt[cat].filter(nm => !special.has(nm));
           });
           // Sort alphabetically
           (Object.keys(rebuilt) as Array<keyof typeof rebuilt>).forEach(cat => {
-            rebuilt[cat] = rebuilt[cat].sort((a,b) => a.localeCompare(b));
+            rebuilt[cat] = rebuilt[cat].sort((a, b) => a.localeCompare(b));
           });
           deficient = rebuilt.deficient;
           marginallyDeficient = rebuilt.marginallyDeficient;
@@ -3652,7 +3676,7 @@ const SoilReportGenerator: React.FC = () => {
           });
           console.log('DEBUG - Full nutrientsWithStatus for baseSaturation:', nutrientsWithStatus);
         }
-        
+
         // Debug logging for lamotteReams section status
         if (section === 'lamotteReams') {
           console.log('DEBUG - lamotteReams status categories:', {
@@ -3663,11 +3687,11 @@ const SoilReportGenerator: React.FC = () => {
             excess
           });
           console.log('DEBUG - lamotteReams sectionNutrients:', sectionNutrients);
-          console.log('DEBUG - All sourceNutrients for lamotteReams:', sourceNutrients.filter(n => 
+          console.log('DEBUG - All sourceNutrients for lamotteReams:', sourceNutrients.filter(n =>
             n.name.includes('LaMotte') || n.name.includes('_LaMotte')
           ));
         }
-        
+
         // Debug logging for tae section status
         if (section === 'tae') {
           console.log('DEBUG - tae status categories:', {
@@ -3678,11 +3702,11 @@ const SoilReportGenerator: React.FC = () => {
             excess
           });
           console.log('DEBUG - tae sectionNutrients:', sectionNutrients);
-          console.log('DEBUG - All sourceNutrients for tae:', sourceNutrients.filter(n => 
+          console.log('DEBUG - All sourceNutrients for tae:', sourceNutrients.filter(n =>
             n.category === 'tae'
           ));
         }
-        
+
         // Debug logging for availableNutrients section status
         if (section === 'availableNutrients') {
           console.log('DEBUG - availableNutrients status categories:', {
@@ -3695,22 +3719,22 @@ const SoilReportGenerator: React.FC = () => {
           console.log('DEBUG - availableNutrients sectionNutrients:', sectionNutrients);
           console.log('DEBUG - All sourceNutrients for availableNutrients:', sourceNutrients.filter(n => {
             const name = n.name.toLowerCase();
-            return name.includes('nitrate') || name.includes('ammonium') || name.includes('phosphorus') || 
-                   name.includes('calcium') || name.includes('magnesium') || name.includes('potassium') || 
-                   name.includes('sodium') || name.includes('sulfur') || name.includes('aluminium') || 
-                   name.includes('silicon') || name.includes('boron') || name.includes('iron') || 
-                   name.includes('manganese') || name.includes('copper') || name.includes('zinc');
+            return name.includes('nitrate') || name.includes('ammonium') || name.includes('phosphorus') ||
+              name.includes('calcium') || name.includes('magnesium') || name.includes('potassium') ||
+              name.includes('sodium') || name.includes('sulfur') || name.includes('aluminium') ||
+              name.includes('silicon') || name.includes('boron') || name.includes('iron') ||
+              name.includes('manganese') || name.includes('copper') || name.includes('zinc');
           }));
           console.log('DEBUG - Full nutrientsWithStatus for availableNutrients:', nutrientsWithStatus);
           console.log('DEBUG - Expected available nutrients names:', names);
           console.log('DEBUG - All sourceNutrients names:', sourceNutrients.map(n => n.name));
-          
+
           // Detailed classification analysis
           console.log('DEBUG - Detailed classification analysis:');
           nutrientsWithStatus.forEach(n => {
             console.log(`  ${n.name}: current=${n.current}, ideal=${n.ideal}, ideal_range=${n.ideal_range}, method=${n.classificationMethod}, deviation=${n.deviation}, status=${n.status}`);
           });
-          
+
           // Check if any nutrients are missing from the classification
           const expectedNutrients = ['Nitrate-N (KCl)', 'Ammonium-N (KCl)', 'Phosphorus (Mehlich III)', 'Calcium (Mehlich III)', 'Magnesium (Mehlich III)', 'Potassium (Mehlich III)', 'Sodium (Mehlich III)', 'Sulfur (KCl)', 'Aluminium', 'Silicon (CaCl2)', 'Boron (Hot CaCl2)', 'Iron (DTPA)', 'Manganese (DTPA)', 'Copper (DTPA)', 'Zinc (DTPA)'];
           const foundNutrients = nutrientsWithStatus.map(n => n.name);
@@ -3719,12 +3743,12 @@ const SoilReportGenerator: React.FC = () => {
             console.log('DEBUG - Missing nutrients:', missingNutrients);
           }
         }
-        
+
         // Use the new soil-specific endpoint with section data
         // Removed debug logging
         function generateFallbackContent(section: string, statusCategories: any): string {
           const { deficient, excess, optimal } = statusCategories;
-          
+
           if (section === 'organicMatter') {
             return `Organic matter analysis shows ${deficient.length > 0 ? 'deficiencies in ' + deficient.join(', ') : 'good levels'}. ${excess.length > 0 ? 'Excessive levels in ' + excess.join(', ') : ''} ${optimal.length > 0 ? 'Optimal levels in ' + optimal.join(', ') : ''}`;
           } else if (section === 'cec') {
@@ -3740,10 +3764,10 @@ const SoilReportGenerator: React.FC = () => {
           } else if (section === 'tae') {
             return `Total Available Elements (TAE) analysis shows comprehensive nutrient availability. ${deficient.length > 0 ? 'Deficiencies detected in ' + deficient.join(', ') : ''} ${excess.length > 0 ? 'Excessive levels in ' + excess.join(', ') : ''} ${optimal.length > 0 ? 'Optimal levels in ' + optimal.join(', ') : ''}`;
           }
-          
+
           return `Analysis shows ${deficient.length > 0 ? 'deficiencies in ' + deficient.join(', ') : 'good levels'}. ${excess.length > 0 ? 'Excessive levels in ' + excess.join(', ') : ''} ${optimal.length > 0 ? 'Optimal levels in ' + optimal.join(', ') : ''}`;
         }
-        
+
         let data = null;
         try {
           // Debug logging for what's being sent to AI
@@ -3760,7 +3784,7 @@ const SoilReportGenerator: React.FC = () => {
               }
             });
           }
-          
+
           // Debug logging for what's being sent to AI for lamotteReams
           if (section === 'lamotteReams') {
             console.log('DEBUG - Data being sent to AI for lamotteReams:', {
@@ -3775,7 +3799,7 @@ const SoilReportGenerator: React.FC = () => {
               }
             });
           }
-          
+
           // Debug logging for what's being sent to AI for tae
           if (section === 'tae') {
             console.log('DEBUG - Data being sent to AI for tae:', {
@@ -3790,7 +3814,7 @@ const SoilReportGenerator: React.FC = () => {
               }
             });
           }
-          
+
           const response = await fetch('/generate-soil-comments', {
             method: 'POST',
             headers: {
@@ -3808,7 +3832,7 @@ const SoilReportGenerator: React.FC = () => {
               }
             })
           });
-        
+
           if (!response.ok) {
             console.error(`AI endpoint failed for ${section}: ${response.status} ${response.statusText}`);
             // Use fallback content instead of throwing error
@@ -3822,7 +3846,7 @@ const SoilReportGenerator: React.FC = () => {
             newComments[section] = fallbackContent;
             continue; // Skip to next section
           }
-        
+
           data = await response.json();
           if (data.summary) {
             newComments[section] = data.summary;
@@ -3848,7 +3872,7 @@ const SoilReportGenerator: React.FC = () => {
           });
           newComments[section] = fallbackContent;
         }
-        
+
         // If AI fails, generate fallback content
         if (!data || !data.summary) {
           let fallbackContent = '';
@@ -3870,13 +3894,13 @@ const SoilReportGenerator: React.FC = () => {
           newComments[section] = fallbackContent;
         }
       }
-      
+    }
       // Update the current paddock's general comments with AI-generated content
       updateCurrentPaddockData('generalComments', {
         ...currentPaddockData.generalComments,
         ...newComments
       });
-      
+
       
       // Also update the individual text fields for PDF export compatibility
       // Always populate somCecText with any available Organic Matter and/or CEC comments
@@ -3914,6 +3938,11 @@ const SoilReportGenerator: React.FC = () => {
       if ((newComments as any).tae) {
         // Removed debug logging
         updateCurrentPaddockData('taeText', (newComments as any).tae);
+      }
+
+      if((newComments as any).phosphorusMonitoring){
+        updateCurrentPaddockData('phosphorusMonitoringText', (newComments as any).phosphorusMonitoring);
+
       }
     } catch (err) {
       console.error('AI generation error:', err);
@@ -3988,21 +4017,23 @@ const SoilReportGenerator: React.FC = () => {
 
   // In each product section, render using productDescriptions[selected.id]
   // Example for Seed Treatment:
-  {seedTreatmentProducts.map((selected, idx) => {
-    const prod = productList.find(p => p.label === selected.product);
-    const desc = prod?.description || "A high-quality product designed to support plant health and growth.";
-    return (
-      <li key={selected.id} className="mb-1">
-        <a href={prod ? `https://www.nutri-tech.com.au/products/${(prod as any).value}` : '#'} target="_blank" rel="noopener noreferrer" className="font-semibold text-blue-700 hover:underline">
-          {selected.product}
-        </a>
-        {desc && <span className="text-gray-700 ml-1"> {desc}</span>}
-        {prod && (prod as any).contains && (prod as any).contains.length > 0 && <span className="text-gray-500 ml-1"> (Contains: {(prod as any).contains.join(', ')})</span>}
-        {prod && (prod as any).nutrientPercents && (prod as any).nutrientPercents.length > 0 && <span className="text-gray-400 ml-1"> [{(prod as any).nutrientPercents.join(', ')}]</span>}
-        <span className="font-semibold ml-2">{selected.rate} {selected.unit}</span>
-      </li>
-    );
-  })}
+  {
+    seedTreatmentProducts.map((selected, idx) => {
+      const prod = productList.find(p => p.label === selected.product);
+      const desc = prod?.description || "A high-quality product designed to support plant health and growth.";
+      return (
+        <li key={selected.id} className="mb-1">
+          <a href={prod ? `https://www.nutri-tech.com.au/products/${(prod as any).value}` : '#'} target="_blank" rel="noopener noreferrer" className="font-semibold text-blue-700 hover:underline">
+            {selected.product}
+          </a>
+          {desc && <span className="text-gray-700 ml-1"> {desc}</span>}
+          {prod && (prod as any).contains && (prod as any).contains.length > 0 && <span className="text-gray-500 ml-1"> (Contains: {(prod as any).contains.join(', ')})</span>}
+          {prod && (prod as any).nutrientPercents && (prod as any).nutrientPercents.length > 0 && <span className="text-gray-400 ml-1"> [{(prod as any).nutrientPercents.join(', ')}]</span>}
+          <span className="font-semibold ml-2">{selected.rate} {selected.unit}</span>
+        </li>
+      );
+    })
+  }
   // Repeat for other product sections.
 
   // Add this near the top of the file, after imports:
@@ -4087,13 +4118,13 @@ const SoilReportGenerator: React.FC = () => {
       if (idx === selectedPaddockIndex) {
         // Ensure tankMixingItems is always properly initialized
         const updatedData = { ...r.data, [field]: value };
-        
+
         // If this is tankMixingItems and it's empty or undefined, initialize it with default values
         if (field === 'tankMixingItems' && (!value || !Array.isArray(value) || value.length === 0)) {
           console.log('Initializing tankMixingItems with default values for paddock', idx);
           updatedData.tankMixingItems = getDefaultTankMixingItemsCopy();
         }
-        
+
         return { ...r, data: updatedData };
       }
       return r;
@@ -4189,7 +4220,7 @@ const SoilReportGenerator: React.FC = () => {
                     Analysis complete. Generate comprehensive soil management report.
                   </p>
                 </div>
-                <Button 
+                <Button
                   onClick={handleGenerateReport}
                   disabled={isGeneratingReport}
                 >
@@ -4222,7 +4253,7 @@ const SoilReportGenerator: React.FC = () => {
                   <>
                     {/* Paddock selection UI */}
                     {(() => {
-                      const paddocksWithData = paddockReports.filter(report => 
+                      const paddocksWithData = paddockReports.filter(report =>
                         report && report.data && (report.data.nutrients?.length > 0 || report.name || report.paddock)
                       );
                       // Removed debug logging
@@ -4306,7 +4337,7 @@ const SoilReportGenerator: React.FC = () => {
                       <h3 className="font-semibold text-lg text-black mb-2">c. Nutrient Deviation Radar Charts</h3>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {/* i. Main Nutrients Deviation % */}
-                        {/* <div className="flex-1 min-w-0">
+                    {/* <div className="flex-1 min-w-0">
                           <Card className="bg-white">
                             <CardHeader><CardTitle className="text-black">i. Main Nutrients Deviation (%)</CardTitle></CardHeader>
                             <CardContent>
@@ -4318,7 +4349,7 @@ const SoilReportGenerator: React.FC = () => {
                           </Card>
                         </div>
                         {/* ii. Secondary Nutrients Deviation % */}
-                        {/* <div className="flex-1 min-w-0">
+                    {/* <div className="flex-1 min-w-0">
                           <Card className="bg-white">
                             <CardHeader><CardTitle className="text-black">Secondary Nutrients Deviation (%)</CardTitle></CardHeader>
                             <CardContent>
@@ -4330,7 +4361,7 @@ const SoilReportGenerator: React.FC = () => {
                           </Card>
                         </div>
                         {/* iii. Base Saturation Nutrients Deviation */}
-                        {/* <div className="flex-1 min-w-0">
+                    {/* <div className="flex-1 min-w-0">
                           <Card className="bg-white">
                             <CardHeader><CardTitle className="text-black">Base Saturation Nutrients Deviation</CardTitle></CardHeader>
                             <CardContent>
@@ -4346,7 +4377,7 @@ const SoilReportGenerator: React.FC = () => {
                           </Card>
                         </div>
                         {/* iv. Lamotte Reams Nutrients Deviation */}
-                        {/* <div className="flex-1 min-w-0">
+                    {/* <div className="flex-1 min-w-0">
                           <Card className="bg-white">
                             <CardHeader><CardTitle className="text-black">Lamotte Reams Nutrients Deviation</CardTitle></CardHeader>
                             <CardContent>
@@ -4365,33 +4396,33 @@ const SoilReportGenerator: React.FC = () => {
                     </div> */}
                     {/* d. 
                      */}
-{false && (
-  <div className="mb-4">
-    <h3 className="font-semibold text-lg text-black mb-2">c. Nutritional Status Table</h3>
-    <Card className="bg-white">
-      <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle className="text-black">Nutritional Status Table</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <TotalNutrientApplicationTable
-          mainNutrients={dedupedMainNutrients}
-          nutrients={dedupedMainNutrients}
-          soilAmendmentsSummary={currentPaddockData.soilAmendmentsSummary || []}
-          seedTreatmentProducts={currentPaddockData.seedTreatmentProducts || []}
-          soilDrenchProducts={currentPaddockData.soilDrenchProducts || []}
-          foliarSprayProducts={allFoliarSprayProducts}
-          soilAmendmentFerts={soilAmendmentFerts}
-          seedTreatmentDefs={seedTreatmentDefs}
-          soilDrenchDefs={soilDrenchDefs}
-          foliarSprayDefs={foliarSprayDefs}
-          heading="Nutritional Situation"
-          showSourceBreakdown={false}
-          newNutrientLevels={newNutrientLevels}
-        />
-      </CardContent>
-    </Card>
-  </div>
-)}
+                    {false && (
+                      <div className="mb-4">
+                        <h3 className="font-semibold text-lg text-black mb-2">c. Nutritional Status Table</h3>
+                        <Card className="bg-white">
+                          <CardHeader className="flex flex-row items-center justify-between">
+                            <CardTitle className="text-black">Nutritional Status Table</CardTitle>
+                          </CardHeader>
+                          <CardContent>
+                            <TotalNutrientApplicationTable
+                              mainNutrients={dedupedMainNutrients}
+                              nutrients={dedupedMainNutrients}
+                              soilAmendmentsSummary={currentPaddockData.soilAmendmentsSummary || []}
+                              seedTreatmentProducts={currentPaddockData.seedTreatmentProducts || []}
+                              soilDrenchProducts={currentPaddockData.soilDrenchProducts || []}
+                              foliarSprayProducts={allFoliarSprayProducts}
+                              soilAmendmentFerts={soilAmendmentFerts}
+                              seedTreatmentDefs={seedTreatmentDefs}
+                              soilDrenchDefs={soilDrenchDefs}
+                              foliarSprayDefs={foliarSprayDefs}
+                              heading="Nutritional Situation"
+                              showSourceBreakdown={false}
+                              newNutrientLevels={newNutrientLevels}
+                            />
+                          </CardContent>
+                        </Card>
+                      </div>
+                    )}
                   </>
                 )}
               </ReportSection>
@@ -4469,7 +4500,7 @@ const SoilReportGenerator: React.FC = () => {
                       <Button onClick={handleGenerateAI} disabled={loadingGeneralComments} type="button">
                         {loadingGeneralComments ? 'Generating...' : 'Generate with AI'}
                       </Button>
-                      <Button 
+                      <Button
                         onClick={() => {
                           // Get current text values from the UI textareas
                           const currentTexts = {
@@ -4482,9 +4513,9 @@ const SoilReportGenerator: React.FC = () => {
                             taeText: currentPaddockData.taeText || '',
                             phosphorusMonitoringText: phosphorusMonitoringText
                           };
-                          
+
                           console.log('Current text values before saving:', currentTexts);
-                          
+
                           // Save to generalComments
                           const updatedComments = {
                             ...currentPaddockData.generalComments,
@@ -4497,9 +4528,9 @@ const SoilReportGenerator: React.FC = () => {
                             tae: currentTexts.taeText,
                             phosphorusMonitoring: currentTexts.phosphorusMonitoringText
                           };
-                          
+
                           console.log('Saving comments to generalComments:', updatedComments);
-                          
+
                           // Update the fields that the PDF export actually reads from
                           const updatedData = {
                             ...currentPaddockData,
@@ -4516,7 +4547,7 @@ const SoilReportGenerator: React.FC = () => {
                             organicMatterText: currentTexts.organicMatterText,
                             cecText: currentTexts.cecText
                           };
-                          
+
                           console.log('Updated data for PDF export:', {
                             somCecText: updatedData.somCecText,
                             baseSaturationText: updatedData.baseSaturationText,
@@ -4525,7 +4556,7 @@ const SoilReportGenerator: React.FC = () => {
                             lamotteReamsText: updatedData.lamotteReamsText,
                             taeText: updatedData.taeText
                           });
-                          
+
                           // Use a single update call to ensure all data is updated together
                           setPaddockReports(prev => prev.map((r, idx) => {
                             if (idx === selectedPaddockIndex) {
@@ -4533,11 +4564,11 @@ const SoilReportGenerator: React.FC = () => {
                             }
                             return r;
                           }));
-                          
+
                           console.log('Comments saved successfully! All fields updated.');
                           alert('Comments saved successfully!');
-                        }} 
-                        variant="outline" 
+                        }}
+                        variant="outline"
                         type="button"
                       >
                         Save Comments
@@ -4677,30 +4708,30 @@ const SoilReportGenerator: React.FC = () => {
                     <Card className="bg-white">
                       <CardHeader><CardTitle className="text-black">General Tank Mixing Sequence</CardTitle></CardHeader>
                       <CardContent>
-                      <TankMixingSequence
-                        key={`tank-mixing-${selectedPaddockIndex}`}
-                        selectedProducts={(() => {
-                          // Use the same logic as Plant Analysis - include all foliar spray products
-                          const allFoliarProducts = [
-                            ...(currentPaddockData.foliarSprayProducts || []),
-                            ...(currentPaddockData.preFloweringFoliarProducts || []),
-                            ...(currentPaddockData.preFloweringFoliarProducts2 || []),
-                            ...(currentPaddockData.nutritionalFoliarProducts || []),
-                            ...(currentPaddockData.nutritionalFoliarProducts2 || [])
-                          ];
-                          
-                          // Extract product names from the arrays
-                          const productNames = allFoliarProducts.map(p => 
-                            typeof p === 'string' ? p : (p.product || p.name || '')
-                          ).filter(Boolean);
-                          
-                          // Remove duplicates
-                          return Array.from(new Set(productNames));
-                        })()}
-                        mixingItems={currentPaddockData.tankMixingItems || getDefaultTankMixingItemsCopy()}
-                        setMixingItems={val => updateCurrentPaddockData('tankMixingItems', val)}
-                        onSummaryChange={val => updateCurrentPaddockData('tankMixingItems', val)}
-                      />
+                        <TankMixingSequence
+                          key={`tank-mixing-${selectedPaddockIndex}`}
+                          selectedProducts={(() => {
+                            // Use the same logic as Plant Analysis - include all foliar spray products
+                            const allFoliarProducts = [
+                              ...(currentPaddockData.foliarSprayProducts || []),
+                              ...(currentPaddockData.preFloweringFoliarProducts || []),
+                              ...(currentPaddockData.preFloweringFoliarProducts2 || []),
+                              ...(currentPaddockData.nutritionalFoliarProducts || []),
+                              ...(currentPaddockData.nutritionalFoliarProducts2 || [])
+                            ];
+
+                            // Extract product names from the arrays
+                            const productNames = allFoliarProducts.map(p =>
+                              typeof p === 'string' ? p : (p.product || p.name || '')
+                            ).filter(Boolean);
+
+                            // Remove duplicates
+                            return Array.from(new Set(productNames));
+                          })()}
+                          mixingItems={currentPaddockData.tankMixingItems || getDefaultTankMixingItemsCopy()}
+                          setMixingItems={val => updateCurrentPaddockData('tankMixingItems', val)}
+                          onSummaryChange={val => updateCurrentPaddockData('tankMixingItems', val)}
+                        />
                       </CardContent>
                     </Card>
                   </div>
@@ -4996,11 +5027,11 @@ const SoilReportGenerator: React.FC = () => {
                     </CardHeader>
                     <CardContent>
                       <div className="flex gap-4">
-                        <Button 
-                          className="flex items-center gap-2 bg-[#8cb43a] hover:bg-[#7aa32f] text-white" 
+                        <Button
+                          className="flex items-center gap-2 bg-[#8cb43a] hover:bg-[#7aa32f] text-white"
                           onClick={() => {
-                          // Removed debug logging
-                          handleExportPDF();
+                            // Removed debug logging
+                            handleExportPDF();
                           }}
                           disabled={isExporting}
                         >
@@ -5011,8 +5042,8 @@ const SoilReportGenerator: React.FC = () => {
                             </>
                           ) : (
                             <>
-                          <FileDown className="h-4 w-4" />
-                          Generate Custom PDF
+                              <FileDown className="h-4 w-4" />
+                              Generate Custom PDF
                             </>
                           )}
                         </Button>
