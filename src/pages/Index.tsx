@@ -5,7 +5,8 @@ import { AppProvider } from '@/contexts/AppContext';
 import ClientReportExport from '../components/ClientReportExport';
 import PDFExportButton from '../components/PDFExportButton';
 import { PDFExportOptions } from '../utils/pdfExport';
-import SoilReportGenerator from '../components/SoilReportGenerator';
+// import SoilReportGenerator from '../components/SoilReportGenerator';
+import PlantReportGenerator from '../components/PlantReportGenerator';
 
 // Example: Replace this with real data from your app when exporting
 const mockData = {
@@ -52,7 +53,7 @@ const Index: React.FC = () => {
   return (
     <AppProvider>
       <AppLayout>
-        <SoilReportGenerator paddockReports={paddockReports} setPaddockReports={setPaddockReports} />
+        <PlantReportGenerator paddockReports={paddockReports} setPaddockReports={setPaddockReports} />
       </AppLayout>
     </AppProvider>
   );
