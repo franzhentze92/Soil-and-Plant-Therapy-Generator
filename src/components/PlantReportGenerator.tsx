@@ -1352,9 +1352,11 @@ const PlantReportGenerator: React.FC<PlantReportGeneratorProps> = ({ paddockRepo
           // Pull the rich HTML preview from state/window (set by GeneralComments)
           // Use current paddock's somCecText which should be the HTML from rich text editor
           let generalCommentsHtml = '';
+          let currentPaddockKey = paddock.paddock || paddock.name || availableAnalyses[idx]?.paddock || availableAnalyses[idx]?.name || `Paddock ${idx + 1}`;
+
           try {
             // First try to get from window (set by GeneralComments component)
-            generalCommentsHtml = (window as any).__ntsGeneralCommentsHtml || '';
+            generalCommentsHtml = (window as any).__ntsGeneralCommentsHtml[currentPaddockKey] || '';
             // If empty, use the paddock's somCecText (which should be HTML from rich text editor)
             if (!generalCommentsHtml && paddock.data.somCecText) {
               generalCommentsHtml = String(paddock.data.somCecText);

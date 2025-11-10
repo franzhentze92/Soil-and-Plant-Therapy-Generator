@@ -336,7 +336,11 @@ const GeneralComments: React.FC<GeneralCommentsProps> = ({ nutrients, somCecText
   useEffect(() => {
     setHtmlPreview(somCecText);
     try {
-      (window as any).__ntsGeneralCommentsHtml = somCecText;
+      (window as any).__ntsGeneralCommentsHtml ={
+
+        currentPaddockKey: somCecText,
+        ...(window as any).__ntsGeneralCommentsHtml
+      } ;
     } catch { }
   }, [somCecText]);
 
@@ -593,7 +597,7 @@ const GeneralComments: React.FC<GeneralCommentsProps> = ({ nutrients, somCecText
           const composedHtmlForEditor = composedHtmlBase + (recommendedProductsHtml ? '\n' + recommendedProductsHtml : '');
           setSomCecText(composedHtmlForEditor);
           setHtmlPreview(composedHtmlForEditor);
-          try { (window as any).__ntsGeneralCommentsHtml = composedHtmlForEditor; } catch { }
+          try { (window as any).__ntsGeneralCommentsHtml = { ...(window as any).__ntsGeneralCommentsHtml, [currentPaddockKey]: composedHtmlForEditor }; } catch { }
         } else {
           // Fallback: existing local composition
           // Generate dynamic content based on nutrient analysis
@@ -633,7 +637,7 @@ const GeneralComments: React.FC<GeneralCommentsProps> = ({ nutrients, somCecText
           const fallbackHtml = markdownToHtml(fallbackText);
           setSomCecText(fallbackHtml);
           setHtmlPreview(fallbackHtml);
-          try { (window as any).__ntsGeneralCommentsHtml = fallbackHtml; } catch { }
+          try { (window as any).__ntsGeneralCommentsHtml = { ...(window as any).__ntsGeneralCommentsHtml, [currentPaddockKey]: fallbackHtml }; } catch { }
         }
 
         // Generate Base Saturation summary
@@ -789,7 +793,7 @@ const GeneralComments: React.FC<GeneralCommentsProps> = ({ nutrients, somCecText
                 setSomCecText(html);
                 setHtmlPreview(html);
                 try {
-                  (window as any).__ntsGeneralCommentsHtml = html;
+                  (window as any).__ntsGeneralCommentsHtml = { ...(window as any).__ntsGeneralCommentsHtml, [currentPaddockKey]: html };
                 } catch { }
               }}
               className="min-h-[100px]"
