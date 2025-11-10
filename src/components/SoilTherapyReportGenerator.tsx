@@ -3087,7 +3087,7 @@ const SoilReportGenerator: React.FC = () => {
       return smoothScore(devFrac);
     });
     const validScores = scores.filter(s => !isNaN(s));
-    const overallScore = validScores.length > 0 ? (validScores.reduce((a, b) => a + b, 0) / validScores.length) : 0;
+    const overallScore = calculateSoilHealthScore(currentPaddockData.nutrients);
     // Star rating logic
     let stars = 1;
     if (overallScore >= 80) stars = 5;
