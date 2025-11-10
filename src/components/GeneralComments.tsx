@@ -32,7 +32,9 @@ interface GeneralCommentsProps {
   taeText: string;
   setTaeText: (v: string) => void;
   reportRefId?: string,
-  currentPaddockKey?: string | null | undefined
+  currentPaddockKey?: string | null | undefined,
+  ntsGeneralCommentsHtml?: { [key: string]: string }
+  setNtsGeneralCommentsHtml?: (v: { [key: string]: string }) => void
 }
 
 // Helper for status label
@@ -259,7 +261,7 @@ async function generatePaddockNutrientExplanation(report, key, formInput, urls) 
   return { recommendedProductsDeficientTag, explanationHtml };
 }
 
-const GeneralComments: React.FC<GeneralCommentsProps> = ({ nutrients, somCecText, setSomCecText, baseSaturationText, setBaseSaturationText, phText, setPhText, availableNutrientsText, setAvailableNutrientsText, soilReservesText, setSoilReservesText, lamotteReamsText, setLamotteReamsText, taeText, setTaeText, reportRefId, currentPaddockKey }) => {
+const GeneralComments: React.FC<GeneralCommentsProps> = ({ nutrients, somCecText, setSomCecText, baseSaturationText, setBaseSaturationText, phText, setPhText, availableNutrientsText, setAvailableNutrientsText, soilReservesText, setSoilReservesText, lamotteReamsText, setLamotteReamsText, taeText, setTaeText, reportRefId, currentPaddockKey, ntsGeneralCommentsHtml, setNtsGeneralCommentsHtml }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [htmlPreview, setHtmlPreview] = useState<string>('');
@@ -341,6 +343,9 @@ const GeneralComments: React.FC<GeneralCommentsProps> = ({ nutrients, somCecText
         currentPaddockKey: somCecText,
         ...(window as any).__ntsGeneralCommentsHtml
       } ;
+
+      setNtsGeneralCommentsHtml({ ...ntsGeneralCommentsHtml, [currentPaddockKey]: somCecText });
+
     } catch { }
   }, [somCecText]);
 
@@ -597,7 +602,11 @@ const GeneralComments: React.FC<GeneralCommentsProps> = ({ nutrients, somCecText
           const composedHtmlForEditor = composedHtmlBase + (recommendedProductsHtml ? '\n' + recommendedProductsHtml : '');
           setSomCecText(composedHtmlForEditor);
           setHtmlPreview(composedHtmlForEditor);
-          try { (window as any).__ntsGeneralCommentsHtml = { ...(window as any).__ntsGeneralCommentsHtml, [currentPaddockKey]: composedHtmlForEditor }; } catch { }
+          try { 
+            (window as any).__ntsGeneralCommentsHtml = { ...(window as any).__ntsGeneralCommentsHtml, [currentPaddockKey]: composedHtmlForEditor }; 
+            setNtsGeneralCommentsHtml({ ...ntsGeneralCommentsHtml, [currentPaddockKey]: composedHtmlForEditor });
+          
+          } catch { }
         } else {
           // Fallback: existing local composition
           // Generate dynamic content based on nutrient analysis
@@ -637,7 +646,11 @@ const GeneralComments: React.FC<GeneralCommentsProps> = ({ nutrients, somCecText
           const fallbackHtml = markdownToHtml(fallbackText);
           setSomCecText(fallbackHtml);
           setHtmlPreview(fallbackHtml);
-          try { (window as any).__ntsGeneralCommentsHtml = { ...(window as any).__ntsGeneralCommentsHtml, [currentPaddockKey]: fallbackHtml }; } catch { }
+          try { 
+            (window as any).__ntsGeneralCommentsHtml = { ...(window as any).__ntsGeneralCommentsHtml, [currentPaddockKey]: fallbackHtml }; 
+            setNtsGeneralCommentsHtml({ ...ntsGeneralCommentsHtml, [currentPaddockKey]: fallbackHtml });
+          
+          } catch { }
         }
 
         // Generate Base Saturation summary
@@ -794,6 +807,7 @@ const GeneralComments: React.FC<GeneralCommentsProps> = ({ nutrients, somCecText
                 setHtmlPreview(html);
                 try {
                   (window as any).__ntsGeneralCommentsHtml = { ...(window as any).__ntsGeneralCommentsHtml, [currentPaddockKey]: html };
+                  setNtsGeneralCommentsHtml({ ...ntsGeneralCommentsHtml, [currentPaddockKey]: html });
                 } catch { }
               }}
               className="min-h-[100px]"

@@ -462,6 +462,7 @@ const PlantReportGenerator: React.FC<PlantReportGeneratorProps> = ({ paddockRepo
   const [soilReservesText, setSoilReservesText] = useState('');
   const [lamotteReamsText, setLamotteReamsText] = useState('');
   const [taeText, setTaeText] = useState('');
+  const [ntsGeneralCommentsHtml,setNtsGeneralCommentsHtml] = useState({});
   const [seedTreatmentProducts, setSeedTreatmentProducts] = useState([
     { id: '1', product: 'Root & Shoot', rate: '3-4', unit: 'L/tonne of seed' },
     { id: '2', product: 'Nutri-Life BAM', rate: '5', unit: 'L/tonne of seed' },
@@ -1358,6 +1359,9 @@ const PlantReportGenerator: React.FC<PlantReportGeneratorProps> = ({ paddockRepo
             // First try to get from window (set by GeneralComments component)
             generalCommentsHtml = (window as any).__ntsGeneralCommentsHtml[currentPaddockKey] || '';
             // If empty, use the paddock's somCecText (which should be HTML from rich text editor)
+            if(!generalCommentsHtml){
+              generalCommentsHtml = ntsGeneralCommentsHtml[currentPaddockKey] || '';
+            }
             if (!generalCommentsHtml && paddock.data.somCecText) {
               generalCommentsHtml = String(paddock.data.somCecText);
             }
@@ -3070,6 +3074,8 @@ const PlantReportGenerator: React.FC<PlantReportGeneratorProps> = ({ paddockRepo
                       setTaeText={val => updateCurrentPaddockData('taeText', val)}
                       reportRefId={reportRefId}
                       currentPaddockKey = {getCurrentPaddockKey()}
+                      ntsGeneralCommentsHtml={ntsGeneralCommentsHtml}
+                      setNtsGeneralCommentsHtml={setNtsGeneralCommentsHtml}
                     />
                   </div>
                 )}
