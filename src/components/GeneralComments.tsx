@@ -51,7 +51,7 @@ function getStatus(nutrients: any[], name: string) {
 }
 
 // Comprehensive nutrient antagonism database based on Mulder's Chart
-const NUTRIENT_ANTAGONISMS_OLD = {
+const NUTRIENT_ANTAGONISMS = {
   'Nitrogen': ['Potassium', 'Copper', 'Boron'],
   'Phosphorus': ['Zinc', 'Iron', 'Copper', 'Potassium', 'Calcium'],
   'Potassium': ['Magnesium', 'Calcium', 'Boron', 'Nitrogen', 'Phosphorus'],
@@ -63,32 +63,20 @@ const NUTRIENT_ANTAGONISMS_OLD = {
   'Manganese': ['Iron', 'Copper', 'Calcium'],
   'Boron': ['Nitrogen', 'Potassium', 'Calcium']
 };
-const NUTRIENT_ANTAGONISMS = {
-  'Nitrogen': ['Calcium', 'Magnesium', 'Potassium', 'Boron'],
-  'Phosphorus': ['Potassium', 'Magnesium', 'Nitrogen', 'Zinc'],
-  'Potassium': ['Magnesium', 'Calcium', 'Nitrogen'],
-  'Calcium': ['Boron', 'Nitrogen', 'Phosphorus', 'Potassium', 'Magnesium', 'Zinc'],
-  'Magnesium': ['Nitrogen', 'Magnesium'],
-  'Zinc': ['Nitrogen', 'Magnesium', 'Iron'],
-  'Copper': ['Manganese', 'Zinc', 'Nitrogen'],
-  'Iron': ['Magnesium', 'Boron', 'Potassium', 'Nitrogen', 'Phosphorus'],
-  'Manganese': ['Magnesium', 'Zinc', 'Potassium'],
-  'Boron': ['Nitrogen', 'Calcium', 'Molybdenum'],
-  'Molybdenum': ['Copper']
-};
+
 const nutrient_antagonism = {
-  'nitrogen': ['calcium (Ca)', 'magnesium (Mg)', 'potassium (K)', 'boron (B)', 'boron (B)'],
-  'phosphorus': ['potassium (K)', 'magnesium (Mg)', 'nitrogen (N)', 'zinc (Zn)', 'zinc (Zn)'],
-  'potassium': ['magnesium (Mg)', 'magnesium (Mg)', 'calcium (Ca)', 'nitrogen (N)'],
-  'calcium': ['boron (B)', 'nitrogen (N)', 'phosphorus (P)', 'potassium (K)', 'magnesium (Mg)', 'zinc (Zn)', 'nitrogen (N)'],
-  'magnesium': ['nitrogen (N)', 'magnesium (Mg)'],
-  'iron': ['magnesium (Mg)', 'boron (B)', 'potassium (K)', 'nitrogen (N)', 'phosphorus (P)'],
-  'manganese': ['magnesium (Mg)', 'zinc (Zn)', 'potassium (K)'],
-  'zinc': ['nitrogen (N)', 'magnesium (Mg)', 'iron (Fe)'],
-  'copper': ['manganese (Mn)', 'zinc (Zn)', 'nitrogen (N)', 'nitrogen (N)'],
-  'boron': ['nitrogen (N)', 'calcium (Ca)', 'molybdenum (Mo)'],
-  'molybdenum': ['copper (Cu)']
+  'nitrogen': ['potassium (K)', 'copper (Cu)', 'boron (B)'],
+  'phosphorus': ['zinc (Zn)', 'iron (Fe)', 'copper (Cu)', 'potassium (K)', 'calcium (Ca)'],
+  'potassium': ['magnesium (Mg)', 'calcium (Ca)', 'boron (B)', 'nitrogen (N)', 'phosphorus (P)'],
+  'calcium': ['magnesium (Mg)', 'potassium (K)', 'iron (Fe)', 'manganese (Mn)', 'zinc (Zn)', 'boron (B)', 'phosphorus (P)'],
+  'magnesium': ['calcium (Ca)', 'potassium (K)'],
+  'zinc': ['iron (Fe)', 'copper (Cu)', 'phosphorus (P)'],
+  'copper': ['nitrogen (N)', 'phosphorus (P)', 'manganese (Mn)', 'iron (Fe)'],
+  'iron': ['manganese (Mn)', 'zinc (Zn)', 'copper (Cu)', 'phosphorus (P)', 'calcium (Ca)'],
+  'manganese': ['iron (Fe)', 'copper (Cu)', 'calcium (Ca)'],
+  'boron': ['nitrogen (N)', 'potassium (K)', 'calcium (Ca)']
 };
+
 // Helper function to get nutrient abbreviation
 function getNutrientAbbrev(nutrientName: string): string {
   const abbrevMap: { [key: string]: string } = {
