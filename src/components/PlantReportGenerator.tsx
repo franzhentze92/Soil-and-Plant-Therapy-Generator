@@ -463,6 +463,8 @@ const PlantReportGenerator: React.FC<PlantReportGeneratorProps> = ({ paddockRepo
   const [lamotteReamsText, setLamotteReamsText] = useState('');
   const [taeText, setTaeText] = useState('');
   const [ntsGeneralCommentsHtml,setNtsGeneralCommentsHtml] = useState({});
+
+
   const [seedTreatmentProducts, setSeedTreatmentProducts] = useState([
     { id: '1', product: 'Root & Shoot', rate: '3-4', unit: 'L/tonne of seed' },
     { id: '2', product: 'Nutri-Life BAM', rate: '5', unit: 'L/tonne of seed' },
@@ -582,6 +584,10 @@ const PlantReportGenerator: React.FC<PlantReportGeneratorProps> = ({ paddockRepo
   useMemo(()=>{
     console.log('reportRefId',reportRefId)
   },[reportRefId])
+
+  useMemo(()=>{
+    console.log('ntsGeneralCommentsHtml',ntsGeneralCommentsHtml)
+  },[ntsGeneralCommentsHtml])
 
   const getCurrentPaddockKey = () => {
     let currentAnalyses = {
@@ -3075,7 +3081,7 @@ const PlantReportGenerator: React.FC<PlantReportGeneratorProps> = ({ paddockRepo
                       reportRefId={reportRefId}
                       currentPaddockKey = {getCurrentPaddockKey()}
                       ntsGeneralCommentsHtml={ntsGeneralCommentsHtml}
-                      setNtsGeneralCommentsHtml={setNtsGeneralCommentsHtml}
+                      setNtsGeneralCommentsHtml={val => setNtsGeneralCommentsHtml(val)}
                     />
                   </div>
                 )}
