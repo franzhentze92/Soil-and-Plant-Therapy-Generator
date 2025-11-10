@@ -5,6 +5,7 @@ import { RichTextEditor } from './ui/rich-text-editor';
 import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
 import { Info } from 'lucide-react';
 import { Button } from './ui/button';
+import { useAppContext } from '@/contexts/AppContext';
 
 interface Nutrient {
   name: string;
@@ -32,7 +33,7 @@ interface GeneralCommentsProps {
   taeText: string;
   setTaeText: (v: string) => void;
   reportRefId?: string,
-  currentPaddockKey?:string|null|undefined
+  currentPaddockKey?: string | null | undefined,
 }
 
 // Helper for status label
@@ -51,49 +52,41 @@ function getStatus(nutrients: any[], name: string) {
 }
 
 // Comprehensive nutrient antagonism database based on Mulder's Chart
-const NUTRIENT_ANTAGONISMS_OLD = {
-  'Nitrogen': ['Potassium', 'Copper', 'Boron'],
-  'Phosphorus': ['Zinc', 'Iron', 'Copper', 'Potassium', 'Calcium'],
-  'Potassium': ['Magnesium', 'Calcium', 'Boron', 'Nitrogen', 'Phosphorus'],
-  'Calcium': ['Magnesium', 'Potassium', 'Iron', 'Manganese', 'Zinc', 'Boron', 'Phosphorus'],
-  'Magnesium': ['Calcium', 'Potassium'],
-  'Zinc': ['Iron', 'Copper', 'Phosphorus'],
-  'Copper': ['Nitrogen', 'Phosphorus', 'Manganese', 'Iron'],
-  'Iron': ['Manganese', 'Zinc', 'Copper', 'Phosphorus', 'Calcium'],
-  'Manganese': ['Iron', 'Copper', 'Calcium'],
-  'Boron': ['Nitrogen', 'Potassium', 'Calcium']
-};
-const NUTRIENT_ANTAGONISMS = {
-  'Nitrogen': ['Calcium', 'Magnesium', 'Potassium', 'Boron'],
-  'Phosphorus': ['Potassium', 'Magnesium', 'Nitrogen', 'Zinc'],
-  'Potassium': ['Magnesium', 'Calcium', 'Nitrogen'],
-  'Calcium': ['Boron', 'Nitrogen', 'Phosphorus', 'Potassium', 'Magnesium', 'Zinc'],
-  'Magnesium': ['Nitrogen', 'Magnesium'],
-  'Zinc': ['Nitrogen', 'Magnesium', 'Iron'],
-  'Copper': ['Manganese', 'Zinc', 'Nitrogen'],
-  'Iron': ['Magnesium', 'Boron', 'Potassium', 'Nitrogen', 'Phosphorus'],
-  'Manganese': ['Magnesium', 'Zinc', 'Potassium'],
-  'Boron': ['Nitrogen', 'Calcium', 'Molybdenum'],
-  'Molybdenum': ['Copper']
-};
+const NUTRIENT_ANTAGONISMS = { 
+  "Nitrogen": ["Potassium", "Copper", "Boron"], 
+  "Phosphorus": ["Zinc", "Iron", "Copper", "Potassium", "Calcium"], 
+  "Potassium": ["Magnesium", "Calcium", "Boron", "Nitrogen", "Phosphorus"], 
+  "Calcium": ["Magnesium", "Potassium", "Iron", "Manganese", "Zinc", "Boron", "Phosphorus", "Sulphur"], 
+  "Magnesium": ["Calcium", "Potassium"], 
+  "Zinc": ["Iron", "Copper", "Phosphorus"], 
+  "Copper": ["Nitrogen", "Phosphorus", "Manganese", "Iron", "Sulphur"], 
+  "Iron": ["Manganese", "Zinc", "Copper", "Phosphorus", "Calcium"], 
+  "Manganese": ["Iron", "Copper", "Calcium"],
+  "Boron": ["Nitrogen", "Potassium", "Calcium"], 
+  "Sulphur": ["Copper", "Molybdenum", "Calcium"], 
+  "Molybdenum": ["Sulphur"] 
+}
+
 const nutrient_antagonism = {
-  'nitrogen': ['calcium (Ca)', 'magnesium (Mg)', 'potassium (K)', 'boron (B)', 'boron (B)'],
-  'phosphorus': ['potassium (K)', 'magnesium (Mg)', 'nitrogen (N)', 'zinc (Zn)', 'zinc (Zn)'],
-  'potassium': ['magnesium (Mg)', 'magnesium (Mg)', 'calcium (Ca)', 'nitrogen (N)'],
-  'calcium': ['boron (B)', 'nitrogen (N)', 'phosphorus (P)', 'potassium (K)', 'magnesium (Mg)', 'zinc (Zn)', 'nitrogen (N)'],
-  'magnesium': ['nitrogen (N)', 'magnesium (Mg)'],
-  'iron': ['magnesium (Mg)', 'boron (B)', 'potassium (K)', 'nitrogen (N)', 'phosphorus (P)'],
-  'manganese': ['magnesium (Mg)', 'zinc (Zn)', 'potassium (K)'],
-  'zinc': ['nitrogen (N)', 'magnesium (Mg)', 'iron (Fe)'],
-  'copper': ['manganese (Mn)', 'zinc (Zn)', 'nitrogen (N)', 'nitrogen (N)'],
-  'boron': ['nitrogen (N)', 'calcium (Ca)', 'molybdenum (Mo)'],
-  'molybdenum': ['copper (Cu)']
+  'nitrogen': ['potassium (K)', 'copper (Cu)', 'boron (B)'],
+  'phosphorus': ['zinc (Zn)', 'iron (Fe)', 'copper (Cu)', 'potassium (K)', 'calcium (Ca)'],
+  'potassium': ['magnesium (Mg)', 'calcium (Ca)', 'boron (B)', 'nitrogen (N)', 'phosphorus (P)'],
+  'calcium': ['magnesium (Mg)', 'potassium (K)', 'iron (Fe)', 'manganese (Mn)', 'zinc (Zn)', 'boron (B)', 'phosphorus (P)', 'sulphur (S)'],
+  'magnesium': ['calcium (Ca)', 'potassium (K)'],
+  'zinc': ['iron (Fe)', 'copper (Cu)', 'phosphorus (P)'],
+  'copper': ['nitrogen (N)', 'phosphorus (P)', 'manganese (Mn)', 'iron (Fe)', 'sulphur (S)'],
+  'iron': ['manganese (Mn)', 'zinc (Zn)', 'copper (Cu)', 'phosphorus (P)', 'calcium (Ca)'],
+  'manganese': ['iron (Fe)', 'copper (Cu)', 'calcium (Ca)'],
+  'boron': ['nitrogen (N)', 'potassium (K)', 'calcium (Ca)'],
+  'sulphur': ['copper (Cu)', 'molybdenum (Mo)', 'calcium (Ca)'],
+  'molybdenum': ['sulphur (S)']
 };
+
 // Helper function to get nutrient abbreviation
 function getNutrientAbbrev(nutrientName: string): string {
   const abbrevMap: { [key: string]: string } = {
     'Nitrogen': 'N',
-    'Phosphorus': 'P', 
+    'Phosphorus': 'P',
     'Potassium': 'K',
     'Calcium': 'Ca',
     'Magnesium': 'Mg',
@@ -133,14 +126,14 @@ function analyzeNutrientAntagonismNew(nutrient_excess: string[]) {
   const excessiveNutrients = [] as string[];
   const antagonismDetails = [] as string[];
 
-  nutrient_excess.forEach(nutrientName=>{
+  nutrient_excess.forEach(nutrientName => {
     // const antagonized = nutrient_antagonism[nutrientName];
     const antagonized = NUTRIENT_ANTAGONISMS[nutrientName];
     if (antagonized) {
       excessiveNutrients.push(nutrientName);
       const antagonizedFormatted = antagonized.map(n => `**${n} (${getNutrientAbbrev(n)})**`);
       antagonismDetails.push(`${nutrientName} (${getNutrientAbbrev(nutrientName)}) can shut down ${antagonizedFormatted.join(', ')}`);
-    
+
     }
 
   })
@@ -165,109 +158,110 @@ function capitalizeFirstLetter(str) {
 async function generatePaddockNutrientExplanation(report, key, formInput, urls) {
   let recommendedProductsDeficientTag = '';
   let explanationHtml = '';
-    // Normalize input: accept FormData or plain object
-    let formData;
-    if (formInput instanceof FormData) {
-        formData = formInput;
-    } else {
-        formData = new FormData();
-        if (formInput) {
-            Object.keys(formInput).forEach(k => {
-                formData.append(k, formInput[k]);
-            });
-        }
+  // Normalize input: accept FormData or plain object
+  let formData;
+  if (formInput instanceof FormData) {
+    formData = formInput;
+  } else {
+    formData = new FormData();
+    if (formInput) {
+      Object.keys(formInput).forEach(k => {
+        formData.append(k, formInput[k]);
+      });
     }
-        // Ensure leafCropGroup is set (fallback to report)
-        if (!formData.get("leafCropGroup") && report['leafCropGroup'] !== undefined) {
-            formData.append("leafCropGroup", report['leafCropGroup']);
-        }
-        const response = await fetch(urls.generateRecommendations, { method: 'POST', body: formData });
-        const data = await response.json();
-        report['paddocks'][key]["recommendations"]["recommended_products"] = data?.products_recommendation || []
-        // Normalize arrays from form data values
-        const normalizeArray = (val) => {
-            if (Array.isArray(val)) return val;
-            if (val == null) return [];
-            if (typeof val === 'string') return val.split(',').map(s => s.trim()).filter(Boolean);
-            return Array.from(val);
-        };
-        const nutrientDef = normalizeArray(formData.get("nutrient_deficient"));
-        const nutrientEx = normalizeArray(formData.get("nutrient_excess"));
-        report['paddocks'][key]["recommendations"]["form_data"] = {
-            "leafCropGroup": formData.get("leafCropGroup") ?? report['leafCropGroup'],
-            "application_method": formData.get("application_method"),
-            "recommendation_type": formData.get("recommendation_type"),
-            "nutrient_deficient": nutrientDef,
-            "nutrient_excess": nutrientEx,
-        }
-        let bigFourNutrients = ['calcium', 'magnesium', 'phosphorus', 'boron'];
-        let bigFourNutrientsDeficient = report['paddocks'][key]["recommendations"]["form_data"]["nutrient_deficient"].filter(nutrient => bigFourNutrients.includes(nutrient.toLowerCase()));
-        let bigFourNutrientsExcess = report['paddocks'][key]["recommendations"]["form_data"]["nutrient_excess"];
-        explanationHtml = `<span class="m-0 text-justify">We have found that it is remarkably productive to try to maintain "luxury levels" of 4 minerals on a leaf test (The Big four). "Luxury", refers to the top end of the acceptable range. The Big Four include calcium, magnesium, phosphorus and boron.</span>`;
-        if (bigFourNutrientsDeficient.length > 0){
-            let bigFourNutrientsDeficientTag = `<span class="m-0 text-justify"> Here, you are deficient in ${bigFourNutrientsDeficient.length} of the nutrients of the big four. 
+  }
+  // Ensure leafCropGroup is set (fallback to report)
+  if (!formData.get("leafCropGroup") && report['leafCropGroup'] !== undefined) {
+    formData.append("leafCropGroup", report['leafCropGroup']);
+  }
+  const response = await fetch(urls.generateRecommendations, { method: 'POST', body: formData });
+  const data = await response.json();
+  report['paddocks'][key]["recommendations"]["recommended_products"] = data?.products_recommendation || []
+  // Normalize arrays from form data values
+  const normalizeArray = (val) => {
+    if (Array.isArray(val)) return val;
+    if (val == null) return [];
+    if (typeof val === 'string') return val.split(',').map(s => s.trim()).filter(Boolean);
+    return Array.from(val);
+  };
+  const nutrientDef = normalizeArray(formData.get("nutrient_deficient"));
+  const nutrientEx = normalizeArray(formData.get("nutrient_excess"));
+  report['paddocks'][key]["recommendations"]["form_data"] = {
+    "leafCropGroup": formData.get("leafCropGroup") ?? report['leafCropGroup'],
+    "application_method": formData.get("application_method"),
+    "recommendation_type": formData.get("recommendation_type"),
+    "nutrient_deficient": nutrientDef,
+    "nutrient_excess": nutrientEx,
+  }
+  let bigFourNutrients = ['calcium', 'magnesium', 'phosphorus', 'boron'];
+  let bigFourNutrientsDeficient = report['paddocks'][key]["recommendations"]["form_data"]["nutrient_deficient"].filter(nutrient => bigFourNutrients.includes(nutrient.toLowerCase()));
+  let bigFourNutrientsExcess = report['paddocks'][key]["recommendations"]["form_data"]["nutrient_excess"];
+  explanationHtml = `<span class="m-0 text-justify">We have found that it is remarkably productive to try to maintain "luxury levels" of 4 minerals on a leaf test (The Big four). "Luxury", refers to the top end of the acceptable range. The Big Four include calcium, magnesium, phosphorus and boron.</span>`;
+  if (bigFourNutrientsDeficient.length > 0) {
+    let bigFourNutrientsDeficientTag = `<span class="m-0 text-justify"> Here, you are deficient in ${bigFourNutrientsDeficient.length} of the nutrients of the big four. 
             In this case, ${joinArrayToSentence(bigFourNutrientsDeficient)} should be foliar sprayed to bypass issues in the soil. </span>
             `;
-            explanationHtml += bigFourNutrientsDeficientTag
-        }else{
-            explanationHtml += `<span class="m-0 text-justify">You do not have any deficiency in any of the nutrients of the big four.</span>`;
-        }
-        if (bigFourNutrientsExcess.length > 0){
-            let nutrientAntagonismTag = document.createElement('ul');
-            nutrientAntagonismTag.classList.add('mt-0','text-justify');
-            bigFourNutrientsExcess.forEach(nutrient => {
-                nutrient = nutrient.toLowerCase();
-                if (nutrient_antagonism[nutrient]){
-                    let antagonisticNutrients = nutrient_antagonism[nutrient].map(word =>capitalizeFirstLetter(word)).join(', ');
-                    nutrientAntagonismTag.innerHTML += `
+    explanationHtml += bigFourNutrientsDeficientTag
+  } else {
+    explanationHtml += `<span class="m-0 text-justify">You do not have any deficiency in any of the nutrients of the big four.</span>`;
+  }
+  if (bigFourNutrientsExcess.length > 0) {
+    let nutrientAntagonismTag = document.createElement('ul');
+    nutrientAntagonismTag.classList.add('mt-0', 'text-justify');
+    bigFourNutrientsExcess.forEach(nutrient => {
+      nutrient = nutrient.toLowerCase();
+      if (nutrient_antagonism[nutrient]) {
+        let antagonisticNutrients = nutrient_antagonism[nutrient].map(word => capitalizeFirstLetter(word)).join(', ');
+        nutrientAntagonismTag.innerHTML += `
                         <li><b>${capitalizeFirstLetter(nutrient)}</b> shuts down <b>${antagonisticNutrients}<b></li>
                     `;
-                }
-            });
-            let bigFourNutrientsExcessTag = `<span > Your excess of ${joinArrayToSentence(bigFourNutrientsExcess)} can shut down several nutrients.</span>
+      }
+    });
+    let bigFourNutrientsExcessTag = `<span > Your excess of ${joinArrayToSentence(bigFourNutrientsExcess)} can shut down several nutrients.</span>
             <span class="m-0 text-justify"><p class="m-0 text-justify">Your nutrient antagonism is summarized as following:</p>
                 ${nutrientAntagonismTag.outerHTML}
             </span>
             `;
-            explanationHtml += bigFourNutrientsExcessTag
-        }else{
-            explanationHtml += `<span class="m-0 text-justify">You do not have any excess in any of the nutrients of the big four.</span>`;
+    explanationHtml += bigFourNutrientsExcessTag
+  } else {
+    explanationHtml += `<span class="m-0 text-justify">You do not have any excess in any of the nutrients of the big four.</span>`;
+  }
+  explanationHtml += `<p class="text-justify">${data?.combined_nutrients_explanation}</p>` || "";
+  report['paddocks'][key]["recommendations"]["explanation"] = explanationHtml;
+  recommendedProductsDeficientTag = '';
+  if (report['paddocks'][key]["recommendations"]["form_data"]["nutrient_deficient"].length > 0) {
+    Object.keys(report['paddocks'][key]["recommendations"]["recommended_products"]['deficient']).forEach(innerkey => {
+      let product = report['paddocks'][key]["recommendations"]["recommended_products"]['deficient'][innerkey];
+      const productUrlMap = {
+        "10 kg Calcium Nitrate": "https://nutri-tech.com.au/collections/liquid-fertilisers/products/calcium-nitrate",
+        "10 L Lime-Life": "https://nutri-tech.com.au/collections/mms/products/lime-life-organic",
+        "1 kg Fulvx": "https://nutri-tech.com.au/collections/humates/products/fulvx",
+        "2 kg Sodium Borate": "https://nutri-tech.com.au/collections/liquid-fertilisers/products/sodium-borate",
+        "10 L DIY Humic Acid": "https://nutri-tech.com.au/collections/humates/products/diy-humic-acid",
+        "30 ml Triacontanol": "https://nutri-tech.com.au/collections/liquid-fertilisers/products/triacontanol",
+        "1 L Micro Amino Drive (MAD)": "https://nutri-tech.com.au/collections/liquid-fertilisers/products/micro-amino-drive",
+        "5 kg Calcium Nitrate": "https://nutri-tech.com.au/collections/liquid-fertilisers/products/calcium-nitrate-5kg",
+        "5 L Lime-Life": "https://nutri-tech.com.au/collections/liquid-fertilisers/products/lime-life-5l",
+        "500 g Fulvx": "https://nutri-tech.com.au/collections/humates/products/fulvx-500g",
+        "1 kg Sodium Borate": "https://nutri-tech.com.au/collections/liquid-fertilisers/products/sodium-borate-1kg",
+        "5 L DIY Humic Acid": "https://nutri-tech.com.au/collections/humates/products/diy-humic-acid-5l"
+      };
+      let productLinks = product.recommended_products.map(productName => {
+        const productUrl = productUrlMap[productName];
+        if (productUrl && productUrl.trim() !== "" && productUrl.trim() !== "Source locally" && productUrl.trim().startsWith("http")) {
+          return `<a href="${productUrl}" target="_blank" style="text-decoration: none; color: #8cb43a;">🛒 ${productName}</a>`;
+        } else {
+          return `🛒 ${productName}`;
         }
-        explanationHtml += `<p class="text-justify">${data?.combined_nutrients_explanation}</p>` || "";
-        report['paddocks'][key]["recommendations"]["explanation"] = explanationHtml;
-        recommendedProductsDeficientTag = '';
-        if (report['paddocks'][key]["recommendations"]["form_data"]["nutrient_deficient"].length > 0){
-            Object.keys(report['paddocks'][key]["recommendations"]["recommended_products"]['deficient']).forEach(innerkey => {
-                let product = report['paddocks'][key]["recommendations"]["recommended_products"]['deficient'][innerkey];
-                const productUrlMap = {
-                    "10 kg Calcium Nitrate": "https://nutri-tech.com.au/collections/liquid-fertilisers/products/calcium-nitrate",
-                    "10 L Lime-Life": "https://nutri-tech.com.au/collections/mms/products/lime-life-organic",
-                    "1 kg Fulvx": "https://nutri-tech.com.au/collections/humates/products/fulvx",
-                    "2 kg Sodium Borate": "https://nutri-tech.com.au/collections/liquid-fertilisers/products/sodium-borate",
-                    "10 L DIY Humic Acid": "https://nutri-tech.com.au/collections/humates/products/diy-humic-acid",
-                    "30 ml Triacontanol": "https://nutri-tech.com.au/collections/liquid-fertilisers/products/triacontanol",
-                    "1 L Micro Amino Drive (MAD)": "https://nutri-tech.com.au/collections/liquid-fertilisers/products/micro-amino-drive",
-                    "5 kg Calcium Nitrate": "https://nutri-tech.com.au/collections/liquid-fertilisers/products/calcium-nitrate-5kg",
-                    "5 L Lime-Life": "https://nutri-tech.com.au/collections/liquid-fertilisers/products/lime-life-5l",
-                    "500 g Fulvx": "https://nutri-tech.com.au/collections/humates/products/fulvx-500g",
-                    "1 kg Sodium Borate": "https://nutri-tech.com.au/collections/liquid-fertilisers/products/sodium-borate-1kg",
-                    "5 L DIY Humic Acid": "https://nutri-tech.com.au/collections/humates/products/diy-humic-acid-5l"
-                };
-                let productLinks = product.recommended_products.map(productName => {
-                    const productUrl = productUrlMap[productName];
-                    if (productUrl && productUrl.trim() !== "" && productUrl.trim() !== "Source locally" && productUrl.trim().startsWith("http")) {
-                        return `<a href="${productUrl}" target="_blank" style="text-decoration: none; color: #8cb43a;">🛒 ${productName}</a>`;
-                    } else {
-                        return `🛒 ${productName}`;
-                    }
-                }).join(', ');
-                recommendedProductsDeficientTag += `<li><b>${product.nutrient}</b>: ${productLinks}</li>`
-            });
-        }
+      }).join(', ');
+      recommendedProductsDeficientTag += `<li><b>${product.nutrient}</b>: ${productLinks}</li>`
+    });
+  }
   return { recommendedProductsDeficientTag, explanationHtml };
 }
 
-const GeneralComments: React.FC<GeneralCommentsProps> = ({ nutrients, somCecText, setSomCecText, baseSaturationText, setBaseSaturationText, phText, setPhText, availableNutrientsText, setAvailableNutrientsText, soilReservesText, setSoilReservesText, lamotteReamsText, setLamotteReamsText, taeText, setTaeText,reportRefId ,currentPaddockKey}) => {
+const GeneralComments: React.FC<GeneralCommentsProps> = ({ nutrients, somCecText, setSomCecText, baseSaturationText, setBaseSaturationText, phText, setPhText, availableNutrientsText, setAvailableNutrientsText, soilReservesText, setSoilReservesText, lamotteReamsText, setLamotteReamsText, taeText, setTaeText, reportRefId, currentPaddockKey }) => {
+  const { ntsGeneralCommentsHtml, setNtsGeneralCommentsHtml } = useAppContext();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [htmlPreview, setHtmlPreview] = useState<string>('');
@@ -277,7 +271,7 @@ const GeneralComments: React.FC<GeneralCommentsProps> = ({ nutrients, somCecText
   const markdownToHtml = (text: string) => {
     if (!text) return '';
     const escape = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-    
+
     // Convert URL patterns to links: 🛒 Product Name (https://url.com) -> <a>🛒 Product Name</a>
     const convertUrlsToLinks = (line: string) => {
       const urlPattern = /🛒\s*([^(]+)\s*\(((https?:\/\/[^)]+))\)/g;
@@ -286,7 +280,7 @@ const GeneralComments: React.FC<GeneralCommentsProps> = ({ nutrients, somCecText
         return `<a href="${url}" target="_blank" style="text-decoration: none; color: #8cb43a;">🛒 ${escape(cleanProductName)}</a>`;
       });
     };
-    
+
     const lines = String(text).split(/\r?\n/);
     let html = '';
     let inUl = false;
@@ -344,16 +338,23 @@ const GeneralComments: React.FC<GeneralCommentsProps> = ({ nutrients, somCecText
   useEffect(() => {
     setHtmlPreview(somCecText);
     try {
-      (window as any).__ntsGeneralCommentsHtml = somCecText;
-    } catch {}
+      (window as any).__ntsGeneralCommentsHtml ={
+
+        currentPaddockKey: somCecText,
+        ...(window as any).__ntsGeneralCommentsHtml
+      } ;
+
+      setNtsGeneralCommentsHtml({ ...ntsGeneralCommentsHtml, [currentPaddockKey]: somCecText });
+
+    } catch { }
   }, [somCecText]);
 
   async function handleGenerateAI() {
     setLoading(true);
     setError(null);
-    
-    debugger 
-    console.log('handleGenerateAI',reportRefId)
+
+    debugger
+    console.log('handleGenerateAI', reportRefId)
 
 
 
@@ -373,16 +374,16 @@ const GeneralComments: React.FC<GeneralCommentsProps> = ({ nutrients, somCecText
         }
         return { ...n, status };
       });
-    
+
     // Group nutrients by calculated status
     const deficient = nutrientsWithStatus.filter(n => n.status === 'low').map(n => n.name);
     const optimal = nutrientsWithStatus.filter(n => n.status === 'optimal').map(n => n.name);
     const excess = nutrientsWithStatus.filter(n => n.status === 'high').map(n => n.name);
-    
+
     try {
       let wasFetchSuccessfull = false
       let data = null;
-      if(reportRefId ){
+      if (reportRefId) {
         const requestOptions: RequestInit = {
           method: 'GET'
         };
@@ -390,17 +391,17 @@ const GeneralComments: React.FC<GeneralCommentsProps> = ({ nutrients, somCecText
         // let response = await fetch(`http://localhost:8000/api/downloadable-charts-pdfs/${reportRefId}/get_ai_comments/?key=${currentPaddockKey}`, requestOptions);
         let response = await fetch(`https://nutrition.ntsgrow.com/api/downloadable-charts-pdfs/${reportRefId}/get_ai_comments/?key=${currentPaddockKey}`, requestOptions);
         // let response = await fetch(`https://nutrition.ntsgrow.com/api/downloadable-charts-pdfs/${reportRefId}/get_ai_comments/?key=${key}`, requestOptions);
-        
-        console.log('get_ai_comments',response)
-        if (response.status == 200){
-            data  = await response.json();
-            console.log('get_ai_comments',data)
-            data['summary'] = data.ai_comments.combined_nutrients_explanation
-            wasFetchSuccessfull =true
+
+        console.log('get_ai_comments', response)
+        if (response.status == 200) {
+          data = await response.json();
+          console.log('get_ai_comments', data)
+          data['summary'] = data.ai_comments.combined_nutrients_explanation
+          wasFetchSuccessfull = true
         }
-  
+
       }
-      if (!wasFetchSuccessfull){
+      if (!wasFetchSuccessfull) {
         const res = await fetch('/generate-comments', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -416,7 +417,7 @@ const GeneralComments: React.FC<GeneralCommentsProps> = ({ nutrients, somCecText
         if (wasFetchSuccessfull) {
           // Big Four paragraph
           const bigFourIntro = 'We have found that it is remarkably productive to try to maintain "luxury levels" of 4 minerals on a leaf test (The Big four). "Luxury", refers to the top end of the acceptable range. The Big Four include **Calcium (Ca)**, **Magnesium (Mg)**, **Phosphorus (P)**, and **Boron (B)**.';
-          
+
           let form_data = data.form_data
           let nutrient_deficient = form_data.nutrient_deficient
           let nutrient_excess = form_data.nutrient_excess
@@ -429,11 +430,11 @@ const GeneralComments: React.FC<GeneralCommentsProps> = ({ nutrients, somCecText
           // const bigFourDeficient = bigFourNutrients.filter(nutrient => 
           //   nutrientsWithStatus.some(n => n.name.includes(nutrient.split(' - ')[1]) && n.status === 'low')
           // );
-          const bigFourDeficient = bigFourNutrients.filter(nutrient => 
-            nutrient_deficient.some(n =>{
-              
-             
-              return  n.includes(nutrient.split(' - ')[1])
+          const bigFourDeficient = bigFourNutrients.filter(nutrient =>
+            nutrient_deficient.some(n => {
+
+
+              return n.includes(nutrient.split(' - ')[1])
             })
           );
           const bigFourDeficientCount = bigFourDeficient.length;
@@ -547,10 +548,10 @@ const GeneralComments: React.FC<GeneralCommentsProps> = ({ nutrients, somCecText
               "8 L Nutri-Sea Liquid Fish": " https://nutri-tech.com.au/collections/nslpgp/products/nutri-sea-liquid-fish ",
               "8 kg Potassium Sulfate": " Source locally "
             };
-            
+
             const textLines: string[] = [];
             const htmlItems: string[] = [];
-            
+
             Object.keys(productsRec.deficient).forEach(innerKey => {
               const entry = productsRec.deficient[innerKey];
               if (!entry) return;
@@ -567,7 +568,7 @@ const GeneralComments: React.FC<GeneralCommentsProps> = ({ nutrients, somCecText
                   }
                 }).join(', ');
                 textLines.push(`• ${nutrientName}: ${textProducts}`);
-                
+
                 // Generate HTML format: <li><strong>Nutrient</strong>: <a>🛒 Product1</a>, <a>🛒 Product2</a></li>
                 const htmlProducts = items.map(productName => {
                   const productUrl = productUrlMap[productName];
@@ -580,7 +581,7 @@ const GeneralComments: React.FC<GeneralCommentsProps> = ({ nutrients, somCecText
                 htmlItems.push(`<li><strong>${nutrientName}</strong>: ${htmlProducts}</li>`);
               }
             });
-            
+
             if (textLines.length > 0) {
               recommendedProductsText = 'Recommended Products:\n' + textLines.join('\n');
               recommendedProductsHtml = `<p style="color: #8cb43a; font-weight: bold; margin-bottom: 8px;">Recommended Products:</p><ul style="margin-top: 0; margin-bottom: 0;">${htmlItems.join('')}</ul>`;
@@ -594,7 +595,7 @@ const GeneralComments: React.FC<GeneralCommentsProps> = ({ nutrients, somCecText
           if (antagonismBlock) parts.push(antagonismBlock);
           if (aiCombined) parts.push(aiCombined);
           const composed = parts.join('\n\n');
-          
+
           // Convert markdown-like text to HTML
           const composedHtmlBase = markdownToHtml(composed);
 
@@ -602,60 +603,68 @@ const GeneralComments: React.FC<GeneralCommentsProps> = ({ nutrients, somCecText
           const composedHtmlForEditor = composedHtmlBase + (recommendedProductsHtml ? '\n' + recommendedProductsHtml : '');
           setSomCecText(composedHtmlForEditor);
           setHtmlPreview(composedHtmlForEditor);
-          try { (window as any).__ntsGeneralCommentsHtml = composedHtmlForEditor; } catch {}
+          try { 
+            (window as any).__ntsGeneralCommentsHtml = { ...(window as any).__ntsGeneralCommentsHtml, [currentPaddockKey]: composedHtmlForEditor }; 
+            setNtsGeneralCommentsHtml({ ...ntsGeneralCommentsHtml, [currentPaddockKey]: composedHtmlForEditor });
+          
+          } catch { }
         } else {
           // Fallback: existing local composition
           // Generate dynamic content based on nutrient analysis
           const bigFourNutrients = ['Ca - Calcium', 'Mg - Magnesium', 'P - Phosphorus', 'B - Boron'];
-          const bigFourDeficient = bigFourNutrients.filter(nutrient => 
+          const bigFourDeficient = bigFourNutrients.filter(nutrient =>
             nutrientsWithStatus.some(n => n.name.includes(nutrient.split(' - ')[1]) && n.status === 'low')
           );
-          const bigFourDeficientCount = bigFourNutrients.filter(nutrient => 
+          const bigFourDeficientCount = bigFourNutrients.filter(nutrient =>
             nutrientsWithStatus.some(n => n.name.includes(nutrient.split(' - ')[1]) && n.status === 'low')
           ).length;
-          
+
           // Analyze nutrient antagonism
           const antagonism = analyzeNutrientAntagonism(nutrientsWithStatus);
-          
+
           // Generate antagonism text
           let antagonismText = '';
           if (antagonism.excessiveNutrients.length > 0) {
             const excessiveNames = antagonism.excessiveNutrients.map(n => `**${n} (${getNutrientAbbrev(n)})**`);
             antagonismText = `Your excess of ${excessiveNames.join(', ')} can shut down several nutrients.\nYour nutrient antagonism is summarized as following:\n${antagonism.antagonismDetails.join('\n')}`;
           }
-          
+
           // Combine AI summary with dynamic content
           const foliarNutrients = bigFourDeficient.map(n => {
             const fullName = n.split(' - ')[1];
             const abbrev = n.split(' - ')[0];
             return `**${fullName} (${abbrev})**`;
           });
-          const foliarText = foliarNutrients.length === 1 
+          const foliarText = foliarNutrients.length === 1
             ? `${foliarNutrients[0]} should be foliar sprayed`
             : `${foliarNutrients.slice(0, -1).join(', ')} and ${foliarNutrients[foliarNutrients.length - 1]} need to be foliar sprayed`;
           const dynamicContent = `\n\nWe have found that it is remarkably productive to try to maintain "luxury levels" of 4 minerals on a leaf test (The Big four). "Luxury", refers to the top end of the acceptable range. The Big Four include **Calcium (Ca)**, **Magnesium (Mg)**, **Phosphorus (P)**, and **Boron (B)**. Here, you are deficient in ${bigFourDeficientCount} of the nutrients of the big four. ${bigFourDeficientCount > 0 ? `In this case, ${foliarText} to bypass issues in the soil.` : ''}${antagonismText}`;
           const closingSentence = '\n\nBalanced nutrition is key to optimal plant health—addressing these nutrient imbalances will help your crop reach its full potential.';
-          
+
           // Generate content for all 7 summaries based on actual nutrient data
           const fallbackText = data.summary + dynamicContent + closingSentence;
           // Convert markdown-like text to HTML for rich text editor
           const fallbackHtml = markdownToHtml(fallbackText);
           setSomCecText(fallbackHtml);
           setHtmlPreview(fallbackHtml);
-          try { (window as any).__ntsGeneralCommentsHtml = fallbackHtml; } catch {}
+          try { 
+            (window as any).__ntsGeneralCommentsHtml = { ...(window as any).__ntsGeneralCommentsHtml, [currentPaddockKey]: fallbackHtml }; 
+            setNtsGeneralCommentsHtml({ ...ntsGeneralCommentsHtml, [currentPaddockKey]: fallbackHtml });
+          
+          } catch { }
         }
-        
+
         // Generate Base Saturation summary
-        const baseSaturationNutrients = nutrientsWithStatus.filter(n => 
-          n.name.toLowerCase().includes('base saturation') || 
-          n.name.toLowerCase().includes('calcium') || 
-          n.name.toLowerCase().includes('magnesium') || 
+        const baseSaturationNutrients = nutrientsWithStatus.filter(n =>
+          n.name.toLowerCase().includes('base saturation') ||
+          n.name.toLowerCase().includes('calcium') ||
+          n.name.toLowerCase().includes('magnesium') ||
           n.name.toLowerCase().includes('potassium') ||
           n.name.toLowerCase().includes('sodium')
         );
         const baseSaturationDeficient = baseSaturationNutrients.filter(n => n.status === 'low');
         const baseSaturationExcess = baseSaturationNutrients.filter(n => n.status === 'high');
-        
+
         let baseSaturationSummary = 'Base saturation analysis reveals cation balance in the soil. ';
         if (baseSaturationDeficient.length > 0) {
           baseSaturationSummary += `Deficiencies detected in ${baseSaturationDeficient.map(n => n.name).join(', ')}. `;
@@ -665,15 +674,15 @@ const GeneralComments: React.FC<GeneralCommentsProps> = ({ nutrients, somCecText
         }
         baseSaturationSummary += 'These values indicate the current cation exchange capacity and nutrient availability for plant uptake.';
         setBaseSaturationText(baseSaturationSummary);
-        
+
         // Generate pH summary
-        const phNutrients = nutrientsWithStatus.filter(n => 
-          n.name.toLowerCase().includes('ph') || 
+        const phNutrients = nutrientsWithStatus.filter(n =>
+          n.name.toLowerCase().includes('ph') ||
           n.name.toLowerCase().includes('hydrogen')
         );
         const phDeficient = phNutrients.filter(n => n.status === 'low');
         const phExcess = phNutrients.filter(n => n.status === 'high');
-        
+
         let phSummary = 'Soil pH analysis indicates the acidity or alkalinity of the soil. ';
         if (phDeficient.length > 0) {
           phSummary += `Low pH detected in ${phDeficient.map(n => n.name).join(', ')}. `;
@@ -683,11 +692,11 @@ const GeneralComments: React.FC<GeneralCommentsProps> = ({ nutrients, somCecText
         }
         phSummary += 'This affects nutrient availability and microbial activity in the soil.';
         setPhText(phSummary);
-        
+
         // Generate Available Nutrients summary
-        const availableNutrients = nutrientsWithStatus.filter(n => 
-          n.name.toLowerCase().includes('nitrogen') || 
-          n.name.toLowerCase().includes('phosphorus') || 
+        const availableNutrients = nutrientsWithStatus.filter(n =>
+          n.name.toLowerCase().includes('nitrogen') ||
+          n.name.toLowerCase().includes('phosphorus') ||
           n.name.toLowerCase().includes('potassium') ||
           n.name.toLowerCase().includes('sulfur') ||
           n.name.toLowerCase().includes('zinc') ||
@@ -698,7 +707,7 @@ const GeneralComments: React.FC<GeneralCommentsProps> = ({ nutrients, somCecText
         );
         const availableDeficient = availableNutrients.filter(n => n.status === 'low');
         const availableExcess = availableNutrients.filter(n => n.status === 'high');
-        
+
         let availableSummary = 'Available nutrient analysis shows the current plant-available nutrient levels. ';
         if (availableDeficient.length > 0) {
           availableSummary += `Deficiencies detected in ${availableDeficient.map(n => n.name).join(', ')}. `;
@@ -708,16 +717,16 @@ const GeneralComments: React.FC<GeneralCommentsProps> = ({ nutrients, somCecText
         }
         availableSummary += 'These concentrations reflect the current soil fertility status and plant-available nutrient pool.';
         setAvailableNutrientsText(availableSummary);
-        
+
         // Generate Soil Reserves summary
-        const reservesNutrients = nutrientsWithStatus.filter(n => 
-          n.name.toLowerCase().includes('reserve') || 
+        const reservesNutrients = nutrientsWithStatus.filter(n =>
+          n.name.toLowerCase().includes('reserve') ||
           n.name.toLowerCase().includes('total') ||
           n.name.toLowerCase().includes('organic')
         );
         const reservesDeficient = reservesNutrients.filter(n => n.status === 'low');
         const reservesExcess = reservesNutrients.filter(n => n.status === 'high');
-        
+
         let reservesSummary = 'Total soil reserves indicate the long-term nutrient supply capacity. ';
         if (reservesDeficient.length > 0) {
           reservesSummary += `Low reserves detected in ${reservesDeficient.map(n => n.name).join(', ')}. `;
@@ -727,18 +736,18 @@ const GeneralComments: React.FC<GeneralCommentsProps> = ({ nutrients, somCecText
         }
         reservesSummary += 'The clay fraction shows good mineral diversity, while organic reserves contribute to long-term nutrient cycling.';
         setSoilReservesText(reservesSummary);
-        
+
         // Generate Lamotte Reams summary
-        const lamotteNutrients = nutrientsWithStatus.filter(n => 
-          n.name.toLowerCase().includes('lamotte') || 
-          n.name.toLowerCase().includes('calcium') || 
-          n.name.toLowerCase().includes('magnesium') || 
-          n.name.toLowerCase().includes('phosphorus') || 
+        const lamotteNutrients = nutrientsWithStatus.filter(n =>
+          n.name.toLowerCase().includes('lamotte') ||
+          n.name.toLowerCase().includes('calcium') ||
+          n.name.toLowerCase().includes('magnesium') ||
+          n.name.toLowerCase().includes('phosphorus') ||
           n.name.toLowerCase().includes('potassium')
         );
         const lamotteDeficient = lamotteNutrients.filter(n => n.status === 'low');
         const lamotteExcess = lamotteNutrients.filter(n => n.status === 'high');
-        
+
         let lamotteSummary = 'LaMotte/Reams analysis provides detailed insights into soil nutrient availability. ';
         if (lamotteDeficient.length > 0) {
           lamotteSummary += `Deficiencies detected in ${lamotteDeficient.map(n => n.name).join(', ')}. `;
@@ -748,21 +757,21 @@ const GeneralComments: React.FC<GeneralCommentsProps> = ({ nutrients, somCecText
         }
         lamotteSummary += 'These values indicate the current availability of essential nutrients in the soil solution and their potential for plant uptake.';
         setLamotteReamsText(lamotteSummary);
-        
+
         // Generate TAE summary
-        const taeNutrients = nutrientsWithStatus.filter(n => 
-          !n.name.toLowerCase().includes('lamotte') && 
-          (n.name.toLowerCase().includes('trace') || 
-           n.name.toLowerCase().includes('micronutrient') ||
-           n.name.toLowerCase().includes('zinc') ||
-           n.name.toLowerCase().includes('iron') ||
-           n.name.toLowerCase().includes('manganese') ||
-           n.name.toLowerCase().includes('copper') ||
-           n.name.toLowerCase().includes('boron'))
+        const taeNutrients = nutrientsWithStatus.filter(n =>
+          !n.name.toLowerCase().includes('lamotte') &&
+          (n.name.toLowerCase().includes('trace') ||
+            n.name.toLowerCase().includes('micronutrient') ||
+            n.name.toLowerCase().includes('zinc') ||
+            n.name.toLowerCase().includes('iron') ||
+            n.name.toLowerCase().includes('manganese') ||
+            n.name.toLowerCase().includes('copper') ||
+            n.name.toLowerCase().includes('boron'))
         );
         const taeDeficient = taeNutrients.filter(n => n.status === 'low');
         const taeExcess = taeNutrients.filter(n => n.status === 'high');
-        
+
         let taeSummary = 'Total Available Elements (TAE) analysis reveals the complete mineral profile including trace elements. ';
         if (taeDeficient.length > 0) {
           taeSummary += `Trace element deficiencies detected in ${taeDeficient.map(n => n.name).join(', ')}. `;
@@ -798,8 +807,9 @@ const GeneralComments: React.FC<GeneralCommentsProps> = ({ nutrients, somCecText
                 setSomCecText(html);
                 setHtmlPreview(html);
                 try {
-                  (window as any).__ntsGeneralCommentsHtml = html;
-                } catch {}
+                  (window as any).__ntsGeneralCommentsHtml = { ...(window as any).__ntsGeneralCommentsHtml, [currentPaddockKey]: html };
+                  setNtsGeneralCommentsHtml({ ...ntsGeneralCommentsHtml, [currentPaddockKey]: html });
+                } catch { }
               }}
               className="min-h-[100px]"
               placeholder="Enter general comments here..."

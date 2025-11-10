@@ -32,6 +32,7 @@ import ClientReportExport from './ClientReportExport';
 import PDFExportButton from './PDFExportButton';
 import { PDFExportOptions } from '../utils/pdfExport';
 import { generateCustomPDF } from '../lib/pdfReportGeneratorForPlant';
+import { useAppContext } from '@/contexts/AppContext';
 pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs';
 
 // Add this at the top of the file, before mockNutrients
@@ -462,6 +463,9 @@ const PlantReportGenerator: React.FC<PlantReportGeneratorProps> = ({ paddockRepo
   const [soilReservesText, setSoilReservesText] = useState('');
   const [lamotteReamsText, setLamotteReamsText] = useState('');
   const [taeText, setTaeText] = useState('');
+  const { ntsGeneralCommentsHtml, setNtsGeneralCommentsHtml } = useAppContext();
+
+
   const [seedTreatmentProducts, setSeedTreatmentProducts] = useState([
     { id: '1', product: 'Root & Shoot', rate: '3-4', unit: 'L/tonne of seed' },
     { id: '2', product: 'Nutri-Life BAM', rate: '5', unit: 'L/tonne of seed' },
@@ -581,6 +585,10 @@ const PlantReportGenerator: React.FC<PlantReportGeneratorProps> = ({ paddockRepo
   useMemo(()=>{
     console.log('reportRefId',reportRefId)
   },[reportRefId])
+
+  useMemo(()=>{
+    console.log('ntsGeneralCommentsHtml',ntsGeneralCommentsHtml)
+  },[ntsGeneralCommentsHtml])
 
   const getCurrentPaddockKey = () => {
     let currentAnalyses = {
@@ -1352,10 +1360,15 @@ const PlantReportGenerator: React.FC<PlantReportGeneratorProps> = ({ paddockRepo
           // Pull the rich HTML preview from state/window (set by GeneralComments)
           // Use current paddock's somCecText which should be the HTML from rich text editor
           let generalCommentsHtml = '';
+          let currentPaddockKey = paddock.paddock || paddock.name || availableAnalyses[idx]?.paddock || availableAnalyses[idx]?.name || `Paddock ${idx + 1}`;
+
           try {
             // First try to get from window (set by GeneralComments component)
-            generalCommentsHtml = (window as any).__ntsGeneralCommentsHtml || '';
+            generalCommentsHtml = (window as any).__ntsGeneralCommentsHtml[currentPaddockKey] || '';
             // If empty, use the paddock's somCecText (which should be HTML from rich text editor)
+            if(!generalCommentsHtml){
+              generalCommentsHtml = ntsGeneralCommentsHtml[currentPaddockKey] || '';
+            }
             if (!generalCommentsHtml && paddock.data.somCecText) {
               generalCommentsHtml = String(paddock.data.somCecText);
             }
