@@ -827,6 +827,7 @@ export async function generateCustomPDF(reportData: any, attachments?: { frontAt
       if (data.availableNutrientsText) rawSummary += data.availableNutrientsText + '\n\n';
       if (data.lamotteReamsText) rawSummary += data.lamotteReamsText + '\n\n';
       if (data.taeText) rawSummary += data.taeText + '\n\n';
+      if (data.phosphorusMonitoringText) rawSummary += data.phosphorusMonitoringText + '\n\n';
     }
     
     // Fallback to legacy fields if no content found
