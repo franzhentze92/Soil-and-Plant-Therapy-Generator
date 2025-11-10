@@ -32,6 +32,7 @@ import ClientReportExport from './ClientReportExport';
 import PDFExportButton from './PDFExportButton';
 import { PDFExportOptions } from '../utils/pdfExport';
 import { generateCustomPDF } from '../lib/pdfReportGeneratorForPlant';
+import { useAppContext } from '@/contexts/AppContext';
 pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs';
 
 // Add this at the top of the file, before mockNutrients
@@ -462,7 +463,7 @@ const PlantReportGenerator: React.FC<PlantReportGeneratorProps> = ({ paddockRepo
   const [soilReservesText, setSoilReservesText] = useState('');
   const [lamotteReamsText, setLamotteReamsText] = useState('');
   const [taeText, setTaeText] = useState('');
-  const [ntsGeneralCommentsHtml,setNtsGeneralCommentsHtml] = useState({});
+  const { ntsGeneralCommentsHtml, setNtsGeneralCommentsHtml } = useAppContext();
 
 
   const [seedTreatmentProducts, setSeedTreatmentProducts] = useState([
@@ -3080,8 +3081,6 @@ const PlantReportGenerator: React.FC<PlantReportGeneratorProps> = ({ paddockRepo
                       setTaeText={val => updateCurrentPaddockData('taeText', val)}
                       reportRefId={reportRefId}
                       currentPaddockKey = {getCurrentPaddockKey()}
-                      ntsGeneralCommentsHtml={ntsGeneralCommentsHtml}
-                      setNtsGeneralCommentsHtml={val => setNtsGeneralCommentsHtml(val)}
                     />
                   </div>
                 )}

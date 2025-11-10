@@ -5,6 +5,7 @@ import { RichTextEditor } from './ui/rich-text-editor';
 import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
 import { Info } from 'lucide-react';
 import { Button } from './ui/button';
+import { useAppContext } from '@/contexts/AppContext';
 
 interface Nutrient {
   name: string;
@@ -33,8 +34,6 @@ interface GeneralCommentsProps {
   setTaeText: (v: string) => void;
   reportRefId?: string,
   currentPaddockKey?: string | null | undefined,
-  ntsGeneralCommentsHtml?: { [key: string]: string }
-  setNtsGeneralCommentsHtml?: (v: { [key: string]: string }) => void
 }
 
 // Helper for status label
@@ -261,7 +260,8 @@ async function generatePaddockNutrientExplanation(report, key, formInput, urls) 
   return { recommendedProductsDeficientTag, explanationHtml };
 }
 
-const GeneralComments: React.FC<GeneralCommentsProps> = ({ nutrients, somCecText, setSomCecText, baseSaturationText, setBaseSaturationText, phText, setPhText, availableNutrientsText, setAvailableNutrientsText, soilReservesText, setSoilReservesText, lamotteReamsText, setLamotteReamsText, taeText, setTaeText, reportRefId, currentPaddockKey, ntsGeneralCommentsHtml, setNtsGeneralCommentsHtml }) => {
+const GeneralComments: React.FC<GeneralCommentsProps> = ({ nutrients, somCecText, setSomCecText, baseSaturationText, setBaseSaturationText, phText, setPhText, availableNutrientsText, setAvailableNutrientsText, soilReservesText, setSoilReservesText, lamotteReamsText, setLamotteReamsText, taeText, setTaeText, reportRefId, currentPaddockKey }) => {
+  const { ntsGeneralCommentsHtml, setNtsGeneralCommentsHtml } = useAppContext();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [htmlPreview, setHtmlPreview] = useState<string>('');
