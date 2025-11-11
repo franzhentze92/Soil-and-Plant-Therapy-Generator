@@ -388,8 +388,8 @@ const GeneralComments: React.FC<GeneralCommentsProps> = ({ nutrients, somCecText
           method: 'GET'
         };
         debugger
-        // let response = await fetch(`http://localhost:8000/api/downloadable-charts-pdfs/${reportRefId}/get_ai_comments/?key=${currentPaddockKey}`, requestOptions);
-        let response = await fetch(`https://nutrition.ntsgrow.com/api/downloadable-charts-pdfs/${reportRefId}/get_ai_comments/?key=${currentPaddockKey}`, requestOptions);
+        let response = await fetch(`http://localhost:8000/api/downloadable-charts-pdfs/${reportRefId}/get_ai_comments/?key=${currentPaddockKey}`, requestOptions);
+        // let response = await fetch(`https://nutrition.ntsgrow.com/api/downloadable-charts-pdfs/${reportRefId}/get_ai_comments/?key=${currentPaddockKey}`, requestOptions);
         // let response = await fetch(`https://nutrition.ntsgrow.com/api/downloadable-charts-pdfs/${reportRefId}/get_ai_comments/?key=${key}`, requestOptions);
 
         console.log('get_ai_comments', response)
@@ -600,7 +600,8 @@ const GeneralComments: React.FC<GeneralCommentsProps> = ({ nutrients, somCecText
           const composedHtmlBase = markdownToHtml(composed);
 
           // Put into general comments (rich text editor uses HTML directly)
-          const composedHtmlForEditor = composedHtmlBase + (recommendedProductsHtml ? '\n' + recommendedProductsHtml : '');
+          const composedHtmlForEditor = composedHtmlBase;
+          // const composedHtmlForEditor = composedHtmlBase + (recommendedProductsHtml ? '\n' + recommendedProductsHtml : '');
           setSomCecText(composedHtmlForEditor);
           setHtmlPreview(composedHtmlForEditor);
           try { 
