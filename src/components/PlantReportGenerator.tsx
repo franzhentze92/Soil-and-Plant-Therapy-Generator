@@ -33,6 +33,7 @@ import PDFExportButton from './PDFExportButton';
 import { PDFExportOptions } from '../utils/pdfExport';
 import { generateCustomPDF } from '../lib/pdfReportGeneratorForPlant';
 import { useAppContext } from '@/contexts/AppContext';
+import { Input } from './ui/input';
 pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs';
 
 // Add this at the top of the file, before mockNutrients
@@ -464,6 +465,7 @@ const PlantReportGenerator: React.FC<PlantReportGeneratorProps> = ({ paddockRepo
   const [lamotteReamsText, setLamotteReamsText] = useState('');
   const [taeText, setTaeText] = useState('');
   const { ntsGeneralCommentsHtml, setNtsGeneralCommentsHtml } = useAppContext();
+  const [closestKey, setClosestKey] = useState<string | null | undefined>(null);
 
 
   const [seedTreatmentProducts, setSeedTreatmentProducts] = useState([
@@ -590,12 +592,12 @@ const PlantReportGenerator: React.FC<PlantReportGeneratorProps> = ({ paddockRepo
     console.log('ntsGeneralCommentsHtml',ntsGeneralCommentsHtml)
   },[ntsGeneralCommentsHtml])
 
+
   const getCurrentPaddockKey = () => {
     let currentAnalyses = {
       "paddock":null
     }
     if (availableAnalyses) {
-
       currentAnalyses = availableAnalyses[selectedPaddockIndex]
       return currentAnalyses?.paddock
     }
@@ -1228,7 +1230,6 @@ const PlantReportGenerator: React.FC<PlantReportGeneratorProps> = ({ paddockRepo
 
   // --- PDF parsing logic ---
   const handleFileUpload = async (file: File) => {
-    debugger
     if (isUploading) return; // Prevent multiple uploads
     setIsUploading(true);
     setUploadedFile(file);
@@ -2557,7 +2558,7 @@ const PlantReportGenerator: React.FC<PlantReportGeneratorProps> = ({ paddockRepo
   const [zoneSensitivity, setZoneSensitivity] = useState(defaultZoneSensitivity);
 
   // --- Comprehensive Nutrient Table Component ---
-        const ComprehensiveNutrientTable = ({ nutrients }) => {
+  const ComprehensiveNutrientTable = ({ nutrients }) => {
         // console.log('DEBUG: ComprehensiveNutrientTable rendered with nutrients:', nutrients);
         // Removed debug logging
     function getBarData(n) {
@@ -2838,7 +2839,6 @@ const PlantReportGenerator: React.FC<PlantReportGeneratorProps> = ({ paddockRepo
 
   // Handler to switch paddock (loads its data into form fields)
   const handleSelectPaddock = (idx) => {
-    debugger
     console.log("handleSelectPaddock",paddockReports,idx)
     setSelectedPaddockIndex(idx);
 
@@ -2855,6 +2855,23 @@ const PlantReportGenerator: React.FC<PlantReportGeneratorProps> = ({ paddockRepo
       return r;
     }));
   };
+
+  // Helper to update availableAnalyses
+  const updateCurrentAnalysis = (field, value) => {
+    setAvailableAnalyses(prev => prev.map((analysis, idx) => {
+      if (idx === selectedPaddockIndex) {
+        return { ...analysis, [field]: value };
+      }
+      return analysis;
+    }));
+  };
+
+  useMemo(()=>{
+    console.log('closestKey',closestKey)
+    if (closestKey) {
+      updateCurrentAnalysis('paddock', closestKey);
+    }
+  },[closestKey])
 
   // Compute all unique foliar spray product names from all paddocks' data
   const allFoliarProductNames = Array.from(new Set(
@@ -3041,6 +3058,27 @@ const PlantReportGenerator: React.FC<PlantReportGeneratorProps> = ({ paddockRepo
                         ))}
                       </div>
                     )}
+                    <div className="mb-4 card">
+                      <form>
+                      <Card className="bg-white mt-8 p-4">
+                        <CardHeader>
+                          <CardTitle className="text-black">Paddock Name</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                        <label htmlFor="paddockName" className="block text-sm font-medium text-gray-700"  >Paddock Name</label>
+                         <Input
+                           id="paddockName"
+                           type="text"
+                           placeholder="Enter paddock name"
+                           value={availableAnalyses[selectedPaddockIndex]?.paddock || ''}
+                           onChange={e => {
+                             updateCurrentAnalysis('paddock', e.target.value);
+                           }}
+                         />
+                        </CardContent>
+                      </Card>
+                      </form>
+                    </div>
                     <div className="mb-4">
                       <ComprehensiveNutrientTable nutrients={nutrientsToShow} />
                       {showThresholdsPopup && (
@@ -3081,6 +3119,8 @@ const PlantReportGenerator: React.FC<PlantReportGeneratorProps> = ({ paddockRepo
                       setTaeText={val => updateCurrentPaddockData('taeText', val)}
                       reportRefId={reportRefId}
                       currentPaddockKey = {getCurrentPaddockKey()}
+                      closest_key={closestKey}
+                      setClosestKey={setClosestKey}
                     />
                   </div>
                 )}

@@ -34,6 +34,8 @@ interface GeneralCommentsProps {
   setTaeText: (v: string) => void;
   reportRefId?: string,
   currentPaddockKey?: string | null | undefined,
+  closest_key?: string | null | undefined,
+  setClosestKey?: (v: string) => void,
 }
 
 // Helper for status label
@@ -260,7 +262,7 @@ async function generatePaddockNutrientExplanation(report, key, formInput, urls) 
   return { recommendedProductsDeficientTag, explanationHtml };
 }
 
-const GeneralComments: React.FC<GeneralCommentsProps> = ({ nutrients, somCecText, setSomCecText, baseSaturationText, setBaseSaturationText, phText, setPhText, availableNutrientsText, setAvailableNutrientsText, soilReservesText, setSoilReservesText, lamotteReamsText, setLamotteReamsText, taeText, setTaeText, reportRefId, currentPaddockKey }) => {
+const GeneralComments: React.FC<GeneralCommentsProps> = ({ nutrients, somCecText, setSomCecText, baseSaturationText, setBaseSaturationText, phText, setPhText, availableNutrientsText, setAvailableNutrientsText, soilReservesText, setSoilReservesText, lamotteReamsText, setLamotteReamsText, taeText, setTaeText, reportRefId, currentPaddockKey, closest_key, setClosestKey }) => {
   const { ntsGeneralCommentsHtml, setNtsGeneralCommentsHtml } = useAppContext();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -398,6 +400,9 @@ const GeneralComments: React.FC<GeneralCommentsProps> = ({ nutrients, somCecText
           console.log('get_ai_comments', data)
           data['summary'] = data.ai_comments.combined_nutrients_explanation
           wasFetchSuccessfull = true
+          if ('closest_key' in data) {
+            setClosestKey(data.closest_key);
+          }
         }
 
       }
