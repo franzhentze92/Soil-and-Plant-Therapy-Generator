@@ -11,6 +11,7 @@ export default defineConfig(({ mode }) => ({
       "/generate-comments": "http://localhost:5000",
       "/generate-soil-comments": "http://localhost:5000",
       "/extract-soil-report": "http://localhost:5000",
+      "/api": "http://localhost:5000",
     },
   },
   plugins: [

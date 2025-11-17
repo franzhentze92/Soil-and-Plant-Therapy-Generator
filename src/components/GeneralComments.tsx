@@ -391,8 +391,8 @@ const GeneralComments: React.FC<GeneralCommentsProps> = ({ nutrients, somCecText
         };
         debugger
         // let response = await fetch(`http://localhost:8000/api/downloadable-charts-pdfs/${reportRefId}/get_ai_comments/?key=${currentPaddockKey}`, requestOptions);
-        let response = await fetch(`https://nutrition.ntsgrow.com/api/downloadable-charts-pdfs/${reportRefId}/get_ai_comments/?key=${currentPaddockKey}`, requestOptions);
-        // let response = await fetch(`https://nutrition.ntsgrow.com/api/downloadable-charts-pdfs/${reportRefId}/get_ai_comments/?key=${key}`, requestOptions);
+        // Use proxy endpoint to avoid CORS issues
+        let response = await fetch(`/api/proxy/get-ai-comments/${reportRefId}?key=${encodeURIComponent(currentPaddockKey)}`, requestOptions);
 
         console.log('get_ai_comments', response)
         if (response.status == 200) {

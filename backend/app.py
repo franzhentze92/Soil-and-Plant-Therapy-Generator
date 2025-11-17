@@ -10,6 +10,9 @@ import re
 import difflib
 from openai import OpenAI
 from dotenv import load_dotenv
+import urllib.request
+import urllib.parse
+import json
 
 load_dotenv()
 
@@ -1473,6 +1476,34 @@ Use professional soil science terminology.
             pass
         # No debug echo; return only professional response
         return jsonify({'summary': cleaned.strip()})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/proxy/get-ai-comments/<report_ref_id>', methods=['GET'])
+def proxy_get_ai_comments(report_ref_id):
+    """Proxy endpoint to fetch AI comments from external API to avoid CORS issues"""
+    try:
+        key = request.args.get('key', '')
+        
+        # Build the external API URL
+        external_url = f'https://nutrition.ntsgrow.com/api/downloadable-charts-pdfs/{report_ref_id}/get_ai_comments/?key={urllib.parse.quote(key)}'
+        # external_url = f'http://localhost:8000/api/downloadable-charts-pdfs/{report_ref_id}/get_ai_comments/?key={urllib.parse.quote(key)}'
+        
+        # Make the request to the external API
+        req = urllib.request.Request(external_url, method='GET')
+        req.add_header('User-Agent', 'Mozilla/5.0')
+        
+        with urllib.request.urlopen(req, timeout=30000) as response:
+            data = json.loads(response.read().decode('utf-8'))
+            return jsonify(data), response.status
+    except urllib.error.HTTPError as e:
+        error_body = e.read().decode('utf-8') if e.fp else 'Unknown error'
+        try:
+            error_data = json.loads(error_body)
+            return jsonify(error_data), e.code
+        except:
+            return jsonify({'error': error_body}), e.code
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
