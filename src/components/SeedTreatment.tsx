@@ -22,7 +22,7 @@ interface SeedTreatmentProps {
 }
 
 const SeedTreatment: React.FC<SeedTreatmentProps> = ({ selectedProducts, setSelectedProducts, productOptions }) => {
-  const products = productOptions || require('../fertilizerProducts').seedTreatmentProducts;
+  const products = productOptions || require('../fertilizerProducts').foliarSprayProducts;
   const [currentProduct, setCurrentProduct] = useState('');
   const [currentRate, setCurrentRate] = useState('');
   const [currentUnit, setCurrentUnit] = useState('');
@@ -204,7 +204,7 @@ const SeedTreatment: React.FC<SeedTreatmentProps> = ({ selectedProducts, setSele
 };
 
 export const PlantingBlend: React.FC<SeedTreatmentProps> = ({ selectedProducts, setSelectedProducts, productOptions }) => {
-  const products = productOptions || require('../fertilizerProducts').seedTreatmentProducts;
+  const products = productOptions || require('../fertilizerProducts').foliarSprayProducts;
   const [currentProduct, setCurrentProduct] = useState('');
   const [currentRate, setCurrentRate] = useState('');
   const [currentUnit, setCurrentUnit] = useState('');

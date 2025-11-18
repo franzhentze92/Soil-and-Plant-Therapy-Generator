@@ -102,19 +102,19 @@ const PRODUCT_INFO = {
   // Nutritional Fertigation/Foliar Spray Program
   'K-Rich™': {
     group: 'Nutritional Fertigation/Foliar Spray Program',
-    description: 'High-analysis liquid potassium (K 33.3%) for foliar and fertigation use.'
+    description: 'High-analysis liquid potassium (K 33.29%) for foliar and fertigation use.'
   },
   'Cal-Tech™': {
     group: 'Nutritional Fertigation/Foliar Spray Program',
-    description: 'Supplies N (11.7%), Ca (13.4%), and B (0.43%) for improved fruit set and quality.'
+    description: 'Supplies N (11.71%), Ca (13.36%), and B (0.43%) for improved fruit set and quality.'
   },
   'Calcium Fulvate™': {
     group: 'Nutritional Fertigation/Foliar Spray Program',
-    description: 'Contains N (6.8%), Ca (8.9%), S (0.54%), and trace elements for enhanced calcium uptake.'
+    description: 'Chelated calcium with fulvic acid, enriched with a broad spectrum of trace minerals to improve nutrient uptake.'
   },
   'Citrus-Tech Triple Ten™': {
     group: 'Nutritional Fertigation/Foliar Spray Program',
-    description: 'A complete NPK (N 10.5%, P 10.2%, K 10.7%) with trace elements for balanced nutrition.'
+    description: 'A complete NPK (N 10.48%, P 10.23%, K 10.69%) with trace elements for balanced nutrition.'
   },
   'Cloak Spray Oil™': {
     group: 'Nutritional Fertigation/Foliar Spray Program',
@@ -122,7 +122,7 @@ const PRODUCT_INFO = {
   },
   'Nutri-Carb-N™': {
     group: 'Nutritional Fertigation/Foliar Spray Program',
-    description: 'High-analysis liquid N (15.2%) with K (1.1%) for rapid green-up and protein synthesis.'
+    description: 'High-analysis liquid N (15.18%) with K (1.1%) for rapid green-up and protein synthesis.'
   },
   'Phos-Force™': {
     group: 'Nutritional Fertigation/Foliar Spray Program',
@@ -130,7 +130,7 @@ const PRODUCT_INFO = {
   },
   'Photo-Finish™': {
     group: 'Nutritional Fertigation/Foliar Spray Program',
-    description: 'A source of <b>Si</b> (10.4%) and <b>K</b> (10.6%) with humic acid and kelp for plant resilience.'
+    description: 'A source of <b>Si</b> (10.38%) and <b>K</b> (10.6%) with humic acid and kelp for plant resilience.'
   },
   'Potassium Silicate™': {
     group: 'Nutritional Fertigation/Foliar Spray Program',
@@ -142,11 +142,11 @@ const PRODUCT_INFO = {
   },
   'Trio (CMB)™': {
     group: 'Nutritional Fertigation/Foliar Spray Program',
-    description: 'Supplies N (13.7%), Ca (15.3%), Mg (2.4%), and trace elements for balanced nutrition.'
+    description: 'Supplies N (13.73%), Ca (15.3%), Mg (2.38%), and trace elements for balanced nutrition.'
   },
   'Triple Ten™': {
     group: 'Nutritional Fertigation/Foliar Spray Program',
-    description: 'A complete NPK (N 10.5%, P 10.2%, K 10.7%) with trace elements for balanced nutrition.'
+    description: 'A complete NPK (N 10.48%, P 10.23%, K 10.69%) with trace elements for balanced nutrition.'
   },
   'Tsunami™ Super Spreader': {
     group: 'Nutritional Fertigation/Foliar Spray Program',
@@ -162,7 +162,7 @@ const PRODUCT_INFO = {
   },
   'Amino-Max™': {
     group: 'Nutritional Fertigation/Foliar Spray Program',
-    description: 'A potent concentrate of amino acids (40%) and N (5.8%) to supply <b>N</b> and enhance protein synthesis.'
+    description: 'A high‑amino acid concentrate. Ideal for supporting plant metabolism, stress recovery and microbial stimulation.'
   },
   'Brix-Fix™': {
     group: 'Nutritional Fertigation/Foliar Spray Program',
@@ -202,11 +202,11 @@ const PRODUCT_INFO = {
   },
   'Nutri-Key Boron Shuttle™': {
     group: 'Nutritional Fertigation/Foliar Spray Program',
-    description: 'Supplies B (3.6%), N (0.29%), S (0.53%), and trace elements for boron nutrition.'
+    description: 'A foliar chelated boron formulation containing 3.61% B, supported by a full background of synergistic nutrition.'
   },
   'Nutri-Key Calcium Shuttle™': {
     group: 'Nutritional Fertigation/Foliar Spray Program',
-    description: 'Supplies Ca (9.8%), N (7.3%), and trace elements for calcium nutrition.'
+    description: 'Supplies Ca (9.81%), N (7.25%), and trace elements for calcium nutrition.'
   },
   'Nutri-Key Cobalt Shuttle™': {
     group: 'Nutritional Fertigation/Foliar Spray Program',
@@ -214,27 +214,27 @@ const PRODUCT_INFO = {
   },
   'Nutri-Key Copper Shuttle™': {
     group: 'Nutritional Fertigation/Foliar Spray Program',
-    description: 'Supplies Cu (7.6%), N (0.52%), S (4.3%), and trace elements for copper nutrition.'
+    description: 'Supplies Cu (7.64%), N (0.52%), S (4.29%), and trace elements for copper nutrition.'
   },
   'Nutri-Key Hydro-Shuttle™': {
     group: 'Nutritional Fertigation/Foliar Spray Program',
-    description: 'Supplies N (2.1%) and C (21.2%) for improved water and nutrient uptake.'
+    description: 'Supplies N (2.14%) and C (21.15%) for improved water and nutrient uptake.'
   },
   'Nutri-Key Iron Shuttle™': {
     group: 'Nutritional Fertigation/Foliar Spray Program',
-    description: 'Supplies Fe (7.2%), N (0.52%), S (4.4%), and trace elements for iron nutrition.'
+    description: 'A chelated iron foliar (~7.2% Fe) supported by background nutrients to boost chlorophyll production and rapidly correct iron deficiency.'
   },
   'Nutri-Key Magnesium Shuttle™': {
     group: 'Nutritional Fertigation/Foliar Spray Program',
-    description: 'Supplies Mg (4.4%), N (0.45%), S (6.2%), and trace elements for magnesium nutrition.'
+    description: 'Supplies Mg (4.44%), N (0.45%), S (6.24%), and trace elements for magnesium nutrition.'
   },
   'Nutri-Key Manganese Shuttle™': {
     group: 'Nutritional Fertigation/Foliar Spray Program',
-    description: 'Supplies Mn (13.2%), N (0.53%), S (8.2%), and trace elements for manganese nutrition.'
+    description: 'A high-analysis foliar Mn formulation (~13.2% Mn) featuring advanced chelation for improved uptake.'
   },
   'Nutri-Key Moly Shuttle™': {
     group: 'Nutritional Fertigation/Foliar Spray Program',
-    description: 'Supplies Mo (4.8%), N (0.18%), and C (1.6%) for molybdenum nutrition.'
+    description: 'Supplies Mo (4.76%), N (0.18%), and C (1.6%) for molybdenum nutrition.'
   },
   'Nutri-Key Shuttle Seven™': {
     group: 'Nutritional Fertigation/Foliar Spray Program',
@@ -242,55 +242,55 @@ const PRODUCT_INFO = {
   },
   'Nutri-Key Zinc Shuttle™': {
     group: 'Nutritional Fertigation/Foliar Spray Program',
-    description: 'Supplies Zn (8.2%), N (0.73%), S (4.4%), and trace elements for zinc nutrition.'
+    description: 'Supplies Zn (8.17%), N (0.73%), S (4.35%), and trace elements for zinc nutrition.'
   },
   'Boron Essentials™': {
     group: 'Nutritional Fertigation/Foliar Spray Program',
-    description: 'Supplies B (3.1%), N (0.05%), and Zn (0.04%) for boron nutrition.'
+    description: 'Supplies B (3.09%), N (0.05%), and Zn (0.04%) for boron nutrition.'
   },
   'Copper Essentials™': {
     group: 'Nutritional Fertigation/Foliar Spray Program',
-    description: 'Supplies Cu (4.9%), N (0.12%), S (2.6%), Ca (0.02%), Mg (0.04%), and K (0.14%).'
+    description: 'Supplies Cu (4.9%), N (0.12%), S (2.55%), Ca (0.02%), Mg (0.04%), and K (0.14%).'
   },
   'Iron Essentials™': {
     group: 'Nutritional Fertigation/Foliar Spray Program',
-    description: 'Supplies Fe (6%), N (0.12%), S (3.5%), Ca (0.02%), Mg (0.04%), and K (0.14%).'
+    description: 'Supplies Fe (6%), N (0.12%), S (3.49%), Ca (0.02%), Mg (0.04%), and K (0.14%).'
   },
   'Manganese Essentials™': {
     group: 'Nutritional Fertigation/Foliar Spray Program',
-    description: 'Supplies Mn (0.13%), Si (11%), N (0.12%), S (6.5%), Ca (0.02%), and Mg (0.04%).'
+    description: 'Supplies Mn (0.13%), Si (10.96%), N (0.12%), S (6.52%), Ca (0.02%), and Mg (0.04%).'
   },
   'Multi-Boost™': {
     group: 'Nutritional Fertigation/Foliar Spray Program',
-    description: 'A multi-nutrient blend with N (2.3%), S (6.2%), Ca (6%), Mg (0.6%), and trace elements.'
+    description: 'A multi-nutrient blend with N (2.29%), S (6.2%), Ca (5.96%), Mg (0.64%), and trace elements.'
   },
   'Multi-Min™': {
     group: 'Nutritional Fertigation/Foliar Spray Program',
-    description: 'A multi-nutrient blend with N (4.2%), S (4.1%), Mg (1.5%), Ca (0.02%), and trace elements.'
+    description: 'A multi-nutrient blend with N (4.24%), S (4.12%), Mg (1.49%), Ca (0.02%), and trace elements.'
   },
   'Multi-Plex™': {
     group: 'Nutritional Fertigation/Foliar Spray Program',
-    description: 'A multi-nutrient blend with N (10.2%), P (10.1%), K (10.0%), and trace elements.'
+    description: 'A multi-nutrient blend with N (10.22%), P (10.09%), K (10.04%), and trace elements.'
   },
   'Zinc Essentials™': {
     group: 'Nutritional Fertigation/Foliar Spray Program',
-    description: 'Supplies Zn (8%), N (0.12%), S (4%), Ca (0.02%), and Mg (0.04%).'
+    description: 'Supplies Zn (7.95%), N (0.12%), S (3.95%), Ca (0.02%), and Mg (0.04%).'
   },
   'CalMag-Life Organic™': {
     group: 'Nutritional Fertigation/Foliar Spray Program',
-    description: 'Organic source of Ca (20.3%) and Mg (9.7%).'
+    description: 'Organic source of Ca (20.26%) and Mg (9.68%).'
   },
   'Dia-Life Organic™': {
     group: 'Nutritional Fertigation/Foliar Spray Program',
-    description: 'Organic source of Si (12.5%), B (0.68%), Ca (0.16%), Mg (0.03%), and Fe (0.32%).'
+    description: 'Organic source of Si (12.51%), B (0.68%), Ca (0.16%), Mg (0.0277%), and Fe (0.32%).'
   },
   'Gyp-Life Organic™': {
     group: 'Nutritional Fertigation/Foliar Spray Program',
-    description: 'Organic source of Ca (19.6%) and S (15.3%).'
+    description: 'Organic source of Ca (19.55%) and S (15.31%).'
   },
   'Lime-Life Organic™': {
     group: 'Nutritional Fertigation/Foliar Spray Program',
-    description: 'Organic source of Ca (39.4%) and Mg (1.1%).'
+    description: 'Organic source of Ca (39.37%) and Mg (1.05%).'
   },
   'Mag-Life Organic™': {
     group: 'Nutritional Fertigation/Foliar Spray Program',
@@ -298,11 +298,11 @@ const PRODUCT_INFO = {
   },
   'Phos-Life Organic™': {
     group: 'Nutritional Fertigation/Foliar Spray Program',
-    description: 'Organic source of P (10.7%), Ca (24.6%), Si (10.7%), and trace elements.'
+    description: 'Organic source of P (10.71%), Ca (24.56%), Si (10.73%), and trace elements.'
   },
   'Sili-Cal (B)™': {
     group: 'Nutritional Fertigation/Foliar Spray Program',
-    description: 'Supplies Ca (21.6%), Si (3.3%), B (0.51%), S (0.13%), and Mg (0.64%).'
+    description: 'Supplies Ca (21.59%), Si (3.34%), B (0.51%), S (0.13%), and Mg (0.64%).'
   },
 };
 

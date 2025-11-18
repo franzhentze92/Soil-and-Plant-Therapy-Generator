@@ -19,27 +19,26 @@ interface FertilizerDef {
 
 // Fertilizer definitions (should match those in SoilReportGenerator)
 const fertilizerDefs: FertilizerDef[] = [
-  { label: 'Urea', nutrientContent: { Nitrogen: 46 }, phLogic: { min_pH: 5.5, max_pH: 7.5 }, releaseType: 'fast' },
-  { label: 'Calcium Nitrate', nutrientContent: { Calcium: 19, Nitrate: 12 }, phLogic: { min_pH: null, max_pH: 7.5 }, releaseType: 'fast' },
-  { label: 'Potassium Nitrate', nutrientContent: { Potassium: 44, Nitrate: 13 }, phLogic: { min_pH: null, max_pH: null }, releaseType: 'fast' },
+  { label: 'Urea', nutrientContent: { Ammonium: 46 }, description: 'A highly concentrated nitrogen fertilizer that promotes vigorous vegetative growth and rapid green-up in crops.' },
+  { label: 'Calcium Nitrate', nutrientContent: { Calcium: 17, Nitrate: 12 }, phLogic: { min_pH: null, max_pH: 7.5 }, releaseType: 'fast' },
+  { label: 'Potassium Nitrate', nutrientContent: { Potassium: 39, Nitrate: 14 }, phLogic: { min_pH: null, max_pH: null }, releaseType: 'fast' },
   { label: 'Sodium Nitrate (Chile Nitrate)', nutrientContent: { Sodium: 26, Nitrate: 16 }, phLogic: { min_pH: null, max_pH: 8.0 }, releaseType: 'fast' },
   { label: 'Zinc Nitrate', nutrientContent: { Zinc: 12, Nitrate: 8 }, phLogic: { min_pH: null, max_pH: null }, releaseType: 'fast' },
   { label: 'Iron Nitrate', nutrientContent: { Iron: 6, Nitrate: 10 }, phLogic: { min_pH: null, max_pH: null }, releaseType: 'fast' },
   { label: 'Copper Nitrate', nutrientContent: { Copper: 8, Nitrate: 12 }, phLogic: { min_pH: null, max_pH: null }, releaseType: 'fast' },
   { label: 'Ammonium Nitrate', nutrientContent: { Ammonium: 17, Nitrate: 17 }, phLogic: { min_pH: 5.5, max_pH: 7.5 }, releaseType: 'fast' },
   { label: 'UAN Solution (Urea Ammonium Nitrate)', nutrientContent: { Urea: 18, Ammonium: 9, Nitrate: 9 }, phLogic: { min_pH: 5.5, max_pH: 7.5 }, releaseType: 'fast' },
-  { label: 'Calcium Ammonium Nitrate (CAN)', nutrientContent: { Calcium: 8, Ammonium: 10, Nitrate: 10 }, phLogic: { min_pH: 5.5, max_pH: 7.5 }, releaseType: 'fast' },
+  { label: 'Calcium Ammonium Nitrate (CAN)', nutrientContent: { Calcium: 8, Magnesium: 2, Ammonium: 13, Nitrate: 13 }, phLogic: { min_pH: 5.5, max_pH: 7.5 }, releaseType: 'fast' },
   { label: 'Ammonium Polyphosphate (APP)', nutrientContent: { Phosphorus: 10, Ammonium: 11 }, phLogic: { min_pH: 5.5, max_pH: 8.0 }, releaseType: 'fast' },
   { label: 'Ammonium Chloride', nutrientContent: { Ammonium: 25 }, phLogic: { min_pH: 5.0, max_pH: 7.0 }, releaseType: 'fast' },
   { label: 'Ammonium Acetate', nutrientContent: { Ammonium: 12 }, phLogic: { min_pH: 5.0, max_pH: 8.5 }, releaseType: 'fast' },
   { label: 'Triple Superphosphate (TSP)', nutrientContent: { Phosphorus: 45, Calcium: 19 }, phLogic: { min_pH: 5.5, max_pH: 7.5 }, releaseType: 'fast' },
-  { label: 'Monoammonium Phosphate (MAP)', nutrientContent: { Phosphorus: 22, Ammonium: 11 }, phLogic: { min_pH: 6.5, max_pH: 8.5 }, releaseType: 'fast' },
+  { label: 'Monoammonium Phosphate (MAP)', nutrientContent: { Phosphorus: 21.9, Ammonium: 10 }, phLogic: { min_pH: 6.5, max_pH: 8.5 }, releaseType: 'fast' },
   { label: 'Diammonium Phosphate (DAP)', nutrientContent: { Phosphorus: 20, Ammonium: 18 }, phLogic: { min_pH: 5.0, max_pH: 6.8 }, releaseType: 'fast' },
   { label: 'Rock Phosphate', nutrientContent: { Phosphorus: 25, Calcium: 30 }, phLogic: { min_pH: null, max_pH: 6.0 }, releaseType: 'very slow' },
-  { label: 'Agricultural Limestone (CaCO₃)', nutrientContent: { Calcium: 38 }, phLogic: { min_pH: null, max_pH: 6.5 }, releaseType: 'slow' },
-  { label: 'Soft Rock Phosphate', nutrientContent: { Phosphorus: 14, Calcium: 20 }, phLogic: { min_pH: null, max_pH: 6.5 }, releaseType: 'slow', url: 'https://nutri-tech.com.au/collections/composted-fertilisers/products/nts-soft-rock' },
+  { label: 'Agricultural Limestone (CaCO₃)', nutrientContent: { Calcium: 40 }, phLogic: { min_pH: null, max_pH: 6.5 }, releaseType: 'slow' },
   { label: 'Bone Meal', nutrientContent: { Calcium: 26, Phosphorus: 14 }, phLogic: { min_pH: null, max_pH: 7.0 }, releaseType: 'slow' },
-  { label: 'Fish Bone Meal', nutrientContent: { Calcium: 20, Phosphorus: 10, Nitrogen: 5 }, phLogic: { min_pH: 5.0, max_pH: 7.5 }, releaseType: 'slow' },
+  { label: 'Fish Bone Meal', nutrientContent: { Calcium: 20, Phosphorus: 10, Ammonium: 5 }, phLogic: { min_pH: 5.0, max_pH: 7.5 }, releaseType: 'slow' },
   { label: 'Calcium Chloride', nutrientContent: { Calcium: 27 }, phLogic: { min_pH: null, max_pH: null }, releaseType: 'fast' },
   { label: 'Muriate of Potash (Potassium Chloride)', nutrientContent: { Potassium: 60 }, phLogic: { min_pH: 5.5, max_pH: 8.5 }, releaseType: 'fast' },
   { label: 'Langbeinite', nutrientContent: { Potassium: 22, Magnesium: 11, Sulphur: 22 }, phLogic: { min_pH: 5.5, max_pH: 8.0 }, releaseType: 'moderate' },
@@ -48,32 +47,54 @@ const fertilizerDefs: FertilizerDef[] = [
   { label: 'Potassium Carbonate', nutrientContent: { Potassium: 55 }, phLogic: { min_pH: 5.5, max_pH: 7.5 }, releaseType: 'fast' },
   { label: 'Potassium Acetate', nutrientContent: { Potassium: 25 }, phLogic: { min_pH: 5.5, max_pH: 8.0 }, releaseType: 'fast' },
   { label: 'Wood Ash', nutrientContent: { Potassium: 5, Calcium: 10, Magnesium: 2, Phosphorus: 1 }, phLogic: { min_pH: 5.0, max_pH: 7.0 }, releaseType: 'slow' },
-  { label: 'Dolomitic Lime', nutrientContent: { Calcium: 21, Magnesium: 11 }, phLogic: { min_pH: null, max_pH: 6.5 }, releaseType: 'slow' },
+  { label: 'Dolomitic Lime', nutrientContent: { Calcium: 20, Magnesium: 10 }, phLogic: { min_pH: null, max_pH: 6.5 }, releaseType: 'slow' },
   { label: 'Kieserite (Magnesium Sulfate Monohydrate)', nutrientContent: { Magnesium: 16, Sulphur: 22 }, phLogic: { min_pH: null, max_pH: null }, releaseType: 'moderate' },
-  { label: 'Epsom Salt (Magnesium Sulfate Heptahydrate)', nutrientContent: { Magnesium: 10, Sulphur: 13 }, phLogic: { min_pH: null, max_pH: null }, releaseType: 'fast' },
+  { label: 'Epsom Salt (Magnesium Sulfate Heptahydrate)', nutrientContent: { Magnesium: 9.9, Sulphur: 13 }, phLogic: { min_pH: null, max_pH: null }, releaseType: 'fast' },
   { label: 'Thermophosphate', nutrientContent: { Calcium: 20, Magnesium: 2, Phosphorus: 18 }, phLogic: { min_pH: 5.5, max_pH: 7.5 }, releaseType: 'slow' },
   { label: 'Magnesium Nitrate', nutrientContent: { Magnesium: 10.5, Nitrate: 11 }, phLogic: { min_pH: 5.5, max_pH: 8.0 }, releaseType: 'fast' },
   { label: 'Magnesium Chloride', nutrientContent: { Magnesium: 12 }, phLogic: { min_pH: 5.0, max_pH: 8.0 }, releaseType: 'fast' },
-  { label: 'Sulfur-Rich Compost', nutrientContent: { Sulphur: 2, Calcium: 3, Magnesium: 2, Potassium: 2, Phosphorus: 1, Nitrogen: 2 }, phLogic: { min_pH: 5.0, max_pH: 8.0 }, releaseType: 'slow' },
+  { label: 'Sulfur-Rich Compost', nutrientContent: { Sulphur: 2, Calcium: 3, Magnesium: 2, Potassium: 2, Phosphorus: 1, Ammonium: 2 }, phLogic: { min_pH: 5.0, max_pH: 8.0 }, releaseType: 'slow' },
   { label: 'Elemental Sulfur', nutrientContent: { Sulphur: 90 }, phLogic: { min_pH: null, max_pH: null }, releaseType: 'very slow' },
-  { label: 'Gypsum (Calcium Sulfate)', nutrientContent: { Calcium: 23, Sulphur: 18 }, phLogic: { min_pH: 5.8, max_pH: 7.5 }, releaseType: 'moderate' },
   { label: 'Ammonium Sulfate', nutrientContent: { Ammonium: 21, Sulphur: 24 }, phLogic: { min_pH: 5.0, max_pH: 8.5 }, releaseType: 'fast' },
-  { label: 'Potassium Sulfate (Sulfate of Potash)', nutrientContent: { Potassium: 50, Sulphur: 17 }, phLogic: { min_pH: 5.0, max_pH: 8.5 }, releaseType: 'fast' },
+  { label: 'Potassium Sulfate (Sulfate of Potash)', nutrientContent: { Potassium: 42.5, Sulphur: 18.4 }, phLogic: { min_pH: 5.0, max_pH: 8.5 }, releaseType: 'fast' },
   { label: 'Ammonium Thiosulfate', nutrientContent: { Sulphur: 26, Ammonium: 12 }, phLogic: { min_pH: 5.0, max_pH: 8.5 }, releaseType: 'moderate' },
-  { label: 'Sulfur-Coated Urea', nutrientContent: { Sulphur: 15, Nitrogen: 35 }, phLogic: { min_pH: 5.0, max_pH: 8.0 }, releaseType: 'slow' },
-  { label: 'Chicken Manure', nutrientContent: { Phosphorus: 2.5, Nitrogen: 3, Potassium: 2, Calcium: 3, Magnesium: 1, Sulphur: 0.5 }, phLogic: { min_pH: 5.0, max_pH: 8.0 }, releaseType: 'slow' },
-  { label: 'NTS Fast Fulvic™', nutrientContent: { Nitrate: 0.1, Ammonium: 0.1, Calcium: 0.1, Magnesium: 0.1, Potassium: 0.1, Phosphorus: 0.1, Sulphur: 0.1 }, phLogic: { min_pH: 4, max_pH: 12 }, releaseType: 'fast' },
-  { label: 'NTS Fulvic Acid Powder™', nutrientContent: { Nitrate: 0.1, Ammonium: 0.1, Calcium: 0.1, Magnesium: 0.1, Potassium: 0.1, Phosphorus: 0.1, Sulphur: 0.1 }, phLogic: { min_pH: 4, max_pH: 12 }, releaseType: 'fast' },
-  { label: 'NTS FulvX™ Powder', nutrientContent: { Nitrate: 0.1, Ammonium: 0.1, Calcium: 0.1, Magnesium: 0.1, Potassium: 0.1, Phosphorus: 0.1, Sulphur: 0.1 }, phLogic: { min_pH: 4, max_pH: 12 }, releaseType: 'fast' },
-  { label: 'NTS Liquid Humus™', nutrientContent: { Nitrate: 0.1, Ammonium: 0.1, Calcium: 0.1, Magnesium: 0.1, Potassium: 0.1, Phosphorus: 0.1, Sulphur: 0.1 }, phLogic: { min_pH: 4, max_pH: 12 }, releaseType: 'fast' },
-  { label: 'NTS Soluble Humate Granules™', nutrientContent: { Nitrate: 0.1, Ammonium: 0.1, Calcium: 0.1, Magnesium: 0.1, Potassium: 0.1, Phosphorus: 0.1, Sulphur: 0.1 }, phLogic: { min_pH: 4, max_pH: 12 }, releaseType: 'fast' },
-  { label: 'NTS Stabilised Boron Granules™', nutrientContent: { Nitrate: 0.1, Ammonium: 0.1, Calcium: 0.1, Magnesium: 0.1, Potassium: 0.1, Phosphorus: 0.1, Sulphur: 0.1 }, phLogic: { min_pH: 4, max_pH: 12 }, releaseType: 'fast' },
-  { label: 'NTS Super Soluble Humates™', nutrientContent: { Nitrate: 0.1, Ammonium: 0.1, Calcium: 0.1, Magnesium: 0.1, Potassium: 0.1, Phosphorus: 0.1, Sulphur: 0.1 }, phLogic: { min_pH: 4, max_pH: 12 }, releaseType: 'fast' },
+  { label: 'Sulfur-Coated Urea', nutrientContent: { Sulphur: 15, Ammonium: 35 }, phLogic: { min_pH: 5.0, max_pH: 8.0 }, releaseType: 'slow' },
+  { label: 'Chicken Manure', nutrientContent: { Phosphorus: 2.5, Ammonium: 3, Potassium: 2, Calcium: 3, Magnesium: 1, Sulphur: 0.5 }, phLogic: { min_pH: 5.0, max_pH: 8.0 }, releaseType: 'slow' },
+  { label: 'NTS Fast Fulvic™', nutrientContent: { Nitrate: 0.1, Ammonium: 0.1, Calcium: 0.1, Magnesium: 0.1, Potassium: 0.1, Phosphorus: 0.1, Sulphur: 0.1 }, phLogic: { min_pH: 4, max_pH: 12 }, releaseType: 'fast',description: 'An 8 % fulvic acid liquid possessing a myriad of yield-enhancing qualities.' },
+  { label: 'NTS Fulvic Acid Powder™', nutrientContent: { Nitrate: 0.1, Ammonium: 0.1, Calcium: 0.1, Magnesium: 0.1, Potassium: 0.1, Phosphorus: 0.1, Sulphur: 0.1 }, phLogic: { min_pH: 4, max_pH: 12 }, releaseType: 'fast' ,description: 'Fulvic acid in a concentrated, soluble powder – the most versatile and productive input in agriculture, in freight-friendly form.'},
+  { label: 'NTS FulvX™ Powder', nutrientContent: { Nitrate: 0.1, Ammonium: 0.1, Calcium: 0.1, Magnesium: 0.1, Potassium: 0.1, Phosphorus: 0.1, Sulphur: 0.1 }, phLogic: { min_pH: 4, max_pH: 12 }, releaseType: 'fast' ,description: 'Concentrated soluble fulvic & humic acid.'},
+  { label: 'NTS Liquid Humus™', nutrientContent: { Nitrate: 0.1, Ammonium: 0.1, Calcium: 0.1, Magnesium: 0.1, Potassium: 0.1, Phosphorus: 0.1, Sulphur: 0.1 }, phLogic: { min_pH: 4, max_pH: 12 }, releaseType: 'fast' ,description: 'A liquid humic acid suspension derived from premium humates, designed to improve soil structure, nutrient retention, and biological activity.'},
+  { label: 'NTS Soluble Humate Granules™', nutrientContent: { Nitrate: 0.1, Ammonium: 0.1, Calcium: 0.1, Magnesium: 0.1, Potassium: 0.1, Phosphorus: 0.1, Sulphur: 0.1 }, phLogic: { min_pH: 4, max_pH: 12 }, releaseType: 'fast' ,description: 'High-purity, fully soluble humate granules for use in liquid formulations or direct soil application to enhance CEC, nutrient chelation, and microbial health.' },
+  { label: 'NTS Super Soluble Humates™', nutrientContent: { Nitrate: 0.1, Ammonium: 0.1, Calcium: 0.1, Magnesium: 0.1, Potassium: 0.1, Phosphorus: 0.1, Sulphur: 0.1 }, phLogic: { min_pH: 4, max_pH: 12 }, releaseType: 'fast' ,description: 'Highly refined, super-soluble humic acid powder for preparing DIY liquid humus, boosting nutrient efficiency, and stimulating beneficial soil microbes.'},
   { label: 'Life Force® Carbon™', nutrientContent: { Nitrate: 0.1, Ammonium: 0.1, Calcium: 0.1, Magnesium: 0.1, Potassium: 0.1, Phosphorus: 0.1, Sulphur: 0.1 }, phLogic: { min_pH: 4, max_pH: 12 }, releaseType: 'slow' },
-  { label: 'Life Force® Gold Pellets™', nutrientContent: { Nitrate: 0.1, Ammonium: 0.1, Calcium: 5.99, Magnesium: 0.70, Potassium: 3.98, Phosphorus: 2.01, Sulphur: 2.97 }, phLogic: { min_pH: 4, max_pH: 12 }, releaseType: 'slow' },
-  { label: 'NTS Soft Rock™', nutrientContent: { Calcium: 19.3, Magnesium: 0.46, Potassium: 0.7, Phosphorus: 8.5, Sulphur: 0.15 }, phLogic: { min_pH: 4.5, max_pH: 6.0 }, releaseType: 'slow' },
+  { label: 'Life Force Gold™', nutrientContent: { Calcium: 9.8, Potassium: 2.4, Ammonium: 2, Phosphorus: 1.55, Sulphur: 4 }, phLogic: { min_pH: null, max_pH: null }, releaseType: 'moderate' },
+  { label: 'NTS Soft Rock™', nutrientContent: { Calcium: 20, Phosphorus: 9 }, phLogic: { min_pH: null, max_pH: null }, releaseType: 'slow', url: 'https://nutri-tech.com.au/collections/composted-fertilisers/products/nts-soft-rock' },
   { label: 'Nutri-Gyp™ Natural Gypsum', nutrientContent: { Calcium: 19, Sulphur: 15 }, phLogic: { min_pH: 4.5, max_pH: 8.4 }, releaseType: 'moderate' },
-  { label: 'Nutri-Phos Super Active™', nutrientContent: { Calcium: 28.9, Phosphorus: 12.6 }, phLogic: { min_pH: 6.0, max_pH: 7.0 }, releaseType: 'slow' }
+  { label: 'Nutri-Cal™', nutrientContent: { Potassium: 2.5, Magnesium: 3.26, Sulphur: 4.63 }, phLogic: { min_pH: null, max_pH: null }, releaseType: 'fast' },
+  { label: 'Nutri-Phos Super Active™', nutrientContent: { Calcium: 28.9, Phosphorus: 12.6 }, phLogic: { min_pH: 6.0, max_pH: 7.0 }, releaseType: 'slow' },
+  { label: 'Soluble Boron™', nutrientContent: { Boron: 22 }, phLogic: { min_pH: 5.0, max_pH: 8.0 }, releaseType: 'fast' },
+  { label: 'Boric Acid™', nutrientContent: { Boron: 17.5 }, phLogic: { min_pH: 5.5, max_pH: 8.5 }, releaseType: 'moderate' },
+  { label: 'Borax', nutrientContent: { Boron: 14 }, phLogic: { min_pH: null, max_pH: null }, releaseType: 'moderate' },
+  { label: 'Cobalt Sulfate Heptahydrate', nutrientContent: { Cobalt: 21 }, phLogic: { min_pH: null, max_pH: null }, releaseType: 'fast' },
+  { label: 'Copper Sulfate', nutrientContent: { Copper: 25 }, phLogic: { min_pH: null, max_pH: null }, releaseType: 'fast' },
+  { label: 'Dolomite', nutrientContent: { Calcium: 20, Magnesium: 10 }, phLogic: { min_pH: null, max_pH: null }, releaseType: 'slow' },
+  { label: 'Gran Am', nutrientContent: { Ammonium: 20, Sulphur: 24 }, phLogic: { min_pH: null, max_pH: null }, releaseType: 'fast' },
+  { label: 'Granulated Boric Acid', nutrientContent: { Boron: 17.5 }, phLogic: { min_pH: null, max_pH: null }, releaseType: 'moderate' },
+  { label: 'Granulated Copper Sulfate', nutrientContent: { Copper: 25 }, phLogic: { min_pH: null, max_pH: null }, releaseType: 'fast' },
+  { label: 'Granulated Zinc Mono', nutrientContent: { Zinc: 35 }, phLogic: { min_pH: null, max_pH: null }, releaseType: 'fast' },
+  { label: 'Guano', nutrientContent: { Calcium: 30, Phosphorus: 13 }, phLogic: { min_pH: null, max_pH: null }, releaseType: 'slow' },
+  { label: 'Iron Sulfate', nutrientContent: { Iron: 18 }, phLogic: { min_pH: null, max_pH: null }, releaseType: 'fast' },
+  { label: 'Magnesite', nutrientContent: { Magnesium: 27 }, phLogic: { min_pH: null, max_pH: null }, releaseType: 'slow' },
+  { label: 'Magnesium Oxide', nutrientContent: { Magnesium: 53 }, phLogic: { min_pH: null, max_pH: null }, releaseType: 'slow' },
+  { label: 'Magnesium Sulfate', nutrientContent: { Magnesium: 9.9, Sulphur: 13 }, phLogic: { min_pH: null, max_pH: null }, releaseType: 'fast' },
+  { label: 'Manganese Sulfate', nutrientContent: { Manganese: 31 }, phLogic: { min_pH: null, max_pH: null }, releaseType: 'fast' },
+  { label: 'Mono Potassium Phosphate (MKP)', nutrientContent: { Potassium: 28, Phosphorus: 22 }, phLogic: { min_pH: null, max_pH: null }, releaseType: 'fast' },
+  { label: 'Natural Gypsum', nutrientContent: { Calcium: 20, Sulphur: 15 }, phLogic: { min_pH: null, max_pH: null }, releaseType: 'moderate' },
+  { label: 'NTS Stabilised Boron Granules™', nutrientContent: { Boron: 3.3 }, phLogic: { min_pH: null, max_pH: null }, releaseType: 'moderate' },
+  { label: 'Sodium Molybdate', nutrientContent: { Molybdenum: 39 }, phLogic: { min_pH: null, max_pH: null }, releaseType: 'fast' },
+  { label: 'Super Fine Ag Lime', nutrientContent: { Calcium: 40 }, phLogic: { min_pH: null, max_pH: null }, releaseType: 'slow' },
+  { label: 'Zinc Sulfate Heptahydrate', nutrientContent: { Zinc: 22, Sulphur: 11 }, phLogic: { min_pH: null, max_pH: null }, releaseType: 'fast' },
+  { label: 'Zinc Sulfate Monohydrate', nutrientContent: { Zinc: 34, Sulphur: 15 }, phLogic: { min_pH: null, max_pH: null }, releaseType: 'fast' },
   // Add more as needed
 ];
 
@@ -740,7 +761,51 @@ const SoilCorrections = ({ nutrients, soilAmendmentsSummary, setSoilAmendmentsSu
                                       >{opt.label}</button>
                                     ))}
                                   </div>
-                                  {filteredFerts.map(fert => {
+                                  {(() => {
+                                    // Helper function to calculate icon priority for sorting
+                                    // Returns: 0 = green star, 1 = yellow triangle, 2 = green check, 3 = red shield
+                                    const getIconPriority = (fert) => {
+                                      const percent = fert.nutrientContent[nutrient.genericName || nutrient.name] || 0;
+                                      const needed = Math.max(nutrient.ideal - nutrient.current, 0);
+                                      const uncappedRate = percent > 0 ? Number(((needed * 100 * 2.4) / percent).toFixed(1)) : 0;
+                                      let cappedRate = uncappedRate;
+                                      Object.entries(fert.nutrientContent).forEach(([otherNutrient, pct]) => {
+                                        if (!pct || otherNutrient === (nutrient.genericName || nutrient.name)) return;
+                                        const nObj = nutrients.find(nu => (nu.genericName || nu.name) === otherNutrient);
+                                        if (!nObj) return;
+                                        const maxAllowed = nObj.ideal * (1 + maxAllowedExcess / 100);
+                                        const maxToAddInner = Number(maxAllowed) - Number(nObj.current);
+                                        const maxRateInner = Number(pct) > 0 ? ((maxToAddInner * 100 * 2.4) / Number(pct)) : Infinity;
+                                        if (maxRateInner < cappedRate) {
+                                          cappedRate = Math.max(0, Number(maxRateInner.toFixed(1)));
+                                        }
+                                      });
+                                      
+                                      // pH recommendation logic
+                                      let isPhRecommended = false;
+                                      let isPhNotRecommended = false;
+                                      if (fert.phLogic && soilPh !== null) {
+                                        const { min_pH, max_pH } = fert.phLogic;
+                                        if ((min_pH === null || soilPh >= min_pH) && (max_pH === null || soilPh <= max_pH)) {
+                                          isPhRecommended = true;
+                                        } else {
+                                          isPhNotRecommended = true;
+                                        }
+                                      }
+                                      
+                                      // Determine priority
+                                      if (isPhRecommended) return 0; // Green star - highest priority
+                                      if (isPhNotRecommended) return 1; // Yellow triangle
+                                      if (cappedRate === 0) return 3; // Red shield - lowest priority
+                                      return 2; // Green checkmark
+                                    };
+                                    
+                                    // Sort filteredFerts by icon priority
+                                    const sortedFerts = [...filteredFerts].sort((a, b) => {
+                                      return getIconPriority(a) - getIconPriority(b);
+                                    });
+                                    
+                                    return sortedFerts.map(fert => {
                                     const isRecommended = true;
                                     const isLowContent = (fert.nutrientContent[nutrient.genericName || nutrient.name] || 0) < 1;
                                     const percent = fert.nutrientContent[nutrient.genericName || nutrient.name] || 0;
@@ -851,7 +916,8 @@ const SoilCorrections = ({ nutrients, soilAmendmentsSummary, setSoilAmendmentsSu
                                         </div>
                                       </SelectItem>
                                     );
-                                  })}
+                                  });
+                                  })()}
                                 </SelectContent>
                               </Select>
                             </div>
@@ -906,11 +972,22 @@ const SoilCorrections = ({ nutrients, soilAmendmentsSummary, setSoilAmendmentsSu
                               size="sm"
                               className="h-10 text-red-500"
                               onClick={() => {
+                                const removedFert = sel.fertLabel;
+                                // Remove from fertSelections
                                 setFertSelections(prev => {
                                   const arr = [...(prev[nutrient.name] || [])];
                                   arr.splice(idx, 1);
                                   return { ...prev, [nutrient.name]: arr };
                                 });
+                                // Also remove from soilAmendmentsSummary
+                                if (removedFert && removedFert !== 'none') {
+                                  setSoilAmendmentsSummary(prev => {
+                                    const tempArray = Array.isArray(prev) ? prev : [];
+                                    const filtered = tempArray.filter(item => !(item.nutrient === nutrient.name && item.fertilizer === removedFert));
+                                    // Always return an array, even if empty
+                                    return Array.isArray(filtered) ? filtered : [];
+                                  });
+                                }
                               }}
                             >Remove</Button>
                           </div>

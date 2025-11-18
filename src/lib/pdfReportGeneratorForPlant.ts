@@ -10,7 +10,7 @@ const PRODUCT_INFO: Record<string, { url: string; description: string }> = Objec
     const productUrls = {
       "K-Rich™": "https://nutri-tech.com.au/products/k-rich",
       "Cal-Tech™": "https://nutri-tech.com.au/products/cal-tech",
-      "Calcium Fulvate™": "https://nutri-tech.com.au/products/calcium-fulvate",
+      "Calcium Fulvate™": "https://nutri-tech.com.au/collections/premium-liquids/products/farm-saver-calcium-fulvate",
       "Citrus-Tech Triple Ten™": "https://nutri-tech.com.au/products/citrus-tech-triple-ten",
       "Cloak Spray Oil™": "https://nutri-tech.com.au/products/cloak-spray-oil",
       "Nutri-Carb-N™": "https://nutri-tech.com.au/products/nutri-carb-n",
@@ -62,7 +62,6 @@ const PRODUCT_INFO: Record<string, { url: string; description: string }> = Objec
       "Phos-Life Organic™": "https://nutri-tech.com.au/products/phos-life-organic",
       "Sili-Cal (B)™": "https://nutri-tech.com.au/products/sili-cal-b",
       "Nutri-Life BAM": "https://nutri-tech.com.au/products/nutri-life-bam",
-      "Nutri-Life Platform": "https://nutri-tech.com.au/products/nutri-life-platform",
       "NTS Liquid Humus™": "https://nutri-tech.com.au/products/liquid-humus",
       "NTS Soluble Humate Granules™": "https://nutri-tech.com.au/products/soluble-humate-granules",
       "NTS Super Soluble Humates™": "https://nutri-tech.com.au/products/super-soluble-humates",
@@ -75,6 +74,16 @@ const PRODUCT_INFO: Record<string, { url: string; description: string }> = Objec
       "Boric Acid™": "Source locally",
       "Biomin Calcium™": "Source locally",
       "NTS Stabilised Boron Granules™": "https://nutri-tech.com.au/products/stabilised-boron-granules",
+      "Nutri-Life B.Sub™": "https://nutri-tech.com.au/products/b-sub",
+      "Nutri-Life Bio-N™": "https://nutri-tech.com.au/products/bio-n",
+      "Nutri-Life Bio-Plex™": "https://nutri-tech.com.au/products/bio-plex",
+      "Nutri-Life Bio-P™": "https://nutri-tech.com.au/products/bio-p",
+      "Nutri-Life Micro-Force™": "https://nutri-tech.com.au/products/micro-force",
+      "Nutri-Life Root-Guard™": "https://nutri-tech.com.au/products/root-guard",
+      "Nutri-Life Platform™": "https://nutri-tech.com.au/products/platform",
+      "Nutri-Life Sudo-Shield™": "https://nutri-tech.com.au/products/nutri-life-sudo-shield",
+      "Nutri-Life Tricho-Shield™": "https://nutri-tech.com.au/products/tricho-shield",
+
     };
     
     const url = productUrls[product.label] || 'https://nutri-tech.com.au/';
@@ -126,10 +135,6 @@ const soilCorrectionProducts = {
   'Gypsum (Calcium Sulfate)': {
     url: 'Source locally',
     description: 'Improves soil structure and provides calcium and sulfur without affecting pH.'
-  },
-  'Life Force® Gold Pellets™': {
-    url: 'https://nutri-tech.com.au/collections/composted-fertilisers/products/life-force-gold-pellets',
-    description: 'Organic fertiliser pellets providing balanced NPK and trace elements for sustained release.'
   },
   'Life Force® Carbon™': {
     url: 'https://nutri-tech.com.au/collections/composted-fertilisers/products/life-force-carbon',
@@ -794,18 +799,19 @@ export async function generateCustomPDF(
       font: fontBold,
       color: green,
     });
-    // Add a smaller spacer between the main title and paddock name
-    let y = 780 - 40; // 40pt gap below the title (reduced from 60pt)
+    // Add spacer between the main title and paddock name (same as paddock to body spacing)
+    // Title is 28pt, move down by font size then add gap
+    let y = 780 - 28 - 10; // Move down by title font size (28pt) + 10pt gap
     const paddockName = data.paddockName || '';
     if (paddockName) {
       const paddockX = (595.28 - fontBold.widthOfTextAtSize(paddockName, 18)) / 2; // Center the paddock name
       page1.drawText(paddockName, { x: paddockX, y, size: 18, font: fontBold, color: black });
-      y -= 15; // Reduced from 20pt
+      y -= 18; // Move down by font size to get below the text
     }
     // Now render the summary content directly below, without repeating the paddock name
     // Summary box
     // Continue with summary rendering at y
-    let sy = y - 15; // Reduced from 20pt
+    let sy = y - 10; // 10pt gap from paddock name to summary text
     // Calculate center position for summary content
     const summaryWidth = 520; // Use same width as other sections
     const summaryX = (595.28 - summaryWidth) / 2; // Center the summary content
@@ -833,6 +839,7 @@ export async function generateCustomPDF(
           font-size: 8pt !important;
           line-height: 1.4 !important;
           color: #000000 !important;
+          text-align: justify !important;
         }
         .prose a {
           color: #8cb43a !important;
@@ -845,7 +852,11 @@ export async function generateCustomPDF(
           font-weight: bold !important;
         }
         .prose p {
-          margin: 0.5em 0 !important;
+          margin: 0.8em 0 !important;
+          text-align: justify !important;
+        }
+        .prose div {
+          margin: 0.8em 0 !important;
         }
         .prose ul {
           list-style-type: none !important;
@@ -1055,7 +1066,7 @@ export async function generateCustomPDF(
           drawJustifiedSegmentLine(page1, lines[j], sy, font, fontBold, aiFontSize, black, summaryX, summaryWidth, isLastLine);
           sy -= 15;
         }
-        sy -= 12; // Add extra space after each paragraph
+        sy -= 18; // Add extra space after each paragraph
       }
       sy -= 24; // Extra spacer between AI comments and recommendations
 
@@ -1208,26 +1219,26 @@ export async function generateCustomPDF(
     if (!recommendations.length) {
       // Define fertilizer definitions with URLs for soil amendments
       const fertilizerDefs = [
-        { label: 'Calcium Nitrate', nutrientContent: { Calcium: 19, Nitrate: 12 }, releaseType: 'fast', url: 'Source locally' },
-        { label: 'Potassium Nitrate', nutrientContent: { Potassium: 44, Nitrate: 13 }, releaseType: 'fast', url: 'Source locally' },
+        { label: 'Calcium Nitrate', nutrientContent: { Calcium: 17, Nitrate: 12 }, releaseType: 'fast', url: 'Source locally' },
+        { label: 'Potassium Nitrate', nutrientContent: { Potassium: 39, Nitrate: 14 }, releaseType: 'fast', url: 'Source locally' },
         { label: 'Sodium Nitrate (Chile Nitrate)', nutrientContent: { Sodium: 26, Nitrate: 16 }, releaseType: 'fast', url: 'Source locally' },
         { label: 'Zinc Nitrate', nutrientContent: { Zinc: 12, Nitrate: 8 }, releaseType: 'fast', url: 'Source locally' },
         { label: 'Iron Nitrate', nutrientContent: { Iron: 6, Nitrate: 10 }, releaseType: 'fast', url: 'Source locally' },
         { label: 'Copper Nitrate', nutrientContent: { Copper: 8, Nitrate: 12 }, releaseType: 'fast', url: 'Source locally' },
         { label: 'Ammonium Nitrate', nutrientContent: { Ammonium: 17, Nitrate: 17 }, releaseType: 'fast', url: 'Source locally' },
         { label: 'UAN Solution (Urea Ammonium Nitrate)', nutrientContent: { Urea: 18, Ammonium: 9, Nitrate: 9 }, releaseType: 'fast', url: 'Source locally' },
-        { label: 'Calcium Ammonium Nitrate (CAN)', nutrientContent: { Calcium: 8, Ammonium: 10, Nitrate: 10 }, releaseType: 'fast', url: 'Source locally' },
+        { label: 'Calcium Ammonium Nitrate (CAN)', nutrientContent: { Calcium: 8, Magnesium: 2, Ammonium: 13, Nitrate: 13 }, releaseType: 'fast', url: 'Source locally' },
         { label: 'Ammonium Polyphosphate (APP)', nutrientContent: { Phosphorus: 10, Ammonium: 11 }, releaseType: 'fast', url: 'Source locally' },
         { label: 'Ammonium Chloride', nutrientContent: { Ammonium: 25 }, releaseType: 'fast', url: 'Source locally' },
         { label: 'Ammonium Acetate', nutrientContent: { Ammonium: 12 }, releaseType: 'fast', url: 'Source locally' },
         { label: 'Triple Superphosphate (TSP)', nutrientContent: { Phosphorus: 45, Calcium: 19 }, releaseType: 'fast', url: 'Source locally' },
-        { label: 'Monoammonium Phosphate (MAP)', nutrientContent: { Phosphorus: 22, Ammonium: 11 }, releaseType: 'fast', url: 'Source locally' },
+        { label: 'Monoammonium Phosphate (MAP)', nutrientContent: { Phosphorus: 21.9, Ammonium: 10 }, releaseType: 'fast', url: 'Source locally' },
         { label: 'Diammonium Phosphate (DAP)', nutrientContent: { Phosphorus: 20, Ammonium: 18 }, releaseType: 'fast', url: 'Source locally' },
         { label: 'Rock Phosphate', nutrientContent: { Phosphorus: 25, Calcium: 30 }, releaseType: 'very slow', url: 'Source locally' },
-        { label: 'Agricultural Limestone (CaCO₃)', nutrientContent: { Calcium: 38 }, releaseType: 'slow', url: 'Source locally' },
+        { label: 'Agricultural Limestone (CaCO₃)', nutrientContent: { Calcium: 40 }, releaseType: 'slow', url: 'Source locally' },
         { label: 'Soft Rock Phosphate', nutrientContent: { Phosphorus: 14, Calcium: 20 }, releaseType: 'slow', url: 'Source locally' },
         { label: 'Bone Meal', nutrientContent: { Calcium: 26, Phosphorus: 14 }, releaseType: 'slow', url: 'Source locally' },
-        { label: 'Fish Bone Meal', nutrientContent: { Calcium: 20, Phosphorus: 10, Nitrogen: 5 }, releaseType: 'slow', url: 'Source locally' },
+        { label: 'Fish Bone Meal', nutrientContent: { Calcium: 20, Phosphorus: 10, Ammonium: 5 }, releaseType: 'slow', url: 'Source locally' },
         { label: 'Calcium Chloride', nutrientContent: { Calcium: 27 }, releaseType: 'fast', url: 'Source locally' },
         { label: 'Muriate of Potash (Potassium Chloride)', nutrientContent: { Potassium: 60 }, releaseType: 'fast', url: 'Source locally' },
         { label: 'Langbeinite', nutrientContent: { Potassium: 22, Magnesium: 11, Sulphur: 22 }, releaseType: 'moderate', url: 'Source locally' },
@@ -1236,30 +1247,29 @@ export async function generateCustomPDF(
         { label: 'Potassium Carbonate', nutrientContent: { Potassium: 55 }, releaseType: 'fast', url: 'Source locally' },
         { label: 'Potassium Acetate', nutrientContent: { Potassium: 25 }, releaseType: 'fast', url: 'Source locally' },
         { label: 'Wood Ash', nutrientContent: { Potassium: 5, Calcium: 10, Magnesium: 2, Phosphorus: 1 }, releaseType: 'slow', url: 'Source locally' },
-        { label: 'Dolomitic Lime', nutrientContent: { Calcium: 21, Magnesium: 11 }, releaseType: 'slow', url: 'Source locally' },
+        { label: 'Dolomitic Lime', nutrientContent: { Calcium: 20, Magnesium: 10 }, releaseType: 'slow', url: 'Source locally' },
         { label: 'Kieserite (Magnesium Sulfate Monohydrate)', nutrientContent: { Magnesium: 16, Sulphur: 22 }, releaseType: 'moderate', url: 'Source locally' },
-        { label: 'Epsom Salt (Magnesium Sulfate Heptahydrate)', nutrientContent: { Magnesium: 10, Sulphur: 13 }, releaseType: 'fast', url: 'Source locally' },
+        { label: 'Epsom Salt (Magnesium Sulfate Heptahydrate)', nutrientContent: { Magnesium: 9.9, Sulphur: 13 }, releaseType: 'fast', url: 'Source locally' },
         { label: 'Thermophosphate', nutrientContent: { Calcium: 20, Magnesium: 2, Phosphorus: 18 }, releaseType: 'slow', url: 'Source locally' },
         { label: 'Magnesium Nitrate', nutrientContent: { Magnesium: 10.5, Nitrate: 11 }, releaseType: 'fast', url: 'Source locally' },
         { label: 'Magnesium Chloride', nutrientContent: { Magnesium: 12 }, releaseType: 'fast', url: 'Source locally' },
-        { label: 'Sulfur-Rich Compost', nutrientContent: { Sulphur: 2, Calcium: 3, Magnesium: 2, Potassium: 2, Phosphorus: 1, Nitrogen: 2 }, releaseType: 'slow', url: 'Source locally' },
+        { label: 'Sulfur-Rich Compost', nutrientContent: { Sulphur: 2, Calcium: 3, Magnesium: 2, Potassium: 2, Phosphorus: 1, Ammonium: 2 }, releaseType: 'slow', url: 'Source locally' },
         { label: 'Elemental Sulfur', nutrientContent: { Sulphur: 90 }, releaseType: 'very slow', url: 'Source locally' },
-        { label: 'Gypsum (Calcium Sulfate)', nutrientContent: { Calcium: 23, Sulphur: 18 }, releaseType: 'moderate', url: 'Source locally' },
+        { label: 'Gypsum (Calcium Sulfate)', nutrientContent: { Calcium: 20, Sulphur: 15 }, releaseType: 'moderate', url: 'Source locally' },
         { label: 'Ammonium Sulfate', nutrientContent: { Ammonium: 21, Sulphur: 24 }, releaseType: 'fast', url: 'Source locally' },
-        { label: 'Potassium Sulfate (Sulfate of Potash)', nutrientContent: { Potassium: 50, Sulphur: 17 }, releaseType: 'fast', url: 'Source locally' },
+        { label: 'Potassium Sulfate (Sulfate of Potash)', nutrientContent: { Potassium: 42.5, Sulphur: 18.4 }, releaseType: 'fast', url: 'Source locally' },
         { label: 'Ammonium Thiosulfate', nutrientContent: { Sulphur: 26, Ammonium: 12 }, releaseType: 'moderate', url: 'Source locally' },
-        { label: 'Sulfur-Coated Urea', nutrientContent: { Sulphur: 15, Nitrogen: 35 }, releaseType: 'slow', url: 'Source locally' },
-        { label: 'Chicken Manure', nutrientContent: { Phosphorus: 2.5, Nitrogen: 3, Potassium: 2, Calcium: 3, Magnesium: 1, Sulphur: 0.5 }, releaseType: 'slow', url: 'Source locally' },
+        { label: 'Sulfur-Coated Urea', nutrientContent: { Sulphur: 15, Ammonium: 35 }, releaseType: 'slow', url: 'Source locally' },
+        { label: 'Chicken Manure', nutrientContent: { Phosphorus: 2.5, Ammonium: 3, Potassium: 2, Calcium: 3, Magnesium: 1, Sulphur: 0.5 }, releaseType: 'slow', url: 'Source locally' },
         { label: 'NTS Fast Fulvic™', nutrientContent: { Nitrate: 0.1, Ammonium: 0.1, Calcium: 0.1, Magnesium: 0.1, Potassium: 0.1, Phosphorus: 0.1, Sulphur: 0.1 }, releaseType: 'fast', url: 'https://nutri-tech.com.au/collections/humates/products/nts-fast-fulvic' },
         { label: 'NTS Fulvic Acid Powder™', nutrientContent: { Nitrate: 0.1, Ammonium: 0.1, Calcium: 0.1, Magnesium: 0.1, Potassium: 0.1, Phosphorus: 0.1, Sulphur: 0.1 }, releaseType: 'fast', url: 'https://nutri-tech.com.au/collections/humates/products/fulvic-acid-powder' },
         { label: 'NTS FulvX™ Powder', nutrientContent: { Nitrate: 0.1, Ammonium: 0.1, Calcium: 0.1, Magnesium: 0.1, Potassium: 0.1, Phosphorus: 0.1, Sulphur: 0.1 }, releaseType: 'fast', url: 'https://nutri-tech.com.au/collections/humates/products/nts-fulvx-powder' },
         { label: 'NTS Liquid Humus™', nutrientContent: { Nitrate: 0.1, Ammonium: 0.1, Calcium: 0.1, Magnesium: 0.1, Potassium: 0.1, Phosphorus: 0.1, Sulphur: 0.1 }, releaseType: 'fast', url: 'https://nutri-tech.com.au/collections/humates/products/nts-liquid-humus' },
         { label: 'NTS Soluble Humate Granules™', nutrientContent: { Nitrate: 0.1, Ammonium: 0.1, Calcium: 0.1, Magnesium: 0.1, Potassium: 0.1, Phosphorus: 0.1, Sulphur: 0.1 }, releaseType: 'fast', url: 'https://nutri-tech.com.au/collections/humates/products/nts-soluble-humate-granules' },
-        { label: 'NTS Stabilised Boron Granules™', nutrientContent: { Nitrate: 0.1, Ammonium: 0.1, Calcium: 0.1, Magnesium: 0.1, Potassium: 0.1, Phosphorus: 0.1, Sulphur: 0.1 }, releaseType: 'fast', url: 'https://nutri-tech.com.au/collections/humates/products/nts-stabilised-boron-granules' },
+        { label: 'NTS Stabilised Boron Granules™', nutrientContent: { Boron: 3.3 }, releaseType: 'moderate', url: 'https://nutri-tech.com.au/collections/humates/products/nts-stabilised-boron-granules' },
         { label: 'NTS Super Soluble Humates™', nutrientContent: { Nitrate: 0.1, Ammonium: 0.1, Calcium: 0.1, Magnesium: 0.1, Potassium: 0.1, Phosphorus: 0.1, Sulphur: 0.1 }, releaseType: 'fast', url: 'https://nutri-tech.com.au/collections/humates/products/nts-super-soluble-humates' },
         { label: 'Life Force® Carbon™', nutrientContent: { Nitrate: 0.1, Ammonium: 0.1, Calcium: 0.1, Magnesium: 0.1, Potassium: 0.1, Phosphorus: 0.1, Sulphur: 0.1 }, releaseType: 'slow', url: 'https://nutri-tech.com.au/collections/composted-fertilisers/products/life-force-carbon' },
-        { label: 'Life Force® Gold Pellets™', nutrientContent: { Nitrate: 0.1, Ammonium: 0.1, Calcium: 5.99, Magnesium: 0.70, Potassium: 3.98, Phosphorus: 2.01, Sulphur: 2.97 }, releaseType: 'slow', url: 'https://nutri-tech.com.au/collections/composted-fertilisers/products/life-force-gold-pellets' },
-        { label: 'NTS Soft Rock™', nutrientContent: { Calcium: 19.3, Magnesium: 0.46, Potassium: 0.7, Phosphorus: 8.5, Sulphur: 0.15 }, releaseType: 'slow', url: 'https://nutri-tech.com.au/collections/composted-fertilisers/products/nts-soft-rock' },
+        { label: 'NTS Soft Rock™', nutrientContent: { Calcium: 20, Phosphorus: 9 }, releaseType: 'slow', url: 'https://nutri-tech.com.au/collections/composted-fertilisers/products/nts-soft-rock' },
         { label: 'Nutri-Gyp™ Natural Gypsum', nutrientContent: { Calcium: 19, Sulphur: 15 }, releaseType: 'moderate', url: 'https://nutri-tech.com.au/collections/composted-fertilisers/products/nutri-gyp-natural-gypsum' },
         { label: 'Nutri-Phos Super Active™', nutrientContent: { Calcium: 28.9, Phosphorus: 12.6 }, releaseType: 'slow', url: 'https://nutri-tech.com.au/collections/composted-fertilisers/products/nutri-phos-super-active' }        
         
@@ -1560,7 +1570,7 @@ export async function generateCustomPDF(
      let colX = [tableX + 2, tableX + 65, tableX + 215, tableX + 315]; // Adjusted for centered table
      let colWidths = [55, 145, 100, 175]; // Adjusted column widths
      const headerFontSize = 7;
-     const cellFontSize = 6;
+     const cellFontSize = 7;
      const cellPaddingX = 6;
      const cellPaddingY = 2;
      const minRowHeight = 12;

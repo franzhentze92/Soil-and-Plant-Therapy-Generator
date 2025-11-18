@@ -164,7 +164,6 @@ const fertilizerDescriptions: Record<string, string> = {
   'NTS Stabilised Boron Granules™': 'Granular boron source coated with humates for improved stability and uptake.',
   'NTS Super Soluble Humates™': 'Highly soluble humate powder for rapid soil and plant health improvement.',
   'Life Force® Carbon™': 'Carbon-rich compost blend to improve soil organic matter and biological activity.',
-  'Life Force® Gold Pellets™': 'Organic fertiliser pellets providing balanced NPK and trace elements for sustained release.',
   'NTS Soft Rock™': 'Natural source of phosphorus, calcium, and trace minerals, ideal for acidic soils.',
   'Nutri-Gyp™ Natural Gypsum': 'Natural gypsum providing calcium and sulfur to improve soil structure and correct sodicity.',
   'Nutri-Phos Super Active™': 'Reactivated soft rock phosphate delivering plant-available phosphorus and calcium for balanced growth.',
@@ -3328,6 +3327,9 @@ const PlantReportGenerator: React.FC<PlantReportGeneratorProps> = ({ paddockRepo
                         { name: 'Alan Montalbetti', role: 'Agronomist', email: 'alan@nutri-tech.com.au' },
                         { name: 'Adriano De Senna', role: 'Agronomist', email: 'adriano@nutri-tech.com.au' },
                         { name: 'Graeme Sait', role: 'CEO & Founder', email: 'graeme@nutri-tech.com.au' },
+                        { name: 'Franz Hentze', role: 'Agronomist', email: 'franz@nutri-tech.com.au' },
+                        { name: 'Fred Ghorbani', role: 'Agronomist', email: 'fred@nutri-tech.com.au' },
+                        { name: 'Adam Durey', role: 'NTS Sales Consultant', email: 'durey@nutri-tech.com.au' },
                       ].find(a => a.email === e.target.value);
                       if (found) setSelectedAgronomist(found);
                     }}
@@ -3337,6 +3339,9 @@ const PlantReportGenerator: React.FC<PlantReportGeneratorProps> = ({ paddockRepo
                       { name: 'Alan Montalbetti', role: 'Agronomist', email: 'alan@nutri-tech.com.au' },
                       { name: 'Adriano De Senna', role: 'Agronomist', email: 'adriano@nutri-tech.com.au' },
                       { name: 'Graeme Sait', role: 'CEO & Founder', email: 'graeme@nutri-tech.com.au' },
+                      { name: 'Franz Hentze', role: 'Agronomist', email: 'franz@nutri-tech.com.au' },
+                      { name: 'Fred Ghorbani', role: 'Agronomist', email: 'fred@nutri-tech.com.au' },
+                      { name: 'Adam Durey', role: 'NTS Sales Consultant', email: 'durey@nutri-tech.com.au' },
                     ].map(a => (
                       <option key={a.email} value={a.email}>{a.name} - {a.role} - {a.email}</option>
                     ))}

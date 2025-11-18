@@ -594,11 +594,12 @@ const GeneralComments: React.FC<GeneralCommentsProps> = ({ nutrients, somCecText
           }
 
           // Combine parts and convert to HTML for rich text editor
+          // Order: AI summary first (from backend/app.py), then hardcoded sections
           const parts: string[] = [];
+          if (aiCombined) parts.push(aiCombined);
           parts.push(bigFourIntro);
           parts.push(foliarText);
           if (antagonismBlock) parts.push(antagonismBlock);
-          if (aiCombined) parts.push(aiCombined);
           const composed = parts.join('\n\n');
 
           // Convert markdown-like text to HTML

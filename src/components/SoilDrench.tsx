@@ -21,9 +21,19 @@ interface SoilDrenchProps {
   selectedProducts: SelectedProduct[];
   setSelectedProducts: React.Dispatch<React.SetStateAction<SelectedProduct[]>>;
   deficientNutrients?: string[];
+  title?: string;
+  description?: string;
+  placeholder?: string;
 }
 
-const SoilDrench: React.FC<SoilDrenchProps> = ({ selectedProducts, setSelectedProducts, deficientNutrients }) => {
+const SoilDrench: React.FC<SoilDrenchProps> = ({ 
+  selectedProducts, 
+  setSelectedProducts, 
+  deficientNutrients,
+  title = "Biological Fertigation Program",
+  description = "Biological fertigation programs deliver nutrients and beneficial compounds directly to the root zone, improving nutrient uptake and soil biology activation.",
+  placeholder = "Choose biological fertigation"
+}) => {
   const [currentProduct, setCurrentProduct] = useState('');
   const [currentRate, setCurrentRate] = useState('');
   const [currentUnit, setCurrentUnit] = useState('');
@@ -70,12 +80,12 @@ const SoilDrench: React.FC<SoilDrenchProps> = ({ selectedProducts, setSelectedPr
   };
 
   return (
-    <ReportSection title="Biological Fertigation Program">
+    <ReportSection title={title}>
       <Card className="bg-white">
         <CardContent>
           <div className="space-y-4 mt-6">
             <p className="text-gray-700 mb-4">
-              Biological fertigation programs deliver nutrients and beneficial compounds directly to the root zone, improving nutrient uptake and soil biology activation.
+              {description}
             </p>
             
             <Card className="bg-white">
@@ -85,7 +95,7 @@ const SoilDrench: React.FC<SoilDrenchProps> = ({ selectedProducts, setSelectedPr
                     <Label>Select Product</Label>
                     <Select value={currentProduct} onValueChange={handleProductChange}>
                       <SelectTrigger>
-                        <SelectValue placeholder="Choose biological fertigation" />
+                        <SelectValue placeholder={placeholder} />
                       </SelectTrigger>
                       <SelectContent>
                         <input
