@@ -1524,6 +1524,7 @@ const SoilReportGenerator: React.FC = () => {
                 tae: '',
               },
               soilDrenchProducts: [],
+              soilDrenchProgramProducts: [],
               seedTreatmentProducts: [],
               plantingBlendProducts: [],
               preFloweringFoliarProducts: [],
@@ -1578,6 +1579,7 @@ const SoilReportGenerator: React.FC = () => {
               tae: '',
             },
             soilDrenchProducts: [],
+            soilDrenchProgramProducts: [],
             seedTreatmentProducts: [],
             plantingBlendProducts: [],
             preFloweringFoliarProducts: [],
@@ -1760,6 +1762,7 @@ const SoilReportGenerator: React.FC = () => {
           // 4. Soil Drench (Fertigation)
           fertigationProducts: data.soilDrenchProducts || soilDrenchProducts || [],
           soilDrenchProducts: data.soilDrenchProducts || soilDrenchProducts || [],
+          soilDrenchProgramProducts: data.soilDrenchProgramProducts || [],
 
           // 5. Pre-Flowering Foliar Spray
           preFloweringFoliarProducts: data.preFloweringFoliarProducts || [],
@@ -3347,6 +3350,7 @@ const SoilReportGenerator: React.FC = () => {
     // Removed debug logging
     setLoadingGeneralComments(true);
     setErrorGeneralComments(null);
+    const errors: string[] = [];
     try {
 
       debugger 
@@ -3834,6 +3838,21 @@ const SoilReportGenerator: React.FC = () => {
 
           if (!response.ok) {
             console.error(`AI endpoint failed for ${section}: ${response.status} ${response.statusText}`);
+            // Try to get error message from response
+            let errorMessage = '';
+            try {
+              const errorData = await response.json();
+              errorMessage = errorData.error || errorData.message || '';
+            } catch (e) {
+              // Response might not be JSON, try text
+              try {
+                errorMessage = await response.text();
+              } catch (e2) {
+                errorMessage = `Server error: ${response.status} ${response.statusText}`;
+              }
+            }
+            console.error(`Error details for ${section}:`, errorMessage);
+            errors.push(`${section}: ${errorMessage || response.statusText || 'Server error'}`);
             // Use fallback content instead of throwing error
             const fallbackContent = generateFallbackContent(section, {
               deficient,
@@ -3846,9 +3865,34 @@ const SoilReportGenerator: React.FC = () => {
             continue; // Skip to next section
           }
 
-          data = await response.json();
-          if (data.summary) {
+          let data;
+          try {
+            data = await response.json();
+          } catch (parseError) {
+            console.error(`Failed to parse JSON response for ${section}:`, parseError);
+            const fallbackContent = generateFallbackContent(section, {
+              deficient,
+              excess,
+              optimal,
+              marginallyDeficient,
+              marginallyExcessive
+            });
+            newComments[section] = fallbackContent;
+            continue; // Skip to next section
+          }
+
+          if (data && data.summary) {
             newComments[section] = data.summary;
+          } else if (data && data.error) {
+            console.error(`AI endpoint returned error for ${section}:`, data.error);
+            const fallbackContent = generateFallbackContent(section, {
+              deficient,
+              excess,
+              optimal,
+              marginallyDeficient,
+              marginallyExcessive
+            });
+            newComments[section] = fallbackContent;
           } else {
             const fallbackContent = generateFallbackContent(section, {
               deficient,
@@ -3871,27 +3915,6 @@ const SoilReportGenerator: React.FC = () => {
           });
           newComments[section] = fallbackContent;
         }
-
-        // If AI fails, generate fallback content
-        if (!data || !data.summary) {
-          let fallbackContent = '';
-          if (section === 'organicMatter') {
-            fallbackContent = `Soil organic matter analysis shows current levels of ${optimal.length > 0 ? optimal.join(', ') : 'organic components'}. ${deficient.length > 0 ? 'Deficiencies noted in ' + deficient.join(', ') : ''} ${excess.length > 0 ? 'Excessive levels in ' + excess.join(', ') : ''}`;
-          } else if (section === 'cec') {
-            fallbackContent = `Cation exchange capacity analysis reveals the soil's nutrient retention ability. Current levels show ${deficient.length > 0 ? 'deficiencies in ' + deficient.join(', ') : 'adequate'} cation exchange capacity.`;
-          } else if (section === 'soilPh') {
-            fallbackContent = `Soil pH analysis indicates the acidity or alkalinity of the soil. Current pH levels are ${deficient.length > 0 ? 'below optimal' : excess.length > 0 ? 'above optimal' : 'within optimal range'}.`;
-          } else if (section === 'baseSaturation') {
-            fallbackContent = `Base saturation analysis shows the proportion of exchangeable cations. ${deficient.length > 0 ? 'Deficiencies noted in ' + deficient.join(', ') : ''} ${excess.length > 0 ? 'Excessive levels in ' + excess.join(', ') : ''} ${optimal.length > 0 ? 'Optimal levels in ' + optimal.join(', ') : ''}`;
-          } else if (section === 'availableNutrients') {
-            fallbackContent = `Available nutrients analysis reveals plant-accessible nutrient levels. ${deficient.length > 0 ? 'Deficiencies detected in ' + deficient.join(', ') : ''} ${excess.length > 0 ? 'Excessive levels in ' + excess.join(', ') : ''} ${optimal.length > 0 ? 'Optimal levels in ' + optimal.join(', ') : ''}`;
-          } else if (section === 'lamotteReams') {
-            fallbackContent = `LaMotte/Reams analysis provides specific nutrient availability assessment. ${deficient.length > 0 ? 'Deficiencies detected in ' + deficient.join(', ') : ''} ${excess.length > 0 ? 'Excessive levels in ' + excess.join(', ') : ''} ${optimal.length > 0 ? 'Optimal levels in ' + optimal.join(', ') : ''}`;
-          } else if (section === 'tae') {
-            fallbackContent = `Total Available Elements (TAE) analysis shows comprehensive nutrient availability. ${deficient.length > 0 ? 'Deficiencies detected in ' + deficient.join(', ') : ''} ${excess.length > 0 ? 'Excessive levels in ' + excess.join(', ') : ''} ${optimal.length > 0 ? 'Optimal levels in ' + optimal.join(', ') : ''}`;
-          }
-          newComments[section] = fallbackContent;
-        }
       }
     }
       // Update the current paddock's general comments with AI-generated content
@@ -3899,6 +3922,13 @@ const SoilReportGenerator: React.FC = () => {
         ...currentPaddockData.generalComments,
         ...newComments
       });
+
+      // Show warning if some sections failed but fallback content was used
+      if (errors.length > 0) {
+        const errorMessage = `AI generation partially failed for ${errors.length} section(s). Fallback content was generated. ${errors.length <= 3 ? 'Errors: ' + errors.join('; ') : 'Check console for details.'}`;
+        setErrorGeneralComments(errorMessage);
+        console.warn('AI generation errors:', errors);
+      }
 
       
       // Also update the individual text fields for PDF export compatibility
@@ -3996,6 +4026,7 @@ const SoilReportGenerator: React.FC = () => {
         ...(seedTreatmentProducts || []),
         ...(plantingBlendProducts || []),
         ...(soilDrenchProducts || []),
+        ...(currentPaddockData?.soilDrenchProgramProducts || []),
         ...(preFloweringFoliarProducts || []),
         ...(preFloweringFoliarProducts2 || []),
         ...(nutritionalFoliarProducts || []),
@@ -4012,7 +4043,7 @@ const SoilReportGenerator: React.FC = () => {
     }
     fetchAllDescriptions();
     return () => { mounted = false; };
-  }, [seedTreatmentProducts, plantingBlendProducts, soilDrenchProducts, preFloweringFoliarProducts, preFloweringFoliarProducts2, nutritionalFoliarProducts, nutritionalFoliarProducts2]);
+  }, [seedTreatmentProducts, plantingBlendProducts, soilDrenchProducts, currentPaddockData?.soilDrenchProgramProducts, preFloweringFoliarProducts, preFloweringFoliarProducts2, nutritionalFoliarProducts, nutritionalFoliarProducts2]);
 
   // In each product section, render using productDescriptions[selected.id]
   // Example for Seed Treatment:
@@ -4122,6 +4153,11 @@ const SoilReportGenerator: React.FC = () => {
         if (field === 'tankMixingItems' && (!value || !Array.isArray(value) || value.length === 0)) {
           console.log('Initializing tankMixingItems with default values for paddock', idx);
           updatedData.tankMixingItems = getDefaultTankMixingItemsCopy();
+        }
+        
+        // Ensure soilAmendmentsSummary is always an array
+        if (field === 'soilAmendmentsSummary') {
+          updatedData.soilAmendmentsSummary = Array.isArray(value) ? value : [];
         }
 
         return { ...r, data: updatedData };
@@ -4510,7 +4546,7 @@ const SoilReportGenerator: React.FC = () => {
                             availableNutrientsText: currentPaddockData.availableNutrientsText || '',
                             lamotteReamsText: currentPaddockData.lamotteReamsText || '',
                             taeText: currentPaddockData.taeText || '',
-                            phosphorusMonitoringText: phosphorusMonitoringText
+                            phosphorusMonitoringText: currentPaddockData.phosphorusMonitoringText || ''
                           };
 
                           console.log('Current text values before saving:', currentTexts);
@@ -4649,6 +4685,20 @@ const SoilReportGenerator: React.FC = () => {
                         />
                       </CardContent>
                     </Card>
+                    {/* d2. Soil Drench Program */}
+                    <Card className="bg-white">
+                      <CardHeader><CardTitle className="text-black">Soil Drench Program</CardTitle></CardHeader>
+                      <CardContent>
+                        <SoilDrench
+                          selectedProducts={currentPaddockData.soilDrenchProgramProducts || []}
+                          setSelectedProducts={val => updateCurrentPaddockData('soilDrenchProgramProducts', val)}
+                          deficientNutrients={dedupedMainNutrients.filter(n => n.status === 'low').map(n => n.name)}
+                          title="Soil Drench Program"
+                          description="Soil drench programs deliver nutrients and beneficial compounds directly to the root zone, improving nutrient uptake and soil biology activation."
+                          placeholder="Choose soil drench product"
+                        />
+                      </CardContent>
+                    </Card>
                     {/* e. Pre-Flowering Foliar Spray */}
                     <Card className="bg-white">
                       <CardHeader><CardTitle className="text-black">Pre-Flowering Foliar Spray</CardTitle></CardHeader>
@@ -4750,7 +4800,7 @@ const SoilReportGenerator: React.FC = () => {
                         {/* REMOVE the next two lines:
                         
                         {/* Soil Corrections FIRST */}
-                        {currentPaddockData.soilAmendmentsSummary && currentPaddockData.soilAmendmentsSummary.length > 0 && (
+                        {Array.isArray(currentPaddockData.soilAmendmentsSummary) && currentPaddockData.soilAmendmentsSummary.length > 0 && (
                           <li className="mb-2">
                             <span className="font-semibold">Soil Corrections:</span>
                             <span className="text-gray-600 ml-2">Soil amendments and fertilizers applied to correct nutrient deficiencies and improve soil health.</span>
@@ -4827,6 +4877,30 @@ const SoilReportGenerator: React.FC = () => {
                             <span className="text-gray-600 ml-2">Biological products delivered through irrigation to enhance soil health and nutrient cycling.</span>
                             <ul className="ml-6 mt-1">
                               {currentPaddockData.soilDrenchProducts.map((selected, idx) => {
+                                const prod = productList.find(p => p.label === selected.product);
+                                const desc = prod?.description || "A high-quality product designed to support plant health and growth.";
+                                return (
+                                  <li key={selected.id} className="mb-1">
+                                    <a href={prod ? `https://www.nutri-tech.com.au/products/${(prod as any).value}` : '#'} target="_blank" rel="noopener noreferrer" className="font-semibold text-blue-700 hover:underline">
+                                      {selected.product}
+                                    </a>
+                                    {desc && <span className="text-gray-700 ml-1"> {desc}</span>}
+                                    {prod && (prod as any).contains && (prod as any).contains.length > 0 && <span className="text-gray-500 ml-1"> (Contains: {(prod as any).contains.join(', ')})</span>}
+                                    {prod && (prod as any).nutrientPercents && (prod as any).nutrientPercents.length > 0 && <span className="text-gray-400 ml-1"> [{(prod as any).nutrientPercents.join(', ')}]</span>}
+                                    <span className="font-semibold ml-2">{selected.rate} {selected.unit}</span>
+                                  </li>
+                                );
+                              })}
+                            </ul>
+                          </li>
+                        )}
+                        {/* Soil Drench Program */}
+                        {currentPaddockData.soilDrenchProgramProducts && currentPaddockData.soilDrenchProgramProducts.length > 0 && (
+                          <li className="mb-2">
+                            <span className="font-semibold">Soil Drench Program:</span>
+                            <span className="text-gray-600 ml-2">Soil drench products delivered directly to the root zone to enhance soil health and nutrient cycling.</span>
+                            <ul className="ml-6 mt-1">
+                              {currentPaddockData.soilDrenchProgramProducts.map((selected, idx) => {
                                 const prod = productList.find(p => p.label === selected.product);
                                 const desc = prod?.description || "A high-quality product designed to support plant health and growth.";
                                 return (
@@ -4974,6 +5048,9 @@ const SoilReportGenerator: React.FC = () => {
                           { name: 'Alan Montalbetti', role: 'Agronomist', email: 'alan@nutri-tech.com.au' },
                           { name: 'Adriano De Senna', role: 'Agronomist', email: 'adriano@nutri-tech.com.au' },
                           { name: 'Graeme Sait', role: 'CEO & Founder', email: 'graeme@nutri-tech.com.au' },
+                          { name: 'Franz Hentze', role: 'Agronomist', email: 'franz@nutri-tech.com.au' },
+                          { name: 'Fred Ghorbani', role: 'Agronomist', email: 'fred@nutri-tech.com.au' },
+                          { name: 'Adam Durey', role: 'NTS sales consultant', email: 'durey@nutri-tech.com.au' },
                         ].find(a => a.email === e.target.value);
                         if (found) {
                           setSelectedAgronomist(found);
@@ -4990,6 +5067,9 @@ const SoilReportGenerator: React.FC = () => {
                         { name: 'Alan Montalbetti', role: 'Agronomist', email: 'alan@nutri-tech.com.au' },
                         { name: 'Adriano De Senna', role: 'Agronomist', email: 'adriano@nutri-tech.com.au' },
                         { name: 'Graeme Sait', role: 'CEO & Founder', email: 'graeme@nutri-tech.com.au' },
+                        { name: 'Franz Hentze', role: 'Agronomist', email: 'franz@nutri-tech.com.au' },
+                        { name: 'Fred Ghorbani', role: 'Agronomist', email: 'fred@nutri-tech.com.au' },
+                        { name: 'Adam Durey', role: 'NTS sales consultant', email: 'durey@nutri-tech.com.au' },
                       ].map(a => (
                         <option key={a.email} value={a.email}>{a.name} - {a.role} - {a.email}</option>
                       ))}
